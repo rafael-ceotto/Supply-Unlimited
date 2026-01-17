@@ -1,0 +1,53 @@
+body.bg-light {
+    background-color: #f8f9faed;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+/* form centralized */
+.form-login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* block width */
+.form-login .mb-3 {
+    width: 100%;
+}
+
+/* Inputs */
+.form-login .form-control {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+/* Checkbox */
+.form-login .form-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+/* checkbox */
+.form-check-input {
+    margin: 0;
+    border: 2px solid black;
+}
+
+/* remember me button*/
+button.btn {
+    max-width: 320px;
+    width: 100%;
+}
+
+/* Labels */
+.form-label {
+    display: block;
+    margin-bottom: 4px;
+}

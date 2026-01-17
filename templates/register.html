@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block title %}Supply Unlimited{% endblock %}
+
+{% block auth_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- LEFT SIDE: Branding -->
+    <div class="brand-section">
+        <div class="brand-content">
+            <h1 class="brand-title">Supply Unlimited</h1>
+            <p class="brand-subtitle">Your one-stop shop for all supplies</p>
+            <div class="logo-container">
+                <svg viewBox="0 0 200 200" class="logo-svg" xmlns="http://www.w3.org/2000/svg">
+                    <g class="ellipse-group-1">
+                        <ellipse cx="100" cy="100" rx="85" ry="50" fill="none" stroke="rgba(34, 197, 94, 0.4)" stroke-width="2"/>
+                        <circle cx="185" cy="100" r="4" fill="#22c55e"/>
+                        <circle cx="100" cy="150" r="4" fill="#22c55e"/>
+                        <circle cx="15" cy="100" r="4" fill="#22c55e"/>
+                        <circle cx="100" cy="50" r="4" fill="#22c55e"/>
+                    </g>
+                    <g class="ellipse-group-2">
+                        <ellipse cx="100" cy="100" rx="85" ry="50" fill="none" stroke="rgba(34, 197, 94, 0.4)" stroke-width="2"/>
+                        <circle cx="185" cy="100" r="4" fill="#16a34a"/>
+                        <circle cx="100" cy="150" r="4" fill="#16a34a"/>
+                        <circle cx="15" cy="100" r="4" fill="#16a34a"/>
+                        <circle cx="100" cy="50" r="4" fill="#16a34a"/>
+                    </g>
+                    <circle cx="100" cy="100" r="40" fill="white" stroke="#22c55e" stroke-width="3"/>
+                    <text x="100" y="100" text-anchor="middle" dominant-baseline="central" font-size="32" font-weight="bold" fill="#16a34a">SU</text>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE: Registration Form -->
+    <div class="form-section">
+        <div class="form-container">
+            <h2 class="form-title">Criar Conta</h2>
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    {{ form.username|add_class:"form-input" }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    {{ form.first_name|add_class:"form-input" }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Last Name</label>
+                    {{ form.last_name|add_class:"form-input" }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    {{ form.email|add_class:"form-input" }}
+                </div>
+
+                <div class="form-group password-group">
+                    <label class="form-label">Senha</label>
+                    <div class="password-wrapper">
+                        {{ form.password1|add_class:"form-input password-field" }}
+                        <span class="toggle-password">🙈</span>
+                    </div>
+                </div>
+
+                <div class="form-group password-group">
+                    <label class="form-label">Verificar Senha</label>
+                    <div class="password-wrapper">
+                        {{ form.password2|add_class:"form-input password-field" }}
+                        <span class="toggle-password">🙈</span>
+                    </div>
+                </div>
+
+                <div class="form-check">
+                    <input type="checkbox" id="terms" name="terms">
+                    <label for="terms">Aceito os termos e condições</label>
+                </div>
+
+                <button type="submit" class="submit-button">Cadastrar</button>
+            </form>
+
+            <p class="form-footer">
+                Já tem conta? <a href="{% url 'login' %}">Login</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<footer class="bottom-bar">
+    Supply Unlimited™, 2025 - All rights reserved
+</footer>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/auth.js' %}"></script>
+{% endblock %}

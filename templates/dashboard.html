@@ -1,0 +1,29 @@
+<!-- templates/dashboard.html -->
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <h3>Olá, {{ user.first_name }} 👋</h3>
+                <p class="text-muted">Bem-vindo ao seu painel</p>
+                <hr>
+
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>Nome:</strong> {{ user.first_name }} {{ user.last_name }}</li>
+                    <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
+                    <li class="list-group-item"><strong>Username:</strong> {{ user.username }}</li>
+                </ul>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+</div>
+<a href="/logout/">Sair</a>
