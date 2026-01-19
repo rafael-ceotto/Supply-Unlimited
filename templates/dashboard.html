@@ -145,21 +145,20 @@
                     <div class="filter-divider"></div>
                     <div class="filter-group">
                         <select id="storeFilter" onchange="filterInventory()" class="filter-select">
-                            <option value="all">All Stores</option>
-                            <option value="Germany">Germany</option>
-                            <option value="France">France</option>
-                            <option value="Italy">Italy</option>
-                            <option value="Spain">Spain</option>
-                            <option value="Netherlands">Netherlands</option>
+                            <option value="all">All Countries</option>
+                            <option value="Chile">Chile</option>
+                            <option value="USA">USA</option>
+                            <option value="Brazil">Brazil</option>
+                            <option value="Canada">Canada</option>
                         </select>
                         <select id="categoryFilter" onchange="filterInventory()" class="filter-select">
                             <option value="all">All Categories</option>
                         </select>
                         <select id="stockFilter" onchange="filterInventory()" class="filter-select">
                             <option value="all">All Stock</option>
-                            <option value="in-stock">In Stock</option>
-                            <option value="low-stock">Low Stock</option>
-                            <option value="out-of-stock">Out of Stock</option>
+                            <option value="Low">Low Stock</option>
+                            <option value="Medium">Medium Stock</option>
+                            <option value="High">High Stock</option>
                         </select>
                     </div>
                     <button class="btn btn-primary" onclick="exportInventory()" style="white-space: nowrap;">
@@ -194,7 +193,15 @@
                         <p>Real-time stock updates across European stores</p>
                     </div>
                     <div class="table-actions">
-                        <button class="btn btn-outline" onclick="exportInventory('csv')">CSV</button>
+                        <button class="btn btn-outline" onclick="exportInventory('csv')" title="Export as CSV">
+                            <i data-lucide="file-csv" style="width: 16px; height: 16px;"></i> CSV
+                        </button>
+                        <button class="btn btn-outline" onclick="exportInventory('json')" title="Export as JSON">
+                            <i data-lucide="file-json" style="width: 16px; height: 16px;"></i> JSON
+                        </button>
+                        <button class="btn btn-outline" onclick="exportInventory('parquet')" title="Export as Parquet">
+                            <i data-lucide="database" style="width: 16px; height: 16px;"></i> Parquet
+                        </button>
                         <button class="btn btn-outline" onclick="refreshInventory()">
                             <i data-lucide="refresh-cw"></i> Refresh
                         </button>

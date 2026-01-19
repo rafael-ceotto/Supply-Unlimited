@@ -11,6 +11,8 @@ from django.views.decorators.http import require_http_methods
 from datetime import datetime, date
 import json
 import csv
+import io
+import pandas as pd
 
 from .forms import CustomUserCreationForm
 from .models import (
@@ -120,17 +122,23 @@ def inventory_data(request):
             inventory_items = inventory_items.filter(quantity__lte=20, quantity__gt=0)
         elif stock_filter == 'out-of-stock':
             inventory_items = inventory_items.filter(quantity=0)
+        elif stock_filter == 'Low':
+            inventory_items = inventory_items.filter(quantity__lt=50)
+        elif stock_filter == 'Medium':
+            inventory_items = inventory_items.filter(quantity__gte=50, quantity__lt=200)
+        elif stock_filter == 'High':
+            inventory_items = inventory_items.filter(quantity__gte=200)
     
     # Preparar dados para resposta
     data = []
     for item in inventory_items[:100]:  # Limitar a 100 itens
         # Determinar status
-        if item.quantity > 20:
-            status = 'in-stock'
-        elif item.quantity > 0:
-            status = 'low-stock'
+        if item.quantity >= 200:
+            status = 'High'
+        elif item.quantity >= 50:
+            status = 'Medium'
         else:
-            status = 'out-of-stock'
+            status = 'Low'
         
         data.append({
             'id': item.id,
@@ -424,29 +432,86 @@ def company_merge(request):
 
 @login_required
 def export_inventory(request):
-    """Exportar inventário para CSV"""
-    format_type = request.GET.get('format', 'csv')
+    """Exportar inventário em diferentes formatos (CSV, JSON, Parquet)"""
+    format_type = request.GET.get('format', 'csv').lower()
     
-    inventory_items = Inventory.objects.select_related('product', 'store').all()
+    # Aplicar filtros
+    filters = Q()
+    search = request.GET.get('search', '').strip()
+    store_filter = request.GET.get('store', '').strip()
+    category_filter = request.GET.get('category', '').strip()
+    stock_filter = request.GET.get('stock', '').strip()
+    city_filter = request.GET.get('city', '').strip()
+    company_filter = request.GET.get('company', '').strip()
+    
+    if search:
+        filters &= Q(product__name__icontains=search) | Q(product__sku__icontains=search)
+    if store_filter:
+        filters &= Q(store__country=store_filter)
+    if category_filter:
+        filters &= Q(product__category__name=category_filter)
+    if city_filter:
+        filters &= Q(store__city=city_filter)
+    if company_filter:
+        filters &= Q(store__company__name=company_filter)
+    
+    if stock_filter:
+        if stock_filter == 'Low':
+            filters &= Q(quantity__lt=50)
+        elif stock_filter == 'Medium':
+            filters &= Q(quantity__gte=50, quantity__lt=200)
+        elif stock_filter == 'High':
+            filters &= Q(quantity__gte=200)
+    
+    inventory_items = Inventory.objects.select_related('product', 'store').filter(filters).all()
+    
+    # Preparar dados
+    data = []
+    for item in inventory_items:
+        data.append({
+            'SKU': item.product.sku,
+            'Product Name': item.product.name,
+            'Category': item.product.category.name if item.product.category else 'N/A',
+            'Store': item.store.name,
+            'Country': item.store.country,
+            'City': item.store.city,
+            'Quantity': item.quantity,
+            'Price': float(item.product.price),
+        })
     
     if format_type == 'csv':
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="inventory.csv"'
         
-        writer = csv.writer(response)
-        writer.writerow(['SKU', 'Product Name', 'Category', 'Store', 'Quantity', 'Price'])
-        
-        for item in inventory_items:
-            writer.writerow([
-                item.product.sku,
-                item.product.name,
-                item.product.category.name if item.product.category else 'N/A',
-                item.store.name,
-                item.quantity,
-                item.product.price,
-            ])
+        writer = csv.DictWriter(response, fieldnames=['SKU', 'Product Name', 'Category', 'Store', 'Country', 'City', 'Quantity', 'Price'])
+        writer.writeheader()
+        writer.writerows(data)
         
         return response
     
-    # Adicionar outros formatos (PDF, Excel) conforme necessário
-    return JsonResponse({'error': 'Invalid format'}, status=400)
+    elif format_type == 'json':
+        response = HttpResponse(content_type='application/json')
+        response['Content-Disposition'] = 'attachment; filename="inventory.json"'
+        response.write(json.dumps(data, indent=2, default=str))
+        return response
+    
+    elif format_type == 'parquet':
+        try:
+            import pyarrow as pa
+            import pyarrow.parquet as pq
+        except ImportError:
+            return JsonResponse({'error': 'PyArrow not installed. Please install it with: pip install pyarrow'}, status=400)
+        
+        # Converter para DataFrame
+        df = pd.DataFrame(data)
+        
+        # Converter para Parquet na memória
+        output = io.BytesIO()
+        df.to_parquet(output, index=False, engine='pyarrow')
+        output.seek(0)
+        
+        response = HttpResponse(output.read(), content_type='application/octet-stream')
+        response['Content-Disposition'] = 'attachment; filename="inventory.parquet"'
+        return response
+    
+    return JsonResponse({'error': 'Invalid format. Use: csv, json, or parquet'}, status=400)

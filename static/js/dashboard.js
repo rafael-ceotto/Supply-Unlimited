@@ -148,7 +148,7 @@ function refreshInventory() {
 // Filter inventory
 function filterInventory() {
     const searchQuery = document.getElementById('searchInput')?.value || '';
-    const store = document.getElementById('storeFilter')?.value || 'all';
+    const country = document.getElementById('storeFilter')?.value || 'all';
     const category = document.getElementById('categoryFilter')?.value || 'all';
     const stock = document.getElementById('stockFilter')?.value || 'all';
 
@@ -158,11 +158,11 @@ function filterInventory() {
             item.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.category.toLowerCase().includes(searchQuery.toLowerCase());
         
-        const matchStore = store === 'all' || item.store === store;
+        const matchCountry = country === 'all' || item.store === country;
         const matchCategory = category === 'all' || item.category === category;
         const matchStock = stock === 'all' || item.status === stock;
 
-        return matchSearch && matchStore && matchCategory && matchStock;
+        return matchSearch && matchCountry && matchCategory && matchStock;
     });
 
     renderInventoryTable(filtered);
@@ -280,17 +280,41 @@ async function loadSalesData() {
 // Export inventory
 async function exportInventory(format = 'csv') {
     try {
-        const response = await fetch(`/export/inventory/?format=${format}`);
+        // Obter filtros atuais para aplicar na exportação
+        const search = document.getElementById('searchInput')?.value || '';
+        const store = document.getElementById('storeFilter')?.value || 'all';
+        const category = document.getElementById('categoryFilter')?.value || 'all';
+        const stock = document.getElementById('stockFilter')?.value || 'all';
+        const city = document.getElementById('cityFilter')?.value || 'all';
+        const company = document.getElementById('companyFilter')?.value || 'all';
         
-        if (format === 'csv') {
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `inventory_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            window.URL.revokeObjectURL(url);
+        let url = `/export/inventory/?format=${format}`;
+        if (search && search !== 'all') url += `&search=${encodeURIComponent(search)}`;
+        if (store && store !== 'all') url += `&store=${encodeURIComponent(store)}`;
+        if (category && category !== 'all') url += `&category=${encodeURIComponent(category)}`;
+        if (stock && stock !== 'all') url += `&stock=${encodeURIComponent(stock)}`;
+        if (city && city !== 'all') url += `&city=${encodeURIComponent(city)}`;
+        if (company && company !== 'all') url += `&company=${encodeURIComponent(company)}`;
+        
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            const error = await response.json();
+            alert('Error: ' + error.error);
+            return;
         }
+        
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        
+        // Define o nome do arquivo com data
+        const date = new Date().toISOString().split('T')[0];
+        a.download = `inventory_${date}.${format}`;
+        
+        a.click();
+        window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
         console.error('Error exporting inventory:', error);
         alert('Error exporting data');
