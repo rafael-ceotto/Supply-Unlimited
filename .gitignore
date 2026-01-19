@@ -34,6 +34,7 @@ db.sqlite3-journal
 
 # Environment
 .env
+.env.local
 .venv
 
 # IDE
@@ -50,7 +51,13 @@ Thumbs.db
 # Local development files
 CHANGES_JAN_19.md
 *.md.local
+Vertical Split Page Design
+DOCKER_SETUP.md
 
 # Database backups
 *.sql
 *.sqlite
+
+# Docker volumes
+postgres_data/
+
