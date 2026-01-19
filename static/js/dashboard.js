@@ -187,7 +187,7 @@ function renderInventoryTable(data) {
                 <td style="font-weight: 600;">${item.stock}</td>
                 <td>€${item.price.toFixed(2)}</td>
                 <td><span class="status-badge ${item.status}">${item.status.replace('-', ' ')}</span></td>
-                <td><button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="viewWarehouseLocation('${item.sku}', '${item.store}')">View</button></td>
+                <td><button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="openWarehouseModal('${item.sku}', '${item.name}')">View</button></td>
             </tr>`;
         });
     }
@@ -497,16 +497,129 @@ function mergeCompanies(event) {
     }
 }
 
+// Warehouse Location Modal Functions
+function openWarehouseModal(sku, productName) {
+    const modal = document.getElementById('warehouseModal');
+    if (modal) {
+        modal.classList.add('active');
+        document.getElementById('warehouseTitle').textContent = productName;
+        document.getElementById('warehouseSKU').textContent = `SKU: ${sku}`;
+        
+        // Carregar dados do warehouse
+        loadWarehouseData(sku);
+    }
+}
+
+function closeWarehouseModal() {
+    const modal = document.getElementById('warehouseModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+function loadWarehouseData(sku) {
+    const content = document.getElementById('warehouseContent');
+    
+    fetch(`/api/warehouse/${sku}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.warehouseData && data.warehouseData.length > 0) {
+                let html = '<div style="padding: 20px;">';
+                
+                // Agrupar por aisle
+                const groupedByAisle = {};
+                data.warehouseData.forEach(item => {
+                    if (!groupedByAisle[item.aisle]) {
+                        groupedByAisle[item.aisle] = {};
+                    }
+                    if (!groupedByAisle[item.aisle][item.shelf]) {
+                        groupedByAisle[item.aisle][item.shelf] = [];
+                    }
+                    groupedByAisle[item.aisle][item.shelf].push(item);
+                });
+                
+                // Calcular total
+                const totalQty = data.warehouseData.reduce((sum, item) => sum + item.quantity, 0);
+                
+                html += `<div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="font-size: 14px; opacity: 0.9;">Total Stock</p>
+                            <p style="font-size: 28px; font-weight: bold;">${totalQty}</p>
+                            <p style="font-size: 12px; opacity: 0.9;">units</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="font-size: 14px; opacity: 0.9;">Store: ${data.storeName}</p>
+                            <p style="font-size: 12px; opacity: 0.9;">Updated: ${new Date().toLocaleTimeString()}</p>
+                        </div>
+                    </div>
+                </div>`;
+                
+                // Renderizar aisles
+                Object.entries(groupedByAisle).forEach(([aisle, shelves]) => {
+                    const aisleTotal = Object.values(shelves).flat().reduce((sum, item) => sum + item.quantity, 0);
+                    
+                    html += `<div style="border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 16px; overflow: hidden;">`;
+                    html += `<div style="background: #f3f4f6; padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <p style="font-weight: 600; color: #1f2937;">Aisle ${aisle}</p>
+                            </div>
+                            <p style="font-size: 13px; color: #6b7280;">${aisleTotal} units</p>
+                        </div>
+                    </div>`;
+                    
+                    // Renderizar shelves
+                    Object.entries(shelves).forEach(([shelf, items]) => {
+                        const shelfTotal = items.reduce((sum, item) => sum + item.quantity, 0);
+                        
+                        html += `<div style="padding: 12px; border-bottom: 1px solid #f3f4f6;">`;
+                        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <p style="font-size: 13px; font-weight: 500; color: #374151;">Shelf ${shelf}</p>
+                            <p style="font-size: 13px; color: #6b7280;">${shelfTotal} units</p>
+                        </div>`;
+                        
+                        // Renderizar boxes
+                        html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px;">`;
+                        items.forEach(item => {
+                            html += `<div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px;">
+                                <p style="font-size: 12px; font-weight: 500; color: #1f2937;">Box ${item.box}</p>
+                                <p style="font-size: 18px; font-weight: bold; color: #10b981;">${item.quantity}</p>
+                                <p style="font-size: 11px; color: #6b7280;">units</p>
+                            </div>`;
+                        });
+                        html += `</div></div>`;
+                    });
+                    
+                    html += `</div>`;
+                });
+                
+                html += '</div>';
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = '<div style="padding: 40px; text-align: center; color: #6b7280;">Nenhuma localização encontrada</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar warehouse data:', error);
+            content.innerHTML = '<div style="padding: 40px; text-align: center; color: #ef4444;">Erro ao carregar dados</div>';
+        });
+}
+
 // Close modal when clicking outside
 window.onclick = function(event) {
     const companyModal = document.getElementById('companyModal');
     const mergeModal = document.getElementById('mergeModal');
+    const warehouseModal = document.getElementById('warehouseModal');
     
     if (event.target === companyModal) {
         closeCompanyModal();
     }
     if (event.target === mergeModal) {
         closeMergeModal();
+    }
+    if (event.target === warehouseModal) {
+        closeWarehouseModal();
     }
 }
 

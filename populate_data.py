@@ -119,11 +119,31 @@ def create_products(categories, count_per_category=10):
     print(f"\n📦 Criando produtos...")
     products = []
     
+    product_templates = [
+        "Industrial Drill Kit", "Office Chair Premium", "Laptop Stand Adjustable",
+        "Printer Paper A4 (500 sheets)", "LED Monitor 27 inch", "Standing Desk Electric",
+        "USB Hub 7-Port", "Wireless Mouse Ergonomic", "Mechanical Keyboard RGB",
+        "Monitor Arm Adjustable", "Desk Lamp LED", "Cable Organizer Set",
+        "Webcam 1080p HD", "Headphone Stand", "Notebook Premium 100 Pages",
+        "Pen Set Professional", "Stapler Heavy Duty", "Tape Dispenser", "File Cabinet Metal",
+        "Bookshelf Wooden", "Desk Pad Large", "Phone Stand Mobile", "Power Strip Surge",
+        "Extension Cord 10m", "Network Cable Cat6", "HDMI Cable 2m", "USB-C Adapter",
+        "SSD External 1TB", "Flash Drive 64GB", "Mouse Pad Gaming", "Keyboard Wrist Rest"
+    ]
+    
     for category in categories:
         for i in range(count_per_category):
+            # Selecionar um nome de produto ou gerar um aleatório com capitalização
+            if i < len(product_templates):
+                name = product_templates[i]
+            else:
+                # Gerar nome aleatório capitalizado
+                words = [fake.word().capitalize() for _ in range(2)]
+                name = " ".join(words)
+            
             product = Product.objects.create(
                 sku=f"SKU-{fake.bothify(text='??-###')}",
-                name=fake.word() + " " + fake.word(),
+                name=name,
                 category=category,
                 description=fake.text(max_nb_chars=150),
                 price=Decimal(str(round(uniform(10, 500), 2))),
