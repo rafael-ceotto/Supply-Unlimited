@@ -7,6 +7,7 @@ __pycache__/
 env/
 venv/
 ENV/
+.venv
 build/
 develop-eggs/
 dist/
@@ -32,36 +33,48 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
-# Environment
+# Environment Variables
 .env
 .env.local
-.venv
+.env.*.local
 
-# IDE
+# IDE & Editor
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+*.sublime-project
+*.sublime-workspace
 
 # OS
 .DS_Store
 Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 
-# Project specific
-MIGRATION_SUMMARY.md
-Vertical Split Page Design/
-
-# Local development files
+# Local Documentation (Personal/Development)
 CHANGES_JAN_19.md
-*.md.local
-Vertical Split Page Design
 DOCKER_SETUP.md
+DOCKER_RUNNING.md
+MIGRATION_SUMMARY.md
+GITIGNORE_GUIDE.md
+*.md.local
 
-# Database backups
+# Project Specific
+Vertical Split Page Design/
+venv/
+
+# Database
 *.sql
 *.sqlite
-
-# Docker volumes
 postgres_data/
 
+# Logs & Temporary Files
+*.log
+*.pot
+temp/
+tmp/
