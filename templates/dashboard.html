@@ -134,11 +134,67 @@
                 </div>
             </div>
 
+            <!-- Search & Filters -->
+            <div class="filters-container">
+                <div class="search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="searchInput" placeholder="Search products, SKU, category..." onkeyup="filterInventory()">
+                </div>
+                <div class="filter-group">
+                    <select id="storeFilter" onchange="filterInventory()" class="filter-select">
+                        <option value="all">All Stores</option>
+                        <option value="Germany">Germany</option>
+                        <option value="France">France</option>
+                        <option value="Italy">Italy</option>
+                        <option value="Spain">Spain</option>
+                        <option value="Netherlands">Netherlands</option>
+                    </select>
+                    <select id="categoryFilter" onchange="filterInventory()" class="filter-select">
+                        <option value="all">All Categories</option>
+                    </select>
+                    <select id="stockFilter" onchange="filterInventory()" class="filter-select">
+                        <option value="all">All Stock</option>
+                        <option value="in-stock">In Stock</option>
+                        <option value="low-stock">Low Stock</option>
+                        <option value="out-of-stock">Out of Stock</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="exportInventory()">
+                        <i data-lucide="download"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Sales by Country</h3>
+                        <p>Monthly revenue distribution</p>
+                    </div>
+                    <canvas id="salesChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Stock Distribution</h3>
+                        <p>Product status overview</p>
+                    </div>
+                    <canvas id="stockChart"></canvas>
+                </div>
+            </div>
+
             <!-- Inventory Table -->
             <div class="table-container">
                 <div class="table-header">
-                    <h3>Live Stock Inventory</h3>
-                    <p>Real-time stock updates across European stores</p>
+                    <div class="table-title-section">
+                        <h3>Live Stock Inventory</h3>
+                        <p>Real-time stock updates across European stores</p>
+                    </div>
+                    <div class="table-actions">
+                        <button class="btn btn-outline" onclick="exportInventory('csv')">CSV</button>
+                        <button class="btn btn-outline" onclick="refreshInventory()">
+                            <i data-lucide="refresh-cw"></i> Refresh
+                        </button>
+                    </div>
                 </div>
                 <div id="inventory-table">
                     <div class="loading">Loading inventory data...</div>
@@ -152,6 +208,17 @@
                 <h1>Company Management</h1>
                 <p>Manage companies and their relationships</p>
             </div>
+            
+            <div class="companies-controls">
+                <div class="search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="companySearch" placeholder="Search companies..." onkeyup="filterCompanies()">
+                </div>
+                <button class="btn btn-primary" onclick="openCompanyModal()">
+                    <i data-lucide="plus"></i> New Company
+                </button>
+            </div>
+
             <div id="companies-content">
                 <div class="loading">Loading companies...</div>
             </div>
@@ -203,5 +270,6 @@
 </div>
 
 <script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}
