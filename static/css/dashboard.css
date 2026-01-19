@@ -342,14 +342,18 @@ tbody tr:hover {
 /* Filters & Search */
 .filters-container {
     background: white;
-    padding: 20px 24px;
+    padding: 16px 20px;
     border-radius: 12px;
     margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.filters-row {
     display: flex;
     gap: 12px;
     align-items: center;
     flex-wrap: wrap;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .search-box {
@@ -357,8 +361,8 @@ tbody tr:hover {
     min-width: 250px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 16px;
+    gap: 8px;
+    padding: 8px 12px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
     background: white;
@@ -373,12 +377,21 @@ tbody tr:hover {
 
 .search-box i {
     color: #9ca3af;
+    width: 16px;
+    height: 16px;
+}
+
+.filter-divider {
+    width: 1px;
+    height: 24px;
+    background: #e5e7eb;
 }
 
 .filter-group {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .filter-select {
@@ -386,12 +399,19 @@ tbody tr:hover {
     border: 1px solid #d1d5db;
     border-radius: 6px;
     background: white;
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
+    min-width: 120px;
 }
 
 .filter-select:hover {
     border-color: #9ca3af;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 /* Charts */
@@ -404,14 +424,14 @@ tbody tr:hover {
 
 .chart-container {
     background: white;
-    padding: 24px;
+    padding: 20px;
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     border: 1px solid #e5e7eb;
 }
 
 .chart-header {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .chart-header h3 {
@@ -427,7 +447,7 @@ tbody tr:hover {
 }
 
 .chart-container canvas {
-    max-height: 300px;
+    max-height: 200px;
 }
 
 /* Table Actions */

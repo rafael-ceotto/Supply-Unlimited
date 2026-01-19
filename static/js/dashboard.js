@@ -357,11 +357,156 @@ function getCookie(name) {
     return cookieValue;
 }
 
+// Company Modal Functions
+function openCompanyModal() {
+    const modal = document.getElementById('companyModal');
+    if (modal) {
+        modal.classList.add('active');
+        document.getElementById('companyForm').reset();
+    }
+}
+
+function closeCompanyModal() {
+    const modal = document.getElementById('companyModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+function saveCompany(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('companyName').value;
+    const country = document.getElementById('companyCountry').value;
+    const city = document.getElementById('companyCity').value;
+    const status = document.getElementById('companyStatus').value;
+    
+    const data = {
+        name: name,
+        country: country,
+        city: city,
+        status: status
+    };
+    
+    fetch('/create-company/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeCompanyModal();
+            loadCompanies();
+        } else {
+            alert('Error creating company: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error creating company');
+    });
+}
+
+// Merge Modal Functions
+function openMergeModal() {
+    const modal = document.getElementById('mergeModal');
+    if (modal) {
+        modal.classList.add('active');
+        loadCompaniesForMerge();
+    }
+}
+
+function closeMergeModal() {
+    const modal = document.getElementById('mergeModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+function loadCompaniesForMerge() {
+    fetch('/api/companies/')
+        .then(response => response.json())
+        .then(data => {
+            const sourceSelect = document.getElementById('sourceCompany');
+            const targetSelect = document.getElementById('targetCompany');
+            
+            sourceSelect.innerHTML = '<option value="">Select a company...</option>';
+            targetSelect.innerHTML = '<option value="">Select a company...</option>';
+            
+            data.forEach(company => {
+                const option1 = document.createElement('option');
+                option1.value = company.id;
+                option1.textContent = company.name + ' (' + company.country + ')';
+                sourceSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = company.id;
+                option2.textContent = company.name + ' (' + company.country + ')';
+                targetSelect.appendChild(option2);
+            });
+        })
+        .catch(error => console.error('Error loading companies for merge:', error));
+}
+
+function mergeCompanies(event) {
+    event.preventDefault();
+    
+    const sourceId = document.getElementById('sourceCompany').value;
+    const targetId = document.getElementById('targetCompany').value;
+    
+    if (!sourceId || !targetId) {
+        alert('Please select both source and target companies');
+        return;
+    }
+    
+    if (sourceId === targetId) {
+        alert('Source and target companies must be different');
+        return;
+    }
+    
+    if (confirm('Are you sure you want to merge these companies? This action cannot be undone.')) {
+        fetch('/api/company/merge/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                source_company_id: sourceId,
+                target_company_id: targetId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Companies merged successfully!');
+                closeMergeModal();
+                loadCompanies();
+            } else {
+                alert('Error merging companies: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error merging companies');
+        });
+    }
+}
+
 // Close modal when clicking outside
 window.onclick = function(event) {
-    const modal = document.getElementById('companyModal');
-    if (event.target === modal) {
+    const companyModal = document.getElementById('companyModal');
+    const mergeModal = document.getElementById('mergeModal');
+    
+    if (event.target === companyModal) {
         closeCompanyModal();
+    }
+    if (event.target === mergeModal) {
+        closeMergeModal();
     }
 }
 

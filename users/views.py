@@ -227,6 +227,23 @@ def sales_data(request):
 
 
 @login_required
+def companies_api(request):
+    """API para listar empresas em JSON"""
+    companies = Company.objects.all().values('company_id', 'name', 'country', 'city', 'status')
+    companies_list = [
+        {
+            'id': str(company['company_id']),
+            'name': company['name'],
+            'country': company['country'],
+            'city': company['city'],
+            'status': company['status']
+        }
+        for company in companies
+    ]
+    return JsonResponse(companies_list, safe=False)
+
+
+@login_required
 def company_list(request):
     """View para listar empresas"""
     country_filter = request.GET.get('country', 'all')

@@ -136,30 +136,33 @@
 
             <!-- Search & Filters -->
             <div class="filters-container">
-                <div class="search-box">
-                    <i data-lucide="search"></i>
-                    <input type="text" id="searchInput" placeholder="Search products, SKU, category..." onkeyup="filterInventory()">
-                </div>
-                <div class="filter-group">
-                    <select id="storeFilter" onchange="filterInventory()" class="filter-select">
-                        <option value="all">All Stores</option>
-                        <option value="Germany">Germany</option>
-                        <option value="France">France</option>
-                        <option value="Italy">Italy</option>
-                        <option value="Spain">Spain</option>
-                        <option value="Netherlands">Netherlands</option>
-                    </select>
-                    <select id="categoryFilter" onchange="filterInventory()" class="filter-select">
-                        <option value="all">All Categories</option>
-                    </select>
-                    <select id="stockFilter" onchange="filterInventory()" class="filter-select">
-                        <option value="all">All Stock</option>
-                        <option value="in-stock">In Stock</option>
-                        <option value="low-stock">Low Stock</option>
-                        <option value="out-of-stock">Out of Stock</option>
-                    </select>
-                    <button class="btn btn-primary" onclick="exportInventory()">
-                        <i data-lucide="download"></i> Export CSV
+                <div class="filters-row">
+                    <div class="search-box">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="searchInput" placeholder="Search products, SKU, category..." onkeyup="filterInventory()">
+                    </div>
+                    <div class="filter-divider"></div>
+                    <div class="filter-group">
+                        <select id="storeFilter" onchange="filterInventory()" class="filter-select">
+                            <option value="all">All Stores</option>
+                            <option value="Germany">Germany</option>
+                            <option value="France">France</option>
+                            <option value="Italy">Italy</option>
+                            <option value="Spain">Spain</option>
+                            <option value="Netherlands">Netherlands</option>
+                        </select>
+                        <select id="categoryFilter" onchange="filterInventory()" class="filter-select">
+                            <option value="all">All Categories</option>
+                        </select>
+                        <select id="stockFilter" onchange="filterInventory()" class="filter-select">
+                            <option value="all">All Stock</option>
+                            <option value="in-stock">In Stock</option>
+                            <option value="low-stock">Low Stock</option>
+                            <option value="out-of-stock">Out of Stock</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="exportInventory()" style="white-space: nowrap;">
+                        <i data-lucide="download" style="width: 16px; height: 16px;"></i> Export
                     </button>
                 </div>
             </div>
@@ -217,6 +220,9 @@
                 <button class="btn btn-primary" onclick="openCompanyModal()">
                     <i data-lucide="plus"></i> New Company
                 </button>
+                <button class="btn btn-outline" onclick="openMergeModal()">
+                    <i data-lucide="git-merge"></i> Merge Companies
+                </button>
             </div>
 
             <div id="companies-content">
@@ -266,6 +272,76 @@
                 <p>Generate and export reports</p>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Company Modal -->
+<div id="companyModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>New Company</h2>
+            <button class="modal-close" onclick="closeCompanyModal()">×</button>
+        </div>
+        <form id="companyForm" onsubmit="saveCompany(event)">
+            <div class="form-group">
+                <label>Company Name *</label>
+                <input type="text" id="companyName" required>
+            </div>
+            <div class="form-group">
+                <label>Country *</label>
+                <input type="text" id="companyCountry" required>
+            </div>
+            <div class="form-group">
+                <label>City *</label>
+                <input type="text" id="companyCity" required>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="companyStatus">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="pending">Pending</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeCompanyModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Company</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Merge Companies Modal -->
+<div id="mergeModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Merge Companies</h2>
+            <button class="modal-close" onclick="closeMergeModal()">×</button>
+        </div>
+        <div style="margin-bottom: 16px; padding: 12px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+            <p style="font-size: 13px; color: #92400e;">⚠️ This will merge the source company into the target company. All stores and subsidiaries will be transferred.</p>
+        </div>
+        <form id="mergeForm" onsubmit="mergeCompanies(event)">
+            <div class="form-group">
+                <label>Source Company (To merge FROM) *</label>
+                <select id="sourceCompany" required>
+                    <option value="">Select a company...</option>
+                </select>
+            </div>
+            <div style="text-align: center; margin: 16px 0;">
+                <i data-lucide="arrow-down" style="width: 24px; height: 24px; color: #10b981;"></i>
+            </div>
+            <div class="form-group">
+                <label>Target Company (To merge INTO) *</label>
+                <select id="targetCompany" required>
+                    <option value="">Select a company...</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeMergeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" style="background: #ef4444;">Merge Companies</button>
+            </div>
+        </form>
     </div>
 </div>
 
