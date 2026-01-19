@@ -9,7 +9,9 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
+    build-essential \
     postgresql-client \
+    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -20,11 +22,15 @@ RUN pip install --upgrade pip && \
 # Copy project
 COPY . .
 
+# Copy entrypoint script
+COPY entrypoint.sh /
+RUN chmod +x /entrypoint.sh
+
 # Collect static files
 RUN python manage.py collectstatic --noinput || true
 
 # Expose port
 EXPOSE 8000
 
-# Run Django development server
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Run entrypoint script
+ENTRYPOINT ["/entrypoint.sh"]

@@ -48,6 +48,10 @@ db.sqlite3-journal
 .DS_Store
 Thumbs.db
 
+# Project specific
+MIGRATION_SUMMARY.md
+Vertical Split Page Design/
+
 # Local development files
 CHANGES_JAN_19.md
 *.md.local

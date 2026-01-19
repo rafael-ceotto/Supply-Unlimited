@@ -53,7 +53,7 @@ body {
 }
 
 .user-section {
-    display: flex;
+    display: -webkit-inline-box;
     align-items: center;
     gap: 16px;
 }
@@ -93,8 +93,8 @@ body {
 }
 
 .btn-outline {
-    background: white;
-    color: #6b7280;
+    background: #52926d;
+    color: #fff;
     border: 1px solid #d1d5db;
 }
 

@@ -495,23 +495,4 @@ def export_inventory(request):
         response.write(json.dumps(data, indent=2, default=str))
         return response
     
-    elif format_type == 'parquet':
-        try:
-            import pyarrow as pa
-            import pyarrow.parquet as pq
-        except ImportError:
-            return JsonResponse({'error': 'PyArrow not installed. Please install it with: pip install pyarrow'}, status=400)
-        
-        # Converter para DataFrame
-        df = pd.DataFrame(data)
-        
-        # Converter para Parquet na memória
-        output = io.BytesIO()
-        df.to_parquet(output, index=False, engine='pyarrow')
-        output.seek(0)
-        
-        response = HttpResponse(output.read(), content_type='application/octet-stream')
-        response['Content-Disposition'] = 'attachment; filename="inventory.parquet"'
-        return response
-    
-    return JsonResponse({'error': 'Invalid format. Use: csv, json, or parquet'}, status=400)
+    return JsonResponse({'error': 'Invalid format. Use: csv or json'}, status=400)
