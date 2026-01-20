@@ -32,5 +32,5 @@ RUN python manage.py collectstatic --noinput || true
 # Expose port
 EXPOSE 8000
 
-# Run entrypoint script
-ENTRYPOINT ["/entrypoint.sh"]
+# Run entrypoint script via shell (avoids shebang/CRLF issues)
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
