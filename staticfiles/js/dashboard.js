@@ -268,13 +268,65 @@ function renderCompaniesTable(data) {
 
 // Load sales data
 async function loadSalesData() {
+    loadSalesResults();
+}
+
+async function loadSalesResults() {
+    console.log('loadSalesResults called');
+    const q = document.getElementById('sales-q')?.value || '';
+    const from = document.getElementById('sales-from')?.value || '';
+    const to = document.getElementById('sales-to')?.value || '';
+    
+    const url = new URL('/sales/api/', location.origin);
+    if(q) url.searchParams.set('q', q);
+    if(from) url.searchParams.set('from', from);
+    if(to) url.searchParams.set('to', to);
+    
+    console.log('Fetching from:', url.toString());
+    
     try {
-        const response = await fetch('/api/sales/');
-        const result = await response.json();
-        console.log('Sales data:', result);
+        const response = await fetch(url);
+        console.log('Response status:', response.status);
+        const data = await response.json();
+        console.log('Data received:', data);
+        
+        if (data.results && Array.isArray(data.results)) {
+            // Update analytics
+            const totalCount = data.results.length;
+            const totalRevenue = data.results.reduce((sum, r) => sum + parseFloat(r.amount), 0);
+            const avgOrder = totalCount > 0 ? totalRevenue / totalCount : 0;
+            
+            console.log('Updating cards:', { totalCount, totalRevenue, avgOrder });
+            
+            document.getElementById('sales-total-count').textContent = totalCount;
+            document.getElementById('sales-total-revenue').textContent = '$' + totalRevenue.toFixed(2);
+            document.getElementById('sales-avg-order').textContent = '$' + avgOrder.toFixed(2);
+            
+            // Render table
+            renderSalesTable(data.results);
+        }
     } catch (error) {
         console.error('Error loading sales:', error);
+        document.getElementById('sales-results').innerHTML = '<p style=\"color: #dc2626;\">Error loading sales data: ' + error.message + '</p>';
     }
+}
+
+function renderSalesTable(results) {
+    const container = document.getElementById('sales-results');
+    if (!results.length) {
+        container.innerHTML = '<p style=\"text-align: center; color: #6b7280; padding: 20px;\">No sales found</p>';
+        return;
+    }
+    
+    let html = '<table style=\"width: 100%; border-collapse: collapse;\"><thead style=\"background: #f9fafb; border-bottom: 2px solid #e5e7eb;\"><tr><th style=\"padding: 12px; text-align: left; font-weight: 600; font-size: 13px; color: #374151; text-transform: uppercase;\">Product</th><th style=\"padding: 12px; text-align: left; font-weight: 600; font-size: 13px; color: #374151; text-transform: uppercase;\">Customer</th><th style=\"padding: 12px; text-align: left; font-weight: 600; font-size: 13px; color: #374151; text-transform: uppercase;\">Description</th><th style=\"padding: 12px; text-align: left; font-weight: 600; font-size: 13px; color: #374151; text-transform: uppercase;\">Amount</th><th style=\"padding: 12px; text-align: left; font-weight: 600; font-size: 13px; color: #374151; text-transform: uppercase;\">Date</th></tr></thead><tbody>';
+    
+    for (const r of results) {
+        const date = new Date(r.created).toLocaleDateString('en-US', {year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+        html += `<tr style=\"border-bottom: 1px solid #e5e7eb;\"><td style=\"padding: 12px; color: #111827;\">${r.product}</td><td style=\"padding: 12px; color: #111827;\">${r.customer}</td><td style=\"padding: 12px; color: #111827;\">${r.description || '\u2014'}</td><td style=\"padding: 12px; color: #111827;\"><strong>$${parseFloat(r.amount).toFixed(2)}</strong></td><td style=\"padding: 12px; color: #6b7280; font-size: 13px;\">${date}</td></tr>`;
+    }
+    
+    html += '</tbody></table>';
+    container.innerHTML = html;
 }
 
 // Export inventory
