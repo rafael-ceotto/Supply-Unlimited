@@ -251,58 +251,95 @@
                 <p>Analyze company performance, revenue, and market position</p>
             </div>
 
-            <!-- Search Section -->
+            <!-- Search Company Section -->
             <div class="search-container" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
                     <div style="width: 48px; height: 48px; background: #dbeafe; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                         <i data-lucide="search" style="width: 24px; height: 24px; color: #2563eb;"></i>
                     </div>
                     <div>
-                        <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin: 0 0 4px 0;">Search Sales</h3>
-                        <p style="font-size: 14px; color: #6b7280; margin: 0;">Find and filter sales data by product or customer</p>
+                        <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin: 0 0 4px 0;">Search Company</h3>
+                        <p style="font-size: 14px; color: #6b7280; margin: 0;">Find detailed sales analytics and market insights</p>
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
-                    <div style="grid-column: span 2;">
-                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Search</label>
-                        <input type="text" id="sales-q" placeholder="Product name or customer..." style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none; transition: all .2s;" onkeypress="if(event.key==='Enter') loadSalesResults();">
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: flex-end;">
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Company Name</label>
+                        <input type="text" id="sales-company-name" placeholder="Enter company name..." style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
                     </div>
                     <div>
-                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">From</label>
-                        <input type="date" id="sales-from" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Sector</label>
+                        <select id="sales-sector" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option value="all">All Sectors</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Retail">Retail</option>
+                        </select>
                     </div>
                     <div>
-                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">To</label>
-                        <input type="date" id="sales-to" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Country</label>
+                        <select id="sales-country" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option value="all">All Countries</option>
+                            <option value="Germany">Germany</option>
+                            <option value="France">France</option>
+                            <option value="Spain">Spain</option>
+                        </select>
                     </div>
-                </div>
-                <div style="margin-top: 16px;">
-                    <button onclick="loadSalesResults()" class="btn btn-primary">Search</button>
+                    <button onclick="searchSalesCompany()" class="btn btn-primary" style="height: 40px; padding: 0 24px;">Search</button>
                 </div>
             </div>
 
-            <!-- Analytics Cards -->
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
-                <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                    <div style="color: #6b7280; font-size: 14px; margin-bottom: 8px;">Total Sales</div>
-                    <div style="font-size: 30px; font-weight: 700; color: #111827;" id="sales-total-count">—</div>
+            <!-- Results Container -->
+            <div id="sales-results-container" style="display: none;">
+                <!-- Company Header -->
+                <div id="sales-company-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; padding: 24px; color: white; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <div style="font-size: 24px; font-weight: 700;" id="sales-company-name-display"></div>
+                    <div style="font-size: 14px; opacity: 0.9; margin-top: 4px;" id="sales-company-sector-display"></div>
                 </div>
-                <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                    <div style="color: #6b7280; font-size: 14px; margin-bottom: 8px;">Total Revenue</div>
-                    <div style="font-size: 30px; font-weight: 700; color: #111827;" id="sales-total-revenue">—</div>
+
+                <!-- KPI Cards -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #10b981;">
+                        <div style="color: #6b7280; font-size: 13px; text-transform: uppercase; font-weight: 600; margin-bottom: 8px;">Revenue YTD</div>
+                        <div style="font-size: 28px; font-weight: 700; color: #10b981;" id="sales-revenue-ytd">—</div>
+                        <div style="font-size: 12px; color: #6b7280; margin-top: 8px;" id="sales-revenue-change">—</div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #2563eb;">
+                        <div style="color: #6b7280; font-size: 13px; text-transform: uppercase; font-weight: 600; margin-bottom: 8px;">Profit YTD</div>
+                        <div style="font-size: 28px; font-weight: 700; color: #2563eb;" id="sales-profit-ytd">—</div>
+                        <div style="font-size: 12px; color: #6b7280; margin-top: 8px;" id="sales-profit-change">—</div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #ea580c;">
+                        <div style="color: #6b7280; font-size: 13px; text-transform: uppercase; font-weight: 600; margin-bottom: 8px;">Prediction Next YTD</div>
+                        <div style="font-size: 28px; font-weight: 700; color: #ea580c;" id="sales-prediction-ytd">—</div>
+                        <div style="font-size: 12px; color: #6b7280; margin-top: 8px;" id="sales-prediction-growth">—</div>
+                    </div>
                 </div>
-                <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                    <div style="color: #6b7280; font-size: 14px; margin-bottom: 8px;">Avg. Order Value</div>
-                    <div style="font-size: 30px; font-weight: 700; color: #111827;" id="sales-avg-order">—</div>
+
+                <!-- Market Position -->
+                <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; margin-bottom: 24px;">
+                    <div style="padding: 24px; border-bottom: 1px solid #e5e7eb;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0;">Market Position - Competitor Ranking</h3>
+                    </div>
+                    <div id="sales-competitors-table" style="overflow-x: auto;"></div>
+                </div>
+
+                <!-- Top Selling Products -->
+                <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">
+                    <div style="padding: 24px; border-bottom: 1px solid #e5e7eb;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0;">Top Selling Products</h3>
+                    </div>
+                    <div id="sales-products-list" style="padding: 24px;"></div>
                 </div>
             </div>
 
-            <!-- Results Section -->
-            <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">
-                <div style="padding: 24px; border-bottom: 1px solid #e5e7eb;">
-                    <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin: 0;">Sales Transactions</h3>
+            <!-- Empty State -->
+            <div id="sales-empty-state" style="text-align: center; padding: 60px 24px;">
+                <div style="width: 80px; height: 80px; background: #f3f4f6; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                    <i data-lucide="search" style="width: 40px; height: 40px; color: #d1d5db;"></i>
                 </div>
-                <div id="sales-results" style="padding: 24px;">Loading...</div>
+                <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin: 0 0 8px 0;">Search for a Company</h3>
+                <p style="color: #6b7280; margin: 0;">Enter a company name above to view detailed sales analytics and insights</p>
             </div>
         </div>
 

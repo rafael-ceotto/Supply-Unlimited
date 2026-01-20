@@ -268,65 +268,111 @@ function renderCompaniesTable(data) {
 
 // Load sales data
 async function loadSalesData() {
-    loadSalesResults();
+    // Show empty state
+    document.getElementById('sales-results-container').style.display = 'none';
+    document.getElementById('sales-empty-state').style.display = 'block';
 }
 
-async function loadSalesResults() {
-    console.log('loadSalesResults called');
-    const q = document.getElementById('sales-q')?.value || '';
-    const from = document.getElementById('sales-from')?.value || '';
-    const to = document.getElementById('sales-to')?.value || '';
-    
-    const url = new URL('/sales/api/', location.origin);
-    if(q) url.searchParams.set('q', q);
-    if(from) url.searchParams.set('from', from);
-    if(to) url.searchParams.set('to', to);
-    
-    console.log('Fetching from:', url.toString());
-    
-    try {
-        const response = await fetch(url);
-        console.log('Response status:', response.status);
-        const data = await response.json();
-        console.log('Data received:', data);
-        
-        if (data.results && Array.isArray(data.results)) {
-            // Update analytics
-            const totalCount = data.results.length;
-            const totalRevenue = data.results.reduce((sum, r) => sum + parseFloat(r.amount), 0);
-            const avgOrder = totalCount > 0 ? totalRevenue / totalCount : 0;
-            
-            console.log('Updating cards:', { totalCount, totalRevenue, avgOrder });
-            
-            document.getElementById('sales-total-count').textContent = totalCount;
-            document.getElementById('sales-total-revenue').textContent = '$' + totalRevenue.toFixed(2);
-            document.getElementById('sales-avg-order').textContent = '$' + avgOrder.toFixed(2);
-            
-            // Render table
-            renderSalesTable(data.results);
-        }
-    } catch (error) {
-        console.error('Error loading sales:', error);
-        document.getElementById('sales-results').innerHTML = '<p style=\"color: #dc2626;\">Error loading sales data: ' + error.message + '</p>';
-    }
-}
-
-function renderSalesTable(results) {
-    const container = document.getElementById('sales-results');
-    if (!results.length) {
-        container.innerHTML = '<p style=\"text-align: center; color: #6b7280; padding: 20px;\">No sales found</p>';
+function searchSalesCompany() {
+    const companyName = document.getElementById('sales-company-name').value.trim();
+    if (!companyName) {
+        alert('Please enter a company name');
         return;
     }
     
-    let html = '<table style=\"width: 100%; border-collapse: collapse;\"><thead style=\"background: #f9fafb; border-bottom: 2px solid #e5e7eb;\"><tr><th style=\"padding: 12px; text-align: left; font-weight: 600; font-size: 13px; color: #374151; text-transform: uppercase;\">Product</th><th style=\"padding: 12px; text-align: left; font-weight: 600; font-size: 13px; color: #374151; text-transform: uppercase;\">Customer</th><th style=\"padding: 12px; text-align: left; font-weight: 600; font-size: 13px; color: #374151; text-transform: uppercase;\">Description</th><th style=\"padding: 12px; text-align: left; font-weight: 600; font-size: 13px; color: #374151; text-transform: uppercase;\">Amount</th><th style=\"padding: 12px; text-align: left; font-weight: 600; font-size: 13px; color: #374151; text-transform: uppercase;\">Date</th></tr></thead><tbody>';
+    // Mock data - in real app would call API
+    const mockCompanyData = {
+        name: companyName,
+        sector: 'Technology',
+        country: 'Germany',
+        revenueYTD: 2850000,
+        profitYTD: 520000,
+        predictionYTD: 3277500,
+        revenueChange: '↑ 12.5% from last month',
+        profitChange: '↑ 8.3% from last month',
+        predictionGrowth: '↑ 15.0% expected growth',
+        competitors: [
+            { rank: 1, name: 'Digital Solutions AG', country: 'Germany', revenue: 3200000, profit: 580000, market: 28.8 },
+            { rank: 2, name: companyName, country: 'Germany', revenue: 2850000, profit: 520000, market: 25.5 },
+            { rank: 3, name: 'Innovation Tech SAS', country: 'France', revenue: 2100000, profit: 380000, market: 18.9 },
+            { rank: 4, name: 'Smart Systems Ltd', country: 'Netherlands', revenue: 1800000, profit: 320000, market: 16.2 },
+            { rank: 5, name: 'FutureTech Italia', country: 'Italy', revenue: 1200000, profit: 210000, market: 10.6 },
+        ],
+        topProducts: [
+            { name: 'Industrial Drill Kit', sku: 'SUP-001', category: 'Electronics', units: 1000 },
+            { name: 'Office Chair Premium', sku: 'SUP-002', category: 'Furniture', units: 850 },
+            { name: 'Laptop Stand Adjustable', sku: 'SUP-003', category: 'Electronics', units: 700 },
+            { name: 'Printer Paper A4', sku: 'SUP-004', category: 'Office Supplies', units: 550 },
+            { name: 'Cable Organizer Set', sku: 'SUP-005', category: 'Electronics', units: 400 },
+        ]
+    };
     
-    for (const r of results) {
-        const date = new Date(r.created).toLocaleDateString('en-US', {year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
-        html += `<tr style=\"border-bottom: 1px solid #e5e7eb;\"><td style=\"padding: 12px; color: #111827;\">${r.product}</td><td style=\"padding: 12px; color: #111827;\">${r.customer}</td><td style=\"padding: 12px; color: #111827;\">${r.description || '\u2014'}</td><td style=\"padding: 12px; color: #111827;\"><strong>$${parseFloat(r.amount).toFixed(2)}</strong></td><td style=\"padding: 12px; color: #6b7280; font-size: 13px;\">${date}</td></tr>`;
+    renderSalesCompanyData(mockCompanyData);
+}
+
+function renderSalesCompanyData(data) {
+    // Show results, hide empty state
+    document.getElementById('sales-empty-state').style.display = 'none';
+    document.getElementById('sales-results-container').style.display = 'block';
+    
+    // Update header
+    document.getElementById('sales-company-name-display').textContent = data.name;
+    document.getElementById('sales-company-sector-display').textContent = `${data.sector} • ${data.country}`;
+    
+    // Update KPI cards
+    document.getElementById('sales-revenue-ytd').textContent = '€' + (data.revenueYTD / 1000000).toFixed(2) + 'M';
+    document.getElementById('sales-revenue-change').textContent = data.revenueChange;
+    
+    document.getElementById('sales-profit-ytd').textContent = '€' + (data.profitYTD / 1000).toFixed(0) + 'K';
+    document.getElementById('sales-profit-change').textContent = data.profitChange;
+    
+    document.getElementById('sales-prediction-ytd').textContent = '€' + (data.predictionYTD / 1000000).toFixed(2) + 'M';
+    document.getElementById('sales-prediction-growth').textContent = data.predictionGrowth;
+    
+    // Render competitors table
+    renderCompetitorsTable(data.competitors);
+    
+    // Render top products
+    renderTopProducts(data.topProducts);
+}
+
+function renderCompetitorsTable(competitors) {
+    let html = '<table style="width: 100%; border-collapse: collapse;"><thead style="background: #f9fafb;"><tr><th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #374151;"></th><th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #374151;">Company</th><th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #374151;">Country</th><th style="padding: 12px; text-align: right; font-size: 12px; font-weight: 600; color: #374151;">Revenue YTD</th><th style="padding: 12px; text-align: right; font-size: 12px; font-weight: 600; color: #374151;">Profit YTD</th><th style="padding: 12px; text-align: right; font-size: 12px; font-weight: 600; color: #374151;">Market Share</th></tr></thead><tbody>';
+    
+    for (const comp of competitors) {
+        const rankColor = comp.rank === 1 ? '#fbbf24' : comp.rank === 2 ? '#d1d5db' : '#f97316';
+        html += `<tr style="border-bottom: 1px solid #e5e7eb;">
+            <td style="padding: 12px; text-align: center;"><span style="display: inline-block; width: 24px; height: 24px; background: ${rankColor}; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">#${comp.rank}</span></td>
+            <td style="padding: 12px; color: #111827; font-weight: 500;">${comp.name}</td>
+            <td style="padding: 12px; color: #6b7280;">${comp.country}</td>
+            <td style="padding: 12px; text-align: right; color: #111827;">€${(comp.revenue / 1000000).toFixed(1)}M</td>
+            <td style="padding: 12px; text-align: right; color: #111827;">€${(comp.profit / 1000).toFixed(0)}K</td>
+            <td style="padding: 12px; text-align: right; color: #111827; font-weight: 600;">${comp.market}%</td>
+        </tr>`;
     }
     
     html += '</tbody></table>';
-    container.innerHTML = html;
+    document.getElementById('sales-competitors-table').innerHTML = html;
+}
+
+function renderTopProducts(products) {
+    let html = '';
+    for (let i = 0; i < products.length; i++) {
+        const prod = products[i];
+        const icons = ['🏭', '🪑', '📐', '📄', '🔌'];
+        html += `<div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+            <div style="font-size: 24px; margin-right: 16px;">${icons[i]}</div>
+            <div style="flex: 1;">
+                <div style="font-weight: 600; color: #111827;">${prod.name}</div>
+                <div style="font-size: 12px; color: #6b7280;">${prod.category} • SKU: ${prod.sku}</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 18px; font-weight: 700; color: #111827;">${prod.units.toLocaleString()}</div>
+                <div style="font-size: 12px; color: #6b7280;">units sold</div>
+            </div>
+        </div>`;
+    }
+    document.getElementById('sales-products-list').innerHTML = html;
 }
 
 // Export inventory
