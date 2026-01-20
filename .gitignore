@@ -62,6 +62,7 @@ DOCKER_SETUP.md
 DOCKER_RUNNING.md
 MIGRATION_SUMMARY.md
 GITIGNORE_GUIDE.md
+mailmap.txt
 *.md.local
 
 # Project Specific
