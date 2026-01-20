@@ -68,6 +68,7 @@ mailmap.txt
 # Project Specific
 Vertical Split Page Design/
 venv/
+Sales/
 
 # Database
 *.sql
