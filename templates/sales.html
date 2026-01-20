@@ -4,18 +4,114 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sales</title>
+    <title>Sales - Supply Unlimited</title>
     <link rel="stylesheet" href="{% static 'sales/css/sales.css' %}">
   </head>
   <body>
-    <main>
-      <h1>Sales</h1>
-      <div>
-        <input id="q" placeholder="Search..." />
-        <button id="search">Search</button>
+    <div class="h-screen flex flex-col bg-gray-50">
+      <!-- Top Bar -->
+      <div class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 text-green-700">
+            <span class="font-bold text-xl">SU</span>
+            <span class="text-sm hidden md:block">Supply Unlimited</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2 text-sm text-gray-700">
+            <span class="hidden md:block">{{ user.username }}</span>
+          </div>
+          <a href="{% url 'logout' %}" class="p-2 text-red-600 hover:text-red-700 text-sm">Logout</a>
+        </div>
       </div>
-      <div id="results">Loading...</div>
-    </main>
+
+      <!-- Main Content -->
+      <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <div class="w-64 bg-gradient-to-br from-green-100 via-white to-green-50 border-r border-gray-200 flex flex-col">
+          <div class="p-6">
+            <h2 class="text-lg font-semibold text-green-700">Menu</h2>
+          </div>
+          <nav class="flex-1 px-3">
+            <a href="/dashboard/" class="w-full flex items-center gap-3 px-4 py-3 mb-1 rounded-lg transition-all text-gray-700 hover:bg-green-50">
+              <span class="text-sm font-medium">📊 Dashboard</span>
+            </a>
+            <a href="/sales/" class="w-full flex items-center gap-3 px-4 py-3 mb-1 rounded-lg transition-all bg-green-600 text-white shadow-md">
+              <span class="text-sm font-medium">📈 Sales</span>
+            </a>
+          </nav>
+          <div class="p-4 text-center text-xs text-gray-500">
+            <p>Supply Unlimited™</p>
+            <p>European Division</p>
+          </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="flex-1 overflow-y-auto">
+          <div class="p-6">
+            <!-- Page Header -->
+            <div class="mb-8">
+              <h1 class="text-3xl font-bold text-gray-900 mb-2">Sales Analytics</h1>
+              <p class="text-gray-600">Analyze company performance, revenue, and market position</p>
+            </div>
+
+            <!-- Search Section -->
+            <div class="bg-white rounded-xl p-6 shadow-sm mb-6">
+              <div class="flex items-center gap-3 mb-5">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <span class="text-xl">🔍</span>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900">Search Sales</h3>
+                  <p class="text-sm text-gray-600">Find and filter sales data by product or customer</p>
+                </div>
+              </div>
+              <div class="grid grid-cols-4 gap-3">
+                <div class="col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                  <input type="text" id="q" placeholder="Product name or customer..." class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-100 outline-none transition-all">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">From</label>
+                  <input type="date" id="from" class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-green-500 outline-none">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">To</label>
+                  <input type="date" id="to" class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-green-500 outline-none">
+                </div>
+              </div>
+              <div class="mt-4">
+                <button id="search" class="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium">Search</button>
+              </div>
+            </div>
+
+            <!-- Analytics Cards -->
+            <div class="grid grid-cols-3 gap-4 mb-6">
+              <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="text-gray-600 text-sm mb-2">Total Sales</div>
+                <div class="text-3xl font-bold text-gray-900" id="total-sales">—</div>
+              </div>
+              <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="text-gray-600 text-sm mb-2">Total Revenue</div>
+                <div class="text-3xl font-bold text-gray-900" id="total-revenue">—</div>
+              </div>
+              <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="text-gray-600 text-sm mb-2">Avg. Order Value</div>
+                <div class="text-3xl font-bold text-gray-900" id="avg-order">—</div>
+              </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Sales Transactions</h3>
+              </div>
+              <div id="results" class="p-6">Loading...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script src="{% static 'sales/js/sales.js' %}"></script>
   </body>

@@ -1,0 +1,253 @@
+/* Reset e fonte global */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Container principal split screen */
+.main-container {
+    display: flex;
+    flex-direction: row;
+    flex: 1 0 auto; /* ocupa o espaço disponível */
+    min-height: calc(100vh - 56px); /* descontando navbar */
+}
+
+/* LEFT SIDE - Branding */
+.brand-section {
+    width: 50%;
+    background: linear-gradient(to bottom right, #dcfce7, #ffffff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+}
+
+.brand-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.brand-title {
+    font-size: 3rem;
+    color: #15803d;
+    font-weight: 600;
+    text-align: center;
+}
+
+.brand-subtitle {
+    font-size: 1rem;
+    color: #065f46;
+    text-align: center;
+}
+
+/* Logo */
+.logo-container {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* SVG Animations */
+@keyframes rotate-ellipse-1 {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes rotate-ellipse-2 {
+    from { transform: rotate(90deg); }
+    to { transform: rotate(450deg); }
+}
+
+.ellipse-group-1 {
+    animation: rotate-ellipse-1 8s linear infinite;
+    transform-origin: 100px 100px;
+}
+
+.ellipse-group-2 {
+    animation: rotate-ellipse-2 8s linear infinite;
+    transform-origin: 100px 100px;
+}
+
+/* RIGHT SIDE - Form */
+.form-section {
+    width: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 2rem; /* distancia o form do topo */
+}
+
+.form-title {
+    font-size: 1.875rem;
+    margin-bottom: 2rem;
+    color: #111827;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+/* Inputs */
+.form-input {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+/* Password toggle wrapper */
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    user-select: none;
+    font-size: 1.1rem;
+}
+
+/* Checkbox */
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-check input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.form-check label {
+    flex: 1;
+    font-size: 0.875rem;
+    color: #374151;
+    line-height: 1.25rem;
+}
+
+/* Botão submit */
+.submit-button {
+    width: 50%;
+    padding: 0.625rem 1rem;
+    background-color: #22c55e;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.submit-button:hover {
+    background-color: #16a34a;
+}
+
+/* Footer */
+.bottom-bar {
+    width: 100%;
+    background-color: #111827;
+    color: white;
+    text-align: center;
+    padding: 0.5rem 0;
+    flex-shrink: 0;
+}
+
+/* Form footer */
+.form-footer {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+.form-footer a {
+    color: #22c55e;
+    text-decoration: none;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+        min-height: auto;
+    }
+
+    .brand-section,
+    .form-section {
+        width: 100%;
+        padding: 2rem;
+    }
+
+    .brand-title {
+        font-size: 2rem;
+    }
+
+    .logo-container {
+        width: 180px;
+        height: 180px;
+    }
+
+    .submit-button {
+        width: 100%;
+    }
+}
