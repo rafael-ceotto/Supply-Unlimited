@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users', #app created for user management
-    'sales', # sales page and API
+    'supply_unlimited.sales', # sales page and API (package inside project)
 ]
 
 MIDDLEWARE = [

@@ -29,5 +29,5 @@ urlpatterns = [
     path('dashboard/', dashboard_view, name='dashboard'),  
     path('', login_view, name='home'),  # Página inicial redirecionando para login
     path('', include('users.urls')),
-    path('sales/', include('sales.urls')),
+    path('sales/', include('supply_unlimited.sales.urls')),
 ]
