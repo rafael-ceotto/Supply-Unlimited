@@ -25,6 +25,8 @@ COPY . .
 # Copy entrypoint script
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
+# Ensure entrypoint has Unix line endings (in case repo checked out with CRLF on Windows)
+RUN sed -i 's/\r$//' /entrypoint.sh || true
 
 # Collect static files
 RUN python manage.py collectstatic --noinput || true
