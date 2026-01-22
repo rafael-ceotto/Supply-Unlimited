@@ -17,7 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
-from users.views import login_view, logout_view, dashboard_view, register_view
+from users.views import (
+    login_view, logout_view, dashboard_view, register_view, 
+    inventory_page, companies_page, reports_page, sales_page
+)
 
 def redirect_to_login(request):
     return redirect('login')
@@ -26,7 +29,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
-    path('dashboard/', dashboard_view, name='dashboard'),  
+    path('dashboard/', dashboard_view, name='dashboard'),
+    path('inventory/', inventory_page, name='inventory'),
+    path('companies/', companies_page, name='companies'),
+    path('reports/', reports_page, name='reports'),
+    path('sales/', sales_page, name='sales'),
     path('', login_view, name='home'),  # Página inicial redirecionando para login
     path('', include('users.urls')),
     path('sales/', include('supply_unlimited.sales.urls')),

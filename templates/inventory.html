@@ -1,0 +1,133 @@
+<!-- templates/inventory.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inventory - Supply Unlimited{% endblock %}
+
+{% block auth_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/lucide.min.css">
+{% endblock %}
+
+{% block content %}
+<!-- Top Bar -->
+<div class="top-bar">
+    <div class="logo-section">
+        <div class="logo-mini">SU</div>
+        <div class="logo-text">Supply Unlimited</div>
+    </div>
+    <div class="user-section">
+        <div class="user-info">
+            <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+            <div class="user-role">Administrator</div>
+        </div>
+        <a href="{% url 'logout' %}" class="btn btn-outline">Logout</a>
+    </div>
+</div>
+
+<!-- Main Container -->
+<div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Menu</h2>
+        </div>
+        <div class="sidebar-menu">
+            <a href="{% url 'dashboard' %}" class="menu-item">
+                <i data-lucide="home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{% url 'companies' %}" class="menu-item">
+                <i data-lucide="building-2"></i>
+                <span>Companies</span>
+            </a>  
+            <a href="{% url 'inventory' %}" class="menu-item active">
+                <i data-lucide="package"></i>
+                <span>Inventory</span>
+            </a>
+            <a href="{% url 'reports' %}" class="menu-item">
+                <i data-lucide="file-text"></i>
+                <span>Reports</span>
+            </a>
+            <a href="{% url 'sales' %}" class="menu-item">
+                <i data-lucide="trending-up"></i>
+                <span>Sales</span>
+            </a>           
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content">
+        <!-- Inventory Section -->
+        <div class="content-section active">
+            <div class="page-header">
+                <h1>Inventory Management</h1>
+                <p>Manage product inventory across all stores</p>
+            </div>
+
+            <!-- Search & Filters -->
+            <div class="filters-container">
+                <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 600; color: #1f2937;">Search Inventory</h3>
+                <div class="filters-row">
+                    <div class="search-box">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="searchInput" placeholder="Search products, SKU, category..." onkeyup="filterInventory()">
+                    </div>
+                    <div class="filter-divider"></div>
+                    <div class="filter-group">
+                        <select id="storeFilter" onchange="filterInventory()" class="filter-select">
+                            <option value="all">All Countries</option>
+                            <option value="Chile">Chile</option>
+                            <option value="USA">USA</option>
+                            <option value="Brazil">Brazil</option>
+                            <option value="Canada">Canada</option>
+                        </select>
+                        <select id="categoryFilter" onchange="filterInventory()" class="filter-select">
+                            <option value="all">All Categories</option>
+                        </select>
+                        <select id="stockFilter" onchange="filterInventory()" class="filter-select">
+                            <option value="all">All Stock</option>
+                            <option value="Low">Low Stock</option>
+                            <option value="Medium">Medium Stock</option>
+                            <option value="High">High Stock</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="exportInventory()" style="white-space: nowrap;">
+                        <i data-lucide="download" style="width: 16px; height: 16px;"></i> Export
+                    </button>
+                </div>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="table-title-section">
+                        <h3>Live Stock Inventory</h3>
+                        <p>Real-time stock updates across European stores</p>
+                    </div>
+                    <div class="table-actions">
+                        <button class="btn btn-outline" onclick="exportInventory('csv')" title="Export as CSV">
+                            <i data-lucide="table" style="width: 16px; height: 16px;"></i> CSV
+                        </button>
+                        <button class="btn btn-outline" onclick="exportInventory('json')" title="Export as JSON">
+                            <i data-lucide="file-json" style="width: 16px; height: 16px;"></i> JSON
+                        </button>
+                        <button class="btn btn-outline" onclick="exportInventory('parquet')" title="Export as Parquet">
+                            <i data-lucide="database" style="width: 16px; height: 16px;"></i> Parquet
+                        </button>
+                        <button class="btn btn-outline" onclick="refreshInventory()">
+                            <i data-lucide="refresh-cw"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                <div id="inventory-table">
+                    <div class="loading">Loading inventory data...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

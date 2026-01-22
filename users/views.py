@@ -496,3 +496,35 @@ def export_inventory(request):
         return response
     
     return JsonResponse({'error': 'Invalid format. Use: csv or json'}, status=400)
+
+@login_required
+def inventory_page(request):
+    """View para renderizar a página de Inventory"""
+    context = {
+        'user': request.user,
+    }
+    return render(request, 'inventory.html', context)
+
+@login_required
+def companies_page(request):
+    """View para renderizar a página de Companies"""
+    context = {
+        'user': request.user,
+    }
+    return render(request, 'companies.html', context)
+
+@login_required
+def reports_page(request):
+    """View para renderizar a página de Reports"""
+    context = {
+        'user': request.user,
+    }
+    return render(request, 'reports.html', context)
+
+@login_required
+def sales_page(request):
+    """View para renderizar a página de Sales"""
+    context = {
+        'user': request.user,
+    }
+    return render(request, 'sales.html', context)
