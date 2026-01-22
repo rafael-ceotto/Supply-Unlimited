@@ -133,7 +133,8 @@ async function loadInventory() {
         const response = await fetch('/api/inventory/', {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
-            }
+            },
+            redirect: 'error'  // Don't follow redirects, treat as error
         });
         
         if (!response.ok) {
@@ -229,11 +230,15 @@ function populateFilters() {
 // Load companies data
 async function loadCompanies() {
     try {
+        console.log('Loading companies from /api/companies/');
         const response = await fetch('/api/companies/', {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
-            }
+            },
+            redirect: 'error'  // Don't follow redirects, treat as error
         });
+        
+        console.log('Companies response status:', response.status, response.statusText);
         
         if (!response.ok) {
             console.error(`HTTP Error: ${response.status} ${response.statusText}`);
@@ -243,10 +248,19 @@ async function loadCompanies() {
         }
         
         const result = await response.json();
+        console.log('Companies data received:', result);
+        
         allCompaniesData = Array.isArray(result) ? result : result.companies || [];
+        console.log('Companies data processed, total:', allCompaniesData.length);
+        
+        if (allCompaniesData.length === 0) {
+            console.warn('No companies data available');
+        }
+        
         renderCompaniesTable(allCompaniesData);
     } catch (error) {
         console.error('Error loading companies:', error);
+        console.error('Error stack:', error.stack);
         document.getElementById('companies-content').innerHTML = '<div class="loading" style="color: #dc2626;">Error loading companies data</div>';
     }
 }
