@@ -12,6 +12,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Navigation
 function showSection(sectionName) {
+    // Redirect to separate pages for inventory, companies, reports, and sales
+    if (sectionName === 'inventory') {
+        window.location.href = '/inventory/';
+        return;
+    } else if (sectionName === 'companies') {
+        window.location.href = '/companies/';
+        return;
+    } else if (sectionName === 'reports') {
+        window.location.href = '/reports/';
+        return;
+    } else if (sectionName === 'sales') {
+        window.location.href = '/sales/';
+        return;
+    }
+    
     // Hide all sections
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
@@ -34,12 +49,8 @@ function showSection(sectionName) {
     }
     
     // Load data for specific sections
-    if (sectionName === 'companies') {
-        loadCompanies();
-    } else if (sectionName === 'dashboard') {
+    if (sectionName === 'dashboard') {
         loadInventory();
-    } else if (sectionName === 'sales') {
-        loadSalesData();
     }
 }
 

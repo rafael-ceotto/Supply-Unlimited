@@ -1,0 +1,90 @@
+<!-- templates/companies.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Companies - Supply Unlimited{% endblock %}
+
+{% block auth_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/lucide.min.css">
+{% endblock %}
+
+{% block content %}
+<!-- Top Bar -->
+<div class="top-bar">
+    <div class="logo-section">
+        <div class="logo-mini">SU</div>
+        <div class="logo-text">Supply Unlimited</div>
+    </div>
+    <div class="user-section">
+        <div class="user-info">
+            <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+            <div class="user-role">Administrator</div>
+        </div>
+        <a href="{% url 'logout' %}" class="btn btn-outline">Logout</a>
+    </div>
+</div>
+
+<!-- Main Container -->
+<div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Menu</h2>
+        </div>
+        <div class="sidebar-menu">
+            <a href="{% url 'dashboard' %}" class="menu-item">
+                <i data-lucide="home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{% url 'companies' %}" class="menu-item active">
+                <i data-lucide="building-2"></i>
+                <span>Companies</span>
+            </a>  
+            <a href="{% url 'inventory' %}" class="menu-item">
+                <i data-lucide="package"></i>
+                <span>Inventory</span>
+            </a>
+            <a href="{% url 'reports' %}" class="menu-item">
+                <i data-lucide="file-text"></i>
+                <span>Reports</span>
+            </a>
+            <a href="{% url 'sales' %}" class="menu-item">
+                <i data-lucide="trending-up"></i>
+                <span>Sales</span>
+            </a>           
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content">
+        <!-- Companies Section -->
+        <div class="content-section active">
+            <div class="page-header">
+                <h1>Company Management</h1>
+                <p>Manage companies and their relationships</p>
+            </div>
+            
+            <div class="companies-controls">
+                <div class="search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="companySearch" placeholder="Search companies..." onkeyup="filterCompanies()">
+                </div>
+                <button class="btn btn-primary" onclick="openCompanyModal()">
+                    <i data-lucide="plus"></i> New Company
+                </button>
+                <button class="btn btn-outline" onclick="openMergeModal()">
+                    <i data-lucide="git-merge"></i> Merge Companies
+                </button>
+            </div>
+
+            <div id="companies-content">
+                <div class="loading">Loading companies...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

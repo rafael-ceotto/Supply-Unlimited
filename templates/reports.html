@@ -1,0 +1,81 @@
+<!-- templates/reports.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reports - Supply Unlimited{% endblock %}
+
+{% block auth_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/lucide.min.css">
+{% endblock %}
+
+{% block content %}
+<!-- Top Bar -->
+<div class="top-bar">
+    <div class="logo-section">
+        <div class="logo-mini">SU</div>
+        <div class="logo-text">Supply Unlimited</div>
+    </div>
+    <div class="user-section">
+        <div class="user-info">
+            <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+            <div class="user-role">Administrator</div>
+        </div>
+        <a href="{% url 'logout' %}" class="btn btn-outline">Logout</a>
+    </div>
+</div>
+
+<!-- Main Container -->
+<div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Menu</h2>
+        </div>
+        <div class="sidebar-menu">
+            <a href="{% url 'dashboard' %}" class="menu-item">
+                <i data-lucide="home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{% url 'companies' %}" class="menu-item">
+                <i data-lucide="building-2"></i>
+                <span>Companies</span>
+            </a>  
+            <a href="{% url 'inventory' %}" class="menu-item">
+                <i data-lucide="package"></i>
+                <span>Inventory</span>
+            </a>
+            <a href="{% url 'reports' %}" class="menu-item active">
+                <i data-lucide="file-text"></i>
+                <span>Reports</span>
+            </a>
+            <a href="{% url 'sales' %}" class="menu-item">
+                <i data-lucide="trending-up"></i>
+                <span>Sales</span>
+            </a>           
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content">
+        <!-- Reports Section -->
+        <div class="content-section active">
+            <div class="page-header">
+                <h1>Reports</h1>
+                <p>Generate and export reports</p>
+            </div>
+            
+            <div style="text-align: center; padding: 60px 24px;">
+                <div style="width: 80px; height: 80px; background: #f3f4f6; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                    <i data-lucide="file-text" style="width: 40px; height: 40px; color: #d1d5db;"></i>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin: 0 0 8px 0;">Reports Section</h3>
+                <p style="color: #6b7280; margin: 0;">Reports functionality coming soon</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}
