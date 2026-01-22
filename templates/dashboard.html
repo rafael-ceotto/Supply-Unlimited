@@ -121,39 +121,6 @@
                 </div>
             </div>
 
-            <!-- Search & Filters -->
-            <div class="filters-container">
-                <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 600; color: #1f2937;">Search Inventory</h3>
-                <div class="filters-row">
-                    <div class="search-box">
-                        <i data-lucide="search"></i>
-                        <input type="text" id="searchInput" placeholder="Search products, SKU, category..." onkeyup="filterInventory()">
-                    </div>
-                    <div class="filter-divider"></div>
-                    <div class="filter-group">
-                        <select id="storeFilter" onchange="filterInventory()" class="filter-select">
-                            <option value="all">All Countries</option>
-                            <option value="Chile">Chile</option>
-                            <option value="USA">USA</option>
-                            <option value="Brazil">Brazil</option>
-                            <option value="Canada">Canada</option>
-                        </select>
-                        <select id="categoryFilter" onchange="filterInventory()" class="filter-select">
-                            <option value="all">All Categories</option>
-                        </select>
-                        <select id="stockFilter" onchange="filterInventory()" class="filter-select">
-                            <option value="all">All Stock</option>
-                            <option value="Low">Low Stock</option>
-                            <option value="Medium">Medium Stock</option>
-                            <option value="High">High Stock</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-primary" onclick="exportInventory()" style="white-space: nowrap;">
-                        <i data-lucide="download" style="width: 16px; height: 16px;"></i> Export
-                    </button>
-                </div>
-            </div>
-
             <!-- Charts Section -->
             <div class="charts-grid">
                 <div class="chart-container">
@@ -169,33 +136,6 @@
                         <p>Product status overview</p>
                     </div>
                     <canvas id="stockChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Inventory Table -->
-            <div class="table-container">
-                <div class="table-header">
-                    <div class="table-title-section">
-                        <h3>Live Stock Inventory</h3>
-                        <p>Real-time stock updates across European stores</p>
-                    </div>
-                    <div class="table-actions">
-                        <button class="btn btn-outline" onclick="exportInventory('csv')" title="Export as CSV">
-                            <i data-lucide="table" style="width: 16px; height: 16px;"></i> CSV
-                        </button>
-                        <button class="btn btn-outline" onclick="exportInventory('json')" title="Export as JSON">
-                            <i data-lucide="file-json" style="width: 16px; height: 16px;"></i> JSON
-                        </button>
-                        <button class="btn btn-outline" onclick="exportInventory('parquet')" title="Export as Parquet">
-                            <i data-lucide="database" style="width: 16px; height: 16px;"></i> Parquet
-                        </button>
-                        <button class="btn btn-outline" onclick="refreshInventory()">
-                            <i data-lucide="refresh-cw"></i> Refresh
-                        </button>
-                    </div>
-                </div>
-                <div id="inventory-table">
-                    <div class="loading">Loading inventory data...</div>
                 </div>
             </div>
         </div>
@@ -238,21 +178,21 @@
                 <div class="filters-row">
                     <div class="search-box">
                         <i data-lucide="search"></i>
-                        <input type="text" id="searchInput2" placeholder="Search products, SKU, category..." onkeyup="filterInventory()">
+                        <input type="text" id="searchInput" placeholder="Search products, SKU, category..." onkeyup="filterInventory()">
                     </div>
                     <div class="filter-divider"></div>
                     <div class="filter-group">
-                        <select id="storeFilter2" onchange="filterInventory()" class="filter-select">
+                        <select id="storeFilter" onchange="filterInventory()" class="filter-select">
                             <option value="all">All Countries</option>
                             <option value="Chile">Chile</option>
                             <option value="USA">USA</option>
                             <option value="Brazil">Brazil</option>
                             <option value="Canada">Canada</option>
                         </select>
-                        <select id="categoryFilter2" onchange="filterInventory()" class="filter-select">
+                        <select id="categoryFilter" onchange="filterInventory()" class="filter-select">
                             <option value="all">All Categories</option>
                         </select>
-                        <select id="stockFilter2" onchange="filterInventory()" class="filter-select">
+                        <select id="stockFilter" onchange="filterInventory()" class="filter-select">
                             <option value="all">All Stock</option>
                             <option value="Low">Low Stock</option>
                             <option value="Medium">Medium Stock</option>

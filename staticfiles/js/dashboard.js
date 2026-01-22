@@ -6,7 +6,6 @@ let chartInstances = {};
 // Initialize Lucide icons
 document.addEventListener('DOMContentLoaded', function() {
     lucide.createIcons();
-    loadInventory();
     initializeCharts();
 });
 
@@ -131,7 +130,19 @@ function initializeCharts() {
 // Load inventory data
 async function loadInventory() {
     try {
-        const response = await fetch('/api/inventory/');
+        const response = await fetch('/api/inventory/', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        if (!response.ok) {
+            console.error(`HTTP Error: ${response.status} ${response.statusText}`);
+            const text = await response.text();
+            console.error('Response body:', text);
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const result = await response.json();
         allInventoryData = result.data;
         renderInventoryTable(allInventoryData);
@@ -223,6 +234,14 @@ async function loadCompanies() {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         });
+        
+        if (!response.ok) {
+            console.error(`HTTP Error: ${response.status} ${response.statusText}`);
+            const text = await response.text();
+            console.error('Response body:', text);
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const result = await response.json();
         allCompaniesData = Array.isArray(result) ? result : result.companies || [];
         renderCompaniesTable(allCompaniesData);
