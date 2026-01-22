@@ -1,2 +1,3 @@
 # Supply-Unlimited
-Plataforma web desenvolvida em Django para gerenciamento e venda de suprimentos. Inclui sistema de autenticação seguro com registro e login, dashboard intuitivo para usuários e interface responsiva com Bootstrap 5. Ideal para pequenos negócios que precisam gerenciar inventário e clientes de forma eficiente.
+
+Django web platform for managing and selling supplies. Features secure login and registration, an intuitive user dashboard, and a responsive Bootstrap 5 interface. Ideal for small to medium businesses looking to efficiently manage inventory and customers.
