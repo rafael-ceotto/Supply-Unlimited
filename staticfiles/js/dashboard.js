@@ -12,21 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Navigation
 function showSection(sectionName) {
-    // Redirect to separate pages for inventory, companies, reports, and sales
-    if (sectionName === 'inventory') {
-        window.location.href = '/inventory/';
-        return;
-    } else if (sectionName === 'companies') {
-        window.location.href = '/companies/';
-        return;
-    } else if (sectionName === 'reports') {
-        window.location.href = '/reports/';
-        return;
-    } else if (sectionName === 'sales') {
-        window.location.href = '/sales/';
-        return;
-    }
-    
     // Hide all sections
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
@@ -49,8 +34,14 @@ function showSection(sectionName) {
     }
     
     // Load data for specific sections
-    if (sectionName === 'dashboard') {
+    if (sectionName === 'companies') {
+        loadCompanies();
+    } else if (sectionName === 'dashboard') {
         loadInventory();
+    } else if (sectionName === 'inventory') {
+        loadInventory();
+    } else if (sectionName === 'sales') {
+        loadSalesData();
     }
 }
 
@@ -227,17 +218,17 @@ function populateFilters() {
 // Load companies data
 async function loadCompanies() {
     try {
-        const response = await fetch('/companies/', {
+        const response = await fetch('/api/companies/', {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         });
         const result = await response.json();
-        allCompaniesData = result.companies;
+        allCompaniesData = Array.isArray(result) ? result : result.companies || [];
         renderCompaniesTable(allCompaniesData);
     } catch (error) {
         console.error('Error loading companies:', error);
-        document.getElementById('companies-content').innerHTML = '<div class="loading">Error loading companies data</div>';
+        document.getElementById('companies-content').innerHTML = '<div class="loading" style="color: #dc2626;">Error loading companies data</div>';
     }
 }
 

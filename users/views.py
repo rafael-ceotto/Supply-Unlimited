@@ -237,17 +237,18 @@ def sales_data(request):
 @login_required
 def companies_api(request):
     """API para listar empresas em JSON"""
-    companies = Company.objects.all().values('company_id', 'name', 'country', 'city', 'status')
-    companies_list = [
-        {
-            'id': str(company['company_id']),
-            'name': company['name'],
-            'country': company['country'],
-            'city': company['city'],
-            'status': company['status']
-        }
-        for company in companies
-    ]
+    companies = Company.objects.all().select_related('parent')
+    companies_list = []
+    for company in companies:
+        companies_list.append({
+            'id': str(company.company_id),
+            'name': company.name,
+            'parent_name': company.parent.name if company.parent else None,
+            'city': company.city,
+            'country': company.country,
+            'ownership': 100 if not company.parent else 50,  # Mock ownership %
+            'status': company.status
+        })
     return JsonResponse(companies_list, safe=False)
 
 
