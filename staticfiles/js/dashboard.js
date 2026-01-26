@@ -21,15 +21,27 @@ function showSection(sectionName) {
         item.classList.remove('active');
     });
     
+    // Hide all submenus
+    document.querySelectorAll('.submenu').forEach(submenu => {
+        submenu.style.display = 'none';
+    });
+    
     // Show selected section
     const section = document.getElementById(sectionName + '-section');
     if (section) {
         section.classList.add('active');
     }
     
-    // Add active class to clicked menu item
+    // Add active class to clicked menu item and show submenu if it exists
     if (event && event.target) {
-        event.target.closest('.menu-item')?.classList.add('active');
+        const menuItem = event.target.closest('.menu-item');
+        if (menuItem) {
+            menuItem.classList.add('active');
+            const submenu = menuItem.querySelector('.submenu');
+            if (submenu) {
+                submenu.style.display = 'block';
+            }
+        }
     }
     
     // Load data for specific sections
@@ -39,8 +51,39 @@ function showSection(sectionName) {
         loadInventory();
     } else if (sectionName === 'inventory') {
         loadInventory();
-    } else if (sectionName === 'sales') {
-        loadSalesData();
+    } else if (sectionName === 'reports') {
+        showSubsection('reports', 'analytics');
+    }
+}
+
+// Show subsections within a main section
+function showSubsection(mainSection, subsectionName) {
+    // Hide all subsections
+    document.querySelectorAll(`[id^="subsection-"]`).forEach(subsection => {
+        subsection.style.display = 'none';
+    });
+    
+    // Remove active class from all tab buttons
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.color = '#6b7280';
+        btn.style.borderBottomColor = 'transparent';
+    });
+    
+    // Show selected subsection
+    const subsection = document.getElementById(`subsection-${subsectionName}`);
+    if (subsection) {
+        subsection.style.display = 'block';
+    }
+    
+    // Add active styling to clicked tab button
+    if (event && event.target) {
+        const btn = event.target.closest('.tab-button');
+        if (btn) {
+            btn.classList.add('active');
+            btn.style.color = '#111827';
+            btn.style.borderBottomColor = '#2563eb';
+        }
     }
 }
 
