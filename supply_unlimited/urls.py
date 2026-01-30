@@ -37,4 +37,5 @@ urlpatterns = [
     path('', login_view, name='home'),  # Página inicial redirecionando para login
     path('', include('users.urls')),
     path('sales/', include('supply_unlimited.sales.urls')),
+    path('api/ai-reports/', include('ai_reports.urls')),
 ]

@@ -4,3 +4,6 @@ python-decouple==3.8
 Faker==21.0.0
 pandas==2.2.3
 requests==2.31.0
+djangorestframework==3.14.0
+reportlab==4.0.7
+openpyxl==3.1.1

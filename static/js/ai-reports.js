@@ -6,12 +6,13 @@
  * - Chat message handling with AI stages (analyzing → planning → etl → generating → complete)
  * - Real-time status updates
  * - Report preview and data visualization
- * - Integration with LangGraph backend via Django API
+ * - Integration with Django REST API backend
  */
 
 let chatMessages = [];
 let isProcessing = false;
 let reportGenerated = false;
+let currentSessionId = null;
 
 // Status configuration for AI processing stages
 const STATUS_STAGES = {
@@ -68,6 +69,9 @@ function initializeAIReports() {
 
     // Show quick prompt suggestions if no messages sent yet
     showQuickPrompts();
+    
+    // Get CSRF token for API requests
+    window.csrfToken = getCookie('csrftoken');
 }
 
 /**
@@ -197,67 +201,132 @@ async function handleSendMessage() {
     inputField.disabled = true;
     document.getElementById('ai-send-button').disabled = true;
 
-    // Simulate AI processing stages
-    const stages = [
-        { status: 'analyzing', message: 'Analisando seu pedido...', duration: 1500 },
-        { status: 'planning', message: 'Planejando métricas e KPIs necessários...', duration: 2000 },
-        { status: 'etl', message: 'Executando ETL e processando dados...', duration: 2500 },
-        { status: 'generating', message: 'Gerando visualizações e insights...', duration: 2000 },
-        { status: 'complete', message: 'Relatório concluído! Analisei os dados e identifiquei os principais insights.', duration: 0 }
-    ];
+    try {
+        // Mostrar estágio "analisando"
+        addSystemMessage('Analisando seu pedido...', 'analyzing');
 
-    for (const stage of stages) {
-        addSystemMessage(stage.message, stage.status);
-        
-        if (stage.duration > 0) {
-            await new Promise(resolve => setTimeout(resolve, stage.duration));
+        // Fazer chamada à API Django
+        const response = await fetch('/api/ai-reports/messages/send/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': window.csrfToken || getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                message: content,
+                session_id: currentSessionId || null
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            addSystemMessage(`Erro: ${error.error || 'Erro ao processar requisição'}`, 'complete');
+            throw new Error(error.error || 'Erro na API');
         }
+
+        const data = await response.json();
+        
+        // Atualizar session ID para próximas mensagens
+        currentSessionId = data.session_id;
+
+        // Atualizar mensagens de progresso baseado nos estágios recebidos
+        if (data.stage_progress && data.stage_progress.length > 0) {
+            // Limpar mensagem de "analisando"
+            const aiMessages = document.querySelectorAll('[id^="message-"]');
+            const lastAiMsg = aiMessages[aiMessages.length - 1];
+            if (lastAiMsg) lastAiMsg.remove();
+            chatMessages = chatMessages.filter(m => m.type !== 'ai' || m.status !== 'analyzing');
+
+            // Mostrar cada estágio
+            for (const stage of data.stage_progress) {
+                const stageName = stage.stage.toUpperCase();
+                const stageLabel = {
+                    'INTERPRETING': 'Interpretando requisição...',
+                    'PLANNING': 'Planejando análise...',
+                    'DATA_COLLECTION': 'Coletando dados...',
+                    'ANALYSIS': 'Analisando dados...',
+                    'GENERATING': 'Gerando insights...'
+                }[stage.stage] || `${stageName}...`;
+
+                addSystemMessage(stageLabel, stage.stage.toLowerCase());
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        // Adicionar mensagem final com título do relatório
+        addSystemMessage(`✓ ${data.report_title}`, 'complete');
+
+        // Gerar preview do relatório
+        if (data.report_data) {
+            reportGenerated = true;
+            showReportPreview(data.report_data, data.insights);
+            showAIInsights(data.insights, data.recommendations);
+        }
+
+    } catch (error) {
+        console.error('Erro ao enviar mensagem:', error);
+        addSystemMessage('Desculpe, houve um erro ao processar sua requisição. Tente novamente.', 'complete');
+    } finally {
+        // Hide quick prompts after first message
+        const promptsContainer = document.getElementById('ai-quick-prompts');
+        if (promptsContainer) {
+            promptsContainer.style.display = 'none';
+        }
+
+        // Re-enable input
+        isProcessing = false;
+        inputField.disabled = false;
+        document.getElementById('ai-send-button').disabled = false;
+        inputField.focus();
     }
-
-    // Generate report
-    reportGenerated = true;
-    showReportPreview();
-    showAIInsights();
-
-    // Hide quick prompts after first message
-    const promptsContainer = document.getElementById('ai-quick-prompts');
-    if (promptsContainer) {
-        promptsContainer.style.display = 'none';
-    }
-
-    // Re-enable input
-    isProcessing = false;
-    inputField.disabled = false;
-    document.getElementById('ai-send-button').disabled = false;
-    inputField.focus();
 }
 
 /**
  * Show report preview with charts and data
  */
-function showReportPreview() {
+function showReportPreview(reportData = null, insights = null) {
     const previewContainer = document.getElementById('ai-report-preview');
     if (!previewContainer) return;
+
+    // Usar dados da API ou dados de fallback
+    const data = reportData || generateDefaultReportData();
+    const kpis = data.kpis || {};
+
+    let kpiHtml = '';
+    let kpiCount = 0;
+    for (const [key, value] of Object.entries(kpis)) {
+        if (kpiCount >= 3) break;
+        const colors = ['from-blue-50 to-blue-100 border-blue-200', 'from-green-50 to-green-100 border-green-200', 'from-purple-50 to-purple-100 border-purple-200'];
+        const textColors = ['text-blue-700', 'text-green-700', 'text-purple-700'];
+        const fontColors = ['text-blue-900', 'text-green-900', 'text-purple-900'];
+        
+        kpiHtml += `
+            <div class="bg-gradient-to-br ${colors[kpiCount]} rounded-lg p-4 border">
+                <p class="text-sm ${textColors[kpiCount]} mb-1">${key.replace(/_/g, ' ')}</p>
+                <p class="text-2xl font-bold ${fontColors[kpiCount]}">${value}</p>
+            </div>
+        `;
+        kpiCount++;
+    }
 
     const html = `
         <div class="space-y-6">
             <!-- KPIs -->
             <div class="grid grid-cols-3 gap-4">
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-                    <p class="text-sm text-blue-700 mb-1">Total Inventory</p>
-                    <p class="text-2xl font-bold text-blue-900">€2.5M</p>
-                    <p class="text-xs text-blue-600 mt-1">↑ 12.5% vs last month</p>
-                </div>
-                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-                    <p class="text-sm text-green-700 mb-1">Turnover Rate</p>
-                    <p class="text-2xl font-bold text-green-900">8.6x</p>
-                    <p class="text-xs text-green-600 mt-1">↑ 5.2% vs target</p>
-                </div>
-                <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-                    <p class="text-sm text-purple-700 mb-1">Fill Rate</p>
-                    <p class="text-2xl font-bold text-purple-900">94.3%</p>
-                    <p class="text-xs text-purple-600 mt-1">↓ 1.2% vs last month</p>
-                </div>
+                ${kpiHtml || `
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+                        <p class="text-sm text-blue-700 mb-1">Total Inventory</p>
+                        <p class="text-2xl font-bold text-blue-900">€2.5M</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+                        <p class="text-sm text-green-700 mb-1">Turnover Rate</p>
+                        <p class="text-2xl font-bold text-green-900">8.6x</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
+                        <p class="text-sm text-purple-700 mb-1">Fill Rate</p>
+                        <p class="text-2xl font-bold text-purple-900">94.3%</p>
+                    </div>
+                `}
             </div>
 
             <!-- Data Table -->
@@ -308,51 +377,53 @@ function showReportPreview() {
     `;
 
     previewContainer.innerHTML = html;
+    previewContainer.parentElement.style.display = 'block';
 }
 
 /**
  * Show AI insights and recommendations
  */
-function showAIInsights() {
+function showAIInsights(insights = null, recommendations = null) {
     const insightsContainer = document.getElementById('ai-insights');
     if (!insightsContainer) return;
 
-    const html = `
-        <div class="space-y-4">
-            <!-- Executive Summary -->
+    const defaultInsights = [
+        "Inventário distribuído principalmente na Alemanha (33%) e França (27%)",
+        "Taxa de rotatividade anual de 8.6x indica bom fluxo de estoque",
+        "Utilização de armazém em 78% - espaço adequado para crescimento"
+    ];
+
+    const defaultRecommendations = [
+        "Considerar redistribuição de estoque para Itália e Espanha para melhorar cobertura local",
+        "Taxa de turnover de 8.6x é saudável - manter estratégia atual de reabastecimento",
+        "Aproveitar 22% de capacidade livre para planejar crescimento de 15-20%"
+    ];
+
+    const finalInsights = insights || defaultInsights;
+    const finalRecommendations = recommendations || defaultRecommendations;
+
+    let insightsHtml = '';
+    if (finalInsights && finalInsights.length > 0) {
+        insightsHtml = `
             <div class="bg-white rounded-lg p-4 border border-blue-200">
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                         <i data-lucide="trending-up" style="width: 16px; height: 16px; color: #2563eb;"></i>
                     </div>
                     <div>
-                        <h4 class="font-semibold text-gray-900 mb-2 text-sm">Executive Summary</h4>
-                        <p class="text-sm text-gray-700">
-                            Inventory levels have increased 12.5% month-over-month, primarily driven by proactive stocking in Germany and France. 
-                            Overall turnover rate of 8.6x remains above target, indicating healthy stock movement.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Operational Alerts -->
-            <div class="bg-white rounded-lg p-4 border border-orange-200">
-                <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <i data-lucide="alert-circle" style="width: 16px; height: 16px; color: #ea580c;"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-2 text-sm">Operational Alerts</h4>
+                        <h4 class="font-semibold text-gray-900 mb-2 text-sm">Key Insights</h4>
                         <ul class="text-sm text-gray-700 space-y-1">
-                            <li>• Italy showing slower turnover (7.8x) - consider redistribution</li>
-                            <li>• Fill rate decreased by 1.2% - investigate demand patterns</li>
-                            <li>• Spain DOH approaching upper threshold at 52 days</li>
+                            ${finalInsights.map(insight => `<li>• ${escapeHtml(insight)}</li>`).join('')}
                         </ul>
                     </div>
                 </div>
             </div>
+        `;
+    }
 
-            <!-- Recommendations -->
+    let recommendationsHtml = '';
+    if (finalRecommendations && finalRecommendations.length > 0) {
+        recommendationsHtml = `
             <div class="bg-white rounded-lg p-4 border border-green-200">
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -361,18 +432,26 @@ function showAIInsights() {
                     <div>
                         <h4 class="font-semibold text-gray-900 mb-2 text-sm">Recommendations</h4>
                         <ul class="text-sm text-gray-700 space-y-1">
-                            <li>✓ Transfer 15% of Italian stock to high-demand German DCs</li>
-                            <li>✓ Optimize safety stock levels in Spain to reduce DOH</li>
-                            <li>✓ Increase replenishment frequency for top-selling SKUs</li>
+                            ${finalRecommendations.map(rec => `<li>✓ ${escapeHtml(rec)}</li>`).join('')}
                         </ul>
                     </div>
                 </div>
             </div>
+        `;
+    }
+
+    const html = `
+        <div class="space-y-4">
+            ${insightsHtml}
+            ${recommendationsHtml}
         </div>
     `;
 
     insightsContainer.innerHTML = html;
-    lucide.createIcons();
+    insightsContainer.style.display = 'block';
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 }
 
 /**
@@ -394,6 +473,38 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+/**
+ * Get CSRF token from cookies
+ */
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+/**
+ * Generate default report data for fallback
+ */
+function generateDefaultReportData() {
+    return {
+        kpis: {
+            'Total Inventory': '€2.5M',
+            'Turnover Rate': '8.6x',
+            'Fill Rate': '94.3%'
+        },
+        charts: []
+    };
 }
 
 /**
