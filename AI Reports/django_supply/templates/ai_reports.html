@@ -1,0 +1,1147 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Reports - Supply Unlimited</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/lucide.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-mini {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-outline:hover {
+            background: #f9fafb;
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 64px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 256px;
+            background: linear-gradient(180deg, #ecfdf5 0%, white 50%, #ecfdf5 100%);
+            border-right: 1px solid #e5e7eb;
+            overflow-y: auto;
+        }
+
+        .sidebar-menu {
+            padding: 12px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .menu-item:hover {
+            background: #d1fae5;
+        }
+
+        .menu-item.active {
+            background: #10b981;
+            color: white;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .menu-item i {
+            font-size: 20px;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        /* AI Reports Specific Styles */
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .ai-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .ai-header h1 {
+            font-size: 28px;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .ai-header p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* Main Grid Layout */
+        .ai-grid {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+            height: calc(100vh - 200px);
+        }
+
+        /* Chat Section */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .chat-title {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 15px;
+        }
+
+        .chat-subtitle {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            display: flex;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.user .message-content {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .message.ai .message-content {
+            background: #f3f4f6;
+            color: #1f2937;
+            border: 1px solid #e5e7eb;
+        }
+
+        .message-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #6b7280;
+        }
+
+        .status-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .status-analyzing { color: #3b82f6; }
+        .status-planning { color: #8b5cf6; }
+        .status-etl { color: #f97316; }
+        .status-generating { color: #10b981; }
+        .status-complete { color: #10b981; }
+
+        .message-time {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        /* Quick Prompts */
+        .quick-prompts {
+            padding: 12px 20px;
+            border-top: 1px solid #e5e7eb;
+            background: #fafafa;
+        }
+
+        .quick-prompts-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .prompt-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .prompt-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: #eff6ff;
+            color: #3b82f6;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .prompt-btn:hover {
+            background: #dbeafe;
+        }
+
+        /* Chat Input */
+        .chat-input-container {
+            padding: 16px 20px;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .chat-input:disabled {
+            background: #f9fafb;
+            cursor: not-allowed;
+        }
+
+        .send-btn {
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Right Panel - Report Preview */
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            overflow-y: auto;
+        }
+
+        .preview-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            padding: 24px;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+
+        .preview-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #374151;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            background: #f9fafb;
+        }
+
+        .action-btn.primary {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .action-btn.primary:hover {
+            background: #2563eb;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            background: #f3f4f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: #9ca3af;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .empty-description {
+            color: #6b7280;
+            font-size: 14px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid;
+        }
+
+        .kpi-card.blue {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-color: #bfdbfe;
+        }
+
+        .kpi-card.green {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border-color: #a7f3d0;
+        }
+
+        .kpi-card.purple {
+            background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+            border-color: #ddd6fe;
+        }
+
+        .kpi-label {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .kpi-card.blue .kpi-label { color: #1e40af; }
+        .kpi-card.green .kpi-label { color: #065f46; }
+        .kpi-card.purple .kpi-label { color: #5b21b6; }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .kpi-card.blue .kpi-value { color: #1e3a8a; }
+        .kpi-card.green .kpi-value { color: #064e3b; }
+        .kpi-card.purple .kpi-value { color: #4c1d95; }
+
+        .kpi-change {
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .kpi-card.blue .kpi-change { color: #3b82f6; }
+        .kpi-card.green .kpi-change { color: #10b981; }
+        .kpi-card.purple .kpi-change { color: #8b5cf6; }
+
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .chart-box {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: #f9fafb;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        /* Data Table */
+        .data-table-container {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: #f9fafb;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .data-table {
+            width: 100%;
+            font-size: 13px;
+        }
+
+        .data-table thead {
+            background: #f9fafb;
+        }
+
+        .data-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            color: #1f2937;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table .text-right {
+            text-align: right;
+        }
+
+        /* AI Insights Card */
+        .insights-card {
+            background: linear-gradient(135deg, #eff6ff, #f5f3ff);
+            border: 1px solid #c7d2fe;
+        }
+
+        .insight-item {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid;
+        }
+
+        .insight-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .insight-item.summary {
+            border-color: #bfdbfe;
+        }
+
+        .insight-item.alert {
+            border-color: #fed7aa;
+        }
+
+        .insight-item.recommendation {
+            border-color: #bbf7d0;
+        }
+
+        .insight-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .insight-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .insight-item.summary .insight-icon {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        .insight-item.alert .insight-icon {
+            background: #fed7aa;
+            color: #f97316;
+        }
+
+        .insight-item.recommendation .insight-icon {
+            background: #d1fae5;
+            color: #10b981;
+        }
+
+        .insight-content h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .insight-content p,
+        .insight-content ul {
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        .insight-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .insight-content ul li {
+            margin-bottom: 4px;
+        }
+
+        /* Loading Animation */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Show class */
+        .show {
+            display: block !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="logo-section">
+            <div class="logo-mini">SU</div>
+            <div class="logo-text">Supply Unlimited</div>
+        </div>
+        <div class="user-section">
+            <span class="user-name">{{ user.username }}</span>
+            <button class="btn btn-outline" onclick="window.location.href='{% url 'logout' %}'">Logout</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-menu">
+                <a href="{% url 'dashboard' %}" class="menu-item">
+                    <i data-lucide="home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i data-lucide="package"></i>
+                    <span>Inventory</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i data-lucide="shopping-cart"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i data-lucide="building-2"></i>
+                    <span>Companies</span>
+                </a>
+                <a href="{% url 'sales' %}" class="menu-item">
+                    <i data-lucide="bar-chart-3"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="{% url 'ai_reports' %}" class="menu-item active">
+                    <i data-lucide="sparkles"></i>
+                    <span>AI Reports</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Header -->
+            <div class="ai-header">
+                <div class="ai-icon">
+                    <i data-lucide="sparkles" style="width: 24px; height: 24px;"></i>
+                </div>
+                <div>
+                    <h1>AI Reports</h1>
+                    <p>Create custom supply chain reports with AI assistance</p>
+                </div>
+            </div>
+
+            <!-- AI Grid Layout -->
+            <div class="ai-grid">
+                <!-- Left: Chat Panel -->
+                <div class="chat-container">
+                    <!-- Chat Header -->
+                    <div class="chat-header">
+                        <div class="chat-avatar">
+                            <i data-lucide="sparkles" style="width: 18px; height: 18px;"></i>
+                        </div>
+                        <div>
+                            <div class="chat-title">AI Copilot</div>
+                            <div class="chat-subtitle">Supply Chain Analyst</div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Messages -->
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message ai">
+                            <div class="message-content">
+                                <div class="message-status">
+                                    <i data-lucide="sparkles" class="status-icon status-complete"></i>
+                                    <span>AI Assistant</span>
+                                </div>
+                                <p>Olá! Sou seu assistente de análise de supply chain. Descreva o relatório que você deseja criar e eu vou construí-lo para você.</p>
+                                <div class="message-time" id="initialTime"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Prompts -->
+                    <div class="quick-prompts" id="quickPromptsSection">
+                        <div class="quick-prompts-label">Try these prompts:</div>
+                        <div class="prompt-buttons">
+                            <button class="prompt-btn" onclick="setPrompt('Analyze inventory turnover by country for the last 90 days')">
+                                Inventory Analysis
+                            </button>
+                            <button class="prompt-btn" onclick="setPrompt('Show supply chain risks in Southern Europe')">
+                                Risk Analysis
+                            </button>
+                            <button class="prompt-btn" onclick="setPrompt('Compare stock levels vs sales performance by DC')">
+                                Performance Report
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input-container">
+                        <div class="chat-input-wrapper">
+                            <input 
+                                type="text" 
+                                class="chat-input" 
+                                id="chatInput" 
+                                placeholder="Descreva o relatório que você deseja criar..."
+                            >
+                            <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                                <i data-lucide="send" style="width: 20px; height: 20px;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Report Preview -->
+                <div class="preview-container">
+                    <!-- Report Preview Card -->
+                    <div class="preview-card">
+                        <div class="preview-header">
+                            <div class="preview-title">
+                                <i data-lucide="bar-chart-3"></i>
+                                <span>Report Preview</span>
+                            </div>
+                            <div class="preview-actions hidden" id="reportActions">
+                                <button class="action-btn">
+                                    <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
+                                    Refine
+                                </button>
+                                <button class="action-btn">
+                                    <i data-lucide="save" style="width: 16px; height: 16px;"></i>
+                                    Save
+                                </button>
+                                <button class="action-btn primary">
+                                    <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                                    Export PDF
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div class="empty-state" id="emptyState">
+                            <div class="empty-icon">
+                                <i data-lucide="bar-chart-3" style="width: 40px; height: 40px;"></i>
+                            </div>
+                            <div class="empty-title">No Report Yet</div>
+                            <div class="empty-description">
+                                Start a conversation with the AI Copilot to create your custom supply chain report
+                            </div>
+                        </div>
+
+                        <!-- Report Content (Hidden by default) -->
+                        <div id="reportContent" class="hidden">
+                            <!-- KPIs -->
+                            <div class="kpi-grid">
+                                <div class="kpi-card blue">
+                                    <div class="kpi-label">Total Inventory</div>
+                                    <div class="kpi-value">€2.5M</div>
+                                    <div class="kpi-change">↑ 12.5% vs last month</div>
+                                </div>
+                                <div class="kpi-card green">
+                                    <div class="kpi-label">Turnover Rate</div>
+                                    <div class="kpi-value">8.6x</div>
+                                    <div class="kpi-change">↑ 5.2% vs target</div>
+                                </div>
+                                <div class="kpi-card purple">
+                                    <div class="kpi-label">Fill Rate</div>
+                                    <div class="kpi-value">94.3%</div>
+                                    <div class="kpi-change">↓ 1.2% vs last month</div>
+                                </div>
+                            </div>
+
+                            <!-- Charts -->
+                            <div class="charts-grid">
+                                <div class="chart-box">
+                                    <div class="chart-title">Inventory vs Sales Trend</div>
+                                    <div class="chart-placeholder">📈 Chart visualization</div>
+                                </div>
+                                <div class="chart-box">
+                                    <div class="chart-title">Stock by Country</div>
+                                    <div class="chart-placeholder">📊 Bar chart</div>
+                                </div>
+                            </div>
+
+                            <!-- Data Table -->
+                            <div class="data-table-container">
+                                <div class="table-header">Dataset Preview</div>
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Country</th>
+                                            <th class="text-right">Stock Value</th>
+                                            <th class="text-right">Turnover</th>
+                                            <th class="text-right">DOH</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Germany</td>
+                                            <td class="text-right">€850K</td>
+                                            <td class="text-right">9.2x</td>
+                                            <td class="text-right">39 days</td>
+                                        </tr>
+                                        <tr>
+                                            <td>France</td>
+                                            <td class="text-right">€720K</td>
+                                            <td class="text-right">8.5x</td>
+                                            <td class="text-right">43 days</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Italy</td>
+                                            <td class="text-right">€580K</td>
+                                            <td class="text-right">7.8x</td>
+                                            <td class="text-right">47 days</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Insights Card (Hidden by default) -->
+                    <div class="preview-card insights-card hidden" id="insightsCard">
+                        <div class="preview-header" style="border-bottom-color: #c7d2fe;">
+                            <div class="preview-title">
+                                <i data-lucide="lightbulb"></i>
+                                <span>AI Insights</span>
+                            </div>
+                        </div>
+
+                        <!-- Executive Summary -->
+                        <div class="insight-item summary">
+                            <div class="insight-header">
+                                <div class="insight-icon">
+                                    <i data-lucide="trending-up" style="width: 16px; height: 16px;"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <h4>Executive Summary</h4>
+                                    <p>Inventory levels have increased 12.5% month-over-month, primarily driven by proactive stocking in Germany and France. Overall turnover rate of 8.6x remains above target, indicating healthy stock movement.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Operational Alerts -->
+                        <div class="insight-item alert">
+                            <div class="insight-header">
+                                <div class="insight-icon">
+                                    <i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <h4>Operational Alerts</h4>
+                                    <ul>
+                                        <li>• Italy showing slower turnover (7.8x) - consider redistribution</li>
+                                        <li>• Fill rate decreased by 1.2% - investigate demand patterns</li>
+                                        <li>• Spain DOH approaching upper threshold at 52 days</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recommendations -->
+                        <div class="insight-item recommendation">
+                            <div class="insight-header">
+                                <div class="insight-icon">
+                                    <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <h4>Recommendations</h4>
+                                    <ul>
+                                        <li>✓ Transfer 15% of Italian stock to high-demand German DCs</li>
+                                        <li>✓ Optimize safety stock levels in Spain to reduce DOH</li>
+                                        <li>✓ Increase replenishment frequency for top-selling SKUs</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Set initial timestamp
+        document.getElementById('initialTime').textContent = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+        let isProcessing = false;
+        let messageCount = 1;
+
+        function setPrompt(text) {
+            document.getElementById('chatInput').value = text;
+            document.getElementById('chatInput').focus();
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message || isProcessing) return;
+
+            isProcessing = true;
+            input.disabled = true;
+            document.getElementById('sendBtn').disabled = true;
+
+            // Hide quick prompts after first message
+            if (messageCount === 1) {
+                document.getElementById('quickPromptsSection').classList.add('hidden');
+            }
+
+            // Add user message
+            addMessage('user', message);
+            input.value = '';
+
+            // Simulate AI processing stages
+            const stages = [
+                { status: 'analyzing', message: 'Analisando seu pedido...', duration: 1500, icon: 'loader-2', iconClass: 'spinner' },
+                { status: 'planning', message: 'Planejando métricas e KPIs necessários...', duration: 2000, icon: 'loader-2', iconClass: 'spinner' },
+                { status: 'etl', message: 'Executando ETL e processando dados...', duration: 2500, icon: 'database', iconClass: '' },
+                { status: 'generating', message: 'Gerando visualizações e insights...', duration: 2000, icon: 'loader-2', iconClass: 'spinner' },
+                { status: 'complete', message: 'Relatório concluído! Analisei os dados e identifiquei os principais insights.', duration: 0, icon: 'check-circle', iconClass: '' }
+            ];
+
+            let currentStage = 0;
+
+            function processNextStage() {
+                if (currentStage < stages.length) {
+                    const stage = stages[currentStage];
+                    addMessage('ai', stage.message, stage.status, stage.icon, stage.iconClass);
+                    
+                    if (stage.duration > 0) {
+                        setTimeout(() => {
+                            currentStage++;
+                            processNextStage();
+                        }, stage.duration);
+                    } else {
+                        // Final stage - show report
+                        setTimeout(() => {
+                            showReport();
+                            isProcessing = false;
+                            input.disabled = false;
+                            document.getElementById('sendBtn').disabled = false;
+                        }, 500);
+                    }
+                } else {
+                    isProcessing = false;
+                    input.disabled = false;
+                    document.getElementById('sendBtn').disabled = false;
+                }
+            }
+
+            processNextStage();
+            messageCount++;
+        }
+
+        function addMessage(type, text, status = null, icon = 'sparkles', iconClass = '') {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+
+            const statusLabels = {
+                'analyzing': 'Analyzing...',
+                'planning': 'Planning...',
+                'etl': 'Processing Data...',
+                'generating': 'Generating...',
+                'complete': 'Complete'
+            };
+
+            const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+            if (type === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <p>${text}</p>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="message-status status-${status || 'complete'}">
+                            <i data-lucide="${icon}" class="status-icon ${iconClass}"></i>
+                            <span>${status ? statusLabels[status] : 'AI Assistant'}</span>
+                        </div>
+                        <p>${text}</p>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+            }
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Reinitialize Lucide icons for new message
+            lucide.createIcons();
+        }
+
+        function showReport() {
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('reportContent').classList.remove('hidden');
+            document.getElementById('reportActions').classList.remove('hidden');
+            document.getElementById('insightsCard').classList.remove('hidden');
+        }
+
+        // Handle Enter key
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !isProcessing) {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

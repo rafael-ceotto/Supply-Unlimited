@@ -7,6 +7,7 @@
 {% block auth_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 <link rel="stylesheet" href="{% static 'sales/css/sales.css' %}">
+<link rel="stylesheet" href="{% static 'css/ai-reports.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/lucide.min.css">
 {% endblock %}
 
@@ -778,15 +779,98 @@
 <!-- AI Reports Section -->
 <div id="ai-reports-section" class="content-section">
     <div class="page-header">
-        <h1>AI Reports</h1>
-        <p>Create personalized reports with AI</p>
+        <div class="flex items-center gap-3 mb-2">
+            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="sparkles" style="width: 20px; height: 20px; color: white;"></i>
+            </div>
+            <div>
+                <h1>mAI Reports</h1>
+                <p>Create personalized supply chain reports with AI assistance</p>
+            </div>
+        </div>
     </div>
 
-    <div style="background: white; border-radius: 12px; padding: 40px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <i data-lucide="sparkles" style="width: 48px; height: 48px; color: #10b981; margin-bottom: 16px; display: block;"></i>
-        <h2 style="font-size: 24px; color: #111827; margin-bottom: 8px;">Coming Soon</h2>
-        <p style="color: #6b7280; font-size: 16px;">AI-powered report generation with LangChain and LangGraph</p>
-        <p style="color: #9ca3af; font-size: 14px; margin-top: 16px;">This feature is currently being developed. You'll be able to create custom reports powered by AI.</p>
+    <!-- Main Layout: Chat + Preview -->
+    <div class="ai-reports-container">
+        <!-- Left Column: AI Copilot Chat -->
+        <div class="ai-chat-panel">
+            <!-- Chat Header -->
+            <div class="ai-chat-header">
+                <div class="ai-chat-header-icon">
+                    <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
+                </div>
+                <div>
+                    <h3>AI Copilot</h3>
+                    <p>Supply Chain Analyst</p>
+                </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div id="ai-chat-messages" class="ai-chat-messages"></div>
+
+            <!-- Chat Input -->
+            <div class="ai-chat-input-area">
+                <!-- Quick Prompts -->
+                <div id="ai-quick-prompts" class="ai-quick-prompts">
+                    <p style="font-size: 12px; color: #6b7280; margin: 0 0 8px 0;">Sugestões de prompts:</p>
+                    <button class="ai-quick-prompt-btn" style="background: #dbeafe; color: #0284c7;" onclick="setQuickPrompt('Analyze inventory turnover by country for the last 90 days')">Inventory Analysis</button>
+                    <button class="ai-quick-prompt-btn" style="background: #ede9fe; color: #7c3aed;" onclick="setQuickPrompt('Show supply chain risks in Southern Europe')">Risk Analysis</button>
+                    <button class="ai-quick-prompt-btn" style="background: #dcfce7; color: #10b981;" onclick="setQuickPrompt('Compare stock levels vs sales performance by DC')">Performance Report</button>
+                </div>
+                
+                <div class="ai-input-row">
+                    <input type="text" id="ai-chat-input" class="ai-chat-input" placeholder="Descreva o relatório que você deseja criar..." autocomplete="off">
+                    <button type="button" id="ai-send-button" class="ai-send-button">
+                        <i data-lucide="send" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Report Preview & Insights -->
+        <div class="ai-right-panel">
+            <!-- Report Preview / Builder -->
+            <div class="ai-report-section">
+                <div class="ai-section-header">
+                    <div class="ai-section-title">
+                        <i data-lucide="bar-chart-3" style="width: 20px; height: 20px; color: #10b981;"></i>
+                        <h3>Report Preview</h3>
+                    </div>
+                    <div id="ai-report-actions" class="ai-section-actions" style="display: none;">
+                        <button class="ai-action-button">
+                            <i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i>
+                            Refine
+                        </button>
+                        <button class="ai-action-button">
+                            <i data-lucide="save" style="width: 14px; height: 14px;"></i>
+                            Save
+                        </button>
+                        <button class="ai-action-button primary">
+                            <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+                            Export PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="ai-section-content">
+                    <div id="ai-report-preview" class="ai-empty-state">
+                        <div class="ai-empty-state-icon">
+                            <i data-lucide="bar-chart-3" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <h4>No Report Yet</h4>
+                        <p>Start a conversation with the AI Copilot to create your custom supply chain report</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights Panel -->
+            <div id="ai-insights" class="ai-insights-container" style="display: none;">
+                <div class="ai-insights-title">
+                    <i data-lucide="lightbulb" style="width: 20px; height: 20px; color: #10b981;"></i>
+                    <h3>AI Insights</h3>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -880,4 +964,5 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="{% static 'js/dashboard.js' %}"></script>
+<script src="{% static 'js/ai-reports.js' %}"></script>
 {% endblock %}

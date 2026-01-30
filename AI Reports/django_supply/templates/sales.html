@@ -1,0 +1,715 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Analytics - Supply Unlimited</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/lucide.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f9fafb; }
+        
+        /* Top Bar */
+        .top-bar {
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .logo-section { display: flex; align-items: center; gap: 12px; }
+        .logo-mini {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .logo-text { font-size: 20px; font-weight: bold; color: #1f2937; }
+        
+        /* Main Container */
+        .main-container { display: flex; height: calc(100vh - 64px); }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 256px;
+            background: linear-gradient(180deg, #ecfdf5 0%, white 50%, #ecfdf5 100%);
+            border-right: 1px solid #e5e7eb;
+            overflow-y: auto;
+        }
+        .sidebar-menu { padding: 12px; }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            color: #374151;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .menu-item:hover { background: #d1fae5; }
+        .menu-item.active { background: #10b981; color: white; box-shadow: 0 2px 8px rgba(16,185,129,0.3); }
+        
+        /* Content */
+        .content { flex: 1; overflow-y: auto; padding: 24px; }
+        
+        /* Page Header */
+        .page-header { margin-bottom: 32px; }
+        .page-header h1 { font-size: 32px; color: #1f2937; margin-bottom: 8px; }
+        .page-header p { color: #6b7280; font-size: 16px; }
+        
+        /* Search Section */
+        .search-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        .search-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .search-icon {
+            width: 48px;
+            height: 48px;
+            background: #dbeafe;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2563eb;
+            font-size: 24px;
+        }
+        .search-title h3 { font-size: 18px; color: #1f2937; }
+        .search-title p { font-size: 14px; color: #6b7280; }
+        
+        .search-form { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; }
+        .form-group input, .form-group select {
+            padding: 10px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+        
+        /* Results Container */
+        .results-container { display: none; }
+        .results-container.active { display: block; }
+        
+        /* Company Info Banner */
+        .company-banner {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .company-info h2 { font-size: 28px; margin-bottom: 8px; }
+        .company-info p { font-size: 14px; opacity: 0.9; }
+        .company-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+            transition: all 0.2s;
+        }
+        .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+        .kpi-card.revenue { border-color: #10b981; }
+        .kpi-card.profit { border-color: #3b82f6; }
+        .kpi-card.prediction { border-color: #f59e0b; }
+        
+        .kpi-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 16px;
+        }
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 12px;
+        }
+        .kpi-icon.revenue { background: #d1fae5; color: #059669; }
+        .kpi-icon.profit { background: #dbeafe; color: #2563eb; }
+        .kpi-icon.prediction { background: #fed7aa; color: #ea580c; }
+        
+        .kpi-label { font-size: 14px; color: #6b7280; font-weight: 500; }
+        .kpi-value { font-size: 36px; font-weight: bold; color: #1f2937; margin: 8px 0; }
+        .kpi-change {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .kpi-change.positive { color: #059669; }
+        .kpi-change.negative { color: #dc2626; }
+        
+        /* Ranking Section */
+        .ranking-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        .ranking-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        .ranking-header h3 { font-size: 20px; color: #1f2937; }
+        
+        .ranking-table { width: 100%; }
+        .ranking-row {
+            display: grid;
+            grid-template-columns: 60px 2fr 1fr 1fr 1fr 100px;
+            padding: 16px 0;
+            border-bottom: 1px solid #f3f4f6;
+            align-items: center;
+        }
+        .ranking-row:last-child { border-bottom: none; }
+        .ranking-row.highlight {
+            background: linear-gradient(90deg, rgba(16,185,129,0.05) 0%, transparent 100%);
+            border-left: 4px solid #10b981;
+            padding-left: 12px;
+        }
+        
+        .rank {
+            font-size: 24px;
+            font-weight: bold;
+            color: #6b7280;
+        }
+        .rank.first { color: #f59e0b; }
+        .rank.second { color: #9ca3af; }
+        .rank.third { color: #d97706; }
+        
+        .company-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .company-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .company-details h4 { font-size: 15px; color: #1f2937; margin-bottom: 2px; }
+        .company-details p { font-size: 12px; color: #6b7280; }
+        
+        .metric-cell {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .badge.you { background: #d1fae5; color: #065f46; }
+        .badge.competitor { background: #e5e7eb; color: #6b7280; }
+        
+        /* Top Products */
+        .products-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .products-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        .products-header i { color: #10b981; font-size: 24px; }
+        .products-header h3 { font-size: 20px; color: #1f2937; }
+        
+        .product-list { display: grid; gap: 16px; }
+        .product-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .product-item:hover {
+            border-color: #10b981;
+            background: #f0fdf4;
+            transform: translateX(4px);
+        }
+        
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .product-rank {
+            width: 40px;
+            height: 40px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #6b7280;
+        }
+        .product-rank.top { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+        
+        .product-details h4 { font-size: 16px; color: #1f2937; margin-bottom: 4px; }
+        .product-details p { font-size: 13px; color: #6b7280; }
+        
+        .product-stats { text-align: right; }
+        .product-units { font-size: 24px; font-weight: bold; color: #10b981; }
+        .product-revenue { font-size: 13px; color: #6b7280; }
+        
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            transition: width 0.5s ease;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+        
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+        .no-results i { font-size: 64px; margin-bottom: 16px; opacity: 0.3; }
+        .no-results h3 { font-size: 20px; margin-bottom: 8px; }
+        .no-results p { font-size: 14px; }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="logo-section">
+            <div class="logo-mini">SU</div>
+            <div class="logo-text">Supply Unlimited</div>
+        </div>
+        <div>
+            <a href="{% url 'logout' %}" class="btn btn-primary">Logout</a>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-menu">
+                <a href="{% url 'dashboard' %}" class="menu-item">
+                    <i data-lucide="home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i data-lucide="package"></i>
+                    <span>Inventory</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i data-lucide="shopping-cart"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="{% url 'company_list' %}" class="menu-item">
+                    <i data-lucide="building-2"></i>
+                    <span>Companies</span>
+                </a>
+                <a href="{% url 'sales' %}" class="menu-item active">
+                    <i data-lucide="bar-chart-3"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="{% url 'ai_reports' %}" class="menu-item">
+                    <i data-lucide="sparkles"></i>
+                    <span>AI Reports</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>Sales Analytics</h1>
+                <p>Analyze company performance, revenue, and market position</p>
+            </div>
+
+            <!-- Search Section -->
+            <div class="search-section">
+                <div class="search-header">
+                    <div class="search-icon">
+                        <i data-lucide="search"></i>
+                    </div>
+                    <div class="search-title">
+                        <h3>Search Company</h3>
+                        <p>Find detailed sales analytics and market insights</p>
+                    </div>
+                </div>
+
+                <form id="searchForm" class="search-form" onsubmit="searchCompany(event)">
+                    <div class="form-group">
+                        <label for="companyName">Company Name</label>
+                        <input 
+                            type="text" 
+                            id="companyName" 
+                            name="company_name" 
+                            placeholder="Enter company name..."
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sector">Sector</label>
+                        <select id="sector" name="sector">
+                            <option value="all">All Sectors</option>
+                            <option value="technology">Technology</option>
+                            <option value="industrial">Industrial</option>
+                            <option value="logistics">Logistics</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <select id="country" name="country">
+                            <option value="all">All Countries</option>
+                            <option value="Germany">Germany</option>
+                            <option value="France">France</option>
+                            <option value="Italy">Italy</option>
+                            <option value="Spain">Spain</option>
+                            <option value="Netherlands">Netherlands</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="year">Year</label>
+                        <select id="year" name="year">
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i data-lucide="search"></i>
+                        Search
+                    </button>
+                </form>
+            </div>
+
+            <!-- Results Container -->
+            <div id="resultsContainer" class="results-container">
+                <!-- Company Banner -->
+                <div class="company-banner">
+                    <div class="company-info">
+                        <h2 id="companyNameDisplay">-</h2>
+                        <p id="companySectorDisplay">-</p>
+                    </div>
+                    <div class="company-badge" id="companyBadge">Active</div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="kpi-grid">
+                    <!-- Revenue YTD -->
+                    <div class="kpi-card revenue">
+                        <div class="kpi-header">
+                            <div class="kpi-icon revenue">
+                                <i data-lucide="euro"></i>
+                            </div>
+                            <div>
+                                <div class="kpi-label">Revenue YTD</div>
+                            </div>
+                        </div>
+                        <div class="kpi-value" id="revenueYTD">€0</div>
+                        <div class="kpi-change positive" id="revenueChange">
+                            <i data-lucide="trending-up"></i>
+                            <span>+0%</span> from last year
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 75%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Profit YTD -->
+                    <div class="kpi-card profit">
+                        <div class="kpi-header">
+                            <div class="kpi-icon profit">
+                                <i data-lucide="trending-up"></i>
+                            </div>
+                            <div>
+                                <div class="kpi-label">Profit YTD</div>
+                            </div>
+                        </div>
+                        <div class="kpi-value" id="profitYTD">€0</div>
+                        <div class="kpi-change positive" id="profitChange">
+                            <i data-lucide="trending-up"></i>
+                            <span>+0%</span> from last year
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 60%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Prediction Next YTD -->
+                    <div class="kpi-card prediction">
+                        <div class="kpi-header">
+                            <div class="kpi-icon prediction">
+                                <i data-lucide="sparkles"></i>
+                            </div>
+                            <div>
+                                <div class="kpi-label">Prediction Next Year</div>
+                            </div>
+                        </div>
+                        <div class="kpi-value" id="predictionYTD">€0</div>
+                        <div class="kpi-change positive" id="predictionChange">
+                            <i data-lucide="arrow-up"></i>
+                            <span>+0%</span> expected growth
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 85%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ranking Section -->
+                <div class="ranking-section">
+                    <div class="ranking-header">
+                        <h3><i data-lucide="award"></i> Market Position - Competitor Ranking</h3>
+                    </div>
+                    <div class="ranking-table" id="rankingTable">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Top Products -->
+                <div class="products-section">
+                    <div class="products-header">
+                        <i data-lucide="package"></i>
+                        <h3>Top Selling Products</h3>
+                    </div>
+                    <div class="product-list" id="productList">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+
+        async function searchCompany(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const params = new URLSearchParams(formData);
+            
+            try {
+                const response = await fetch(`/api/sales/?${params.toString()}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    alert('Company not found or no data available');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error fetching data');
+            }
+        }
+
+        function displayResults(data) {
+            // Show results container
+            document.getElementById('resultsContainer').classList.add('active');
+            
+            // Update company banner
+            document.getElementById('companyNameDisplay').textContent = data.company.name;
+            document.getElementById('companySectorDisplay').textContent = 
+                `${data.company.sector} • ${data.company.country}`;
+            
+            // Update KPIs
+            document.getElementById('revenueYTD').textContent = 
+                `€${Number(data.metrics.revenue_ytd).toLocaleString('de-DE', {minimumFractionDigits: 2})}`;
+            document.getElementById('profitYTD').textContent = 
+                `€${Number(data.metrics.profit_ytd).toLocaleString('de-DE', {minimumFractionDigits: 2})}`;
+            document.getElementById('predictionYTD').textContent = 
+                `€${Number(data.metrics.prediction_next_ytd).toLocaleString('de-DE', {minimumFractionDigits: 2})}`;
+            
+            // Update changes
+            document.getElementById('revenueChange').innerHTML = 
+                `<i data-lucide="trending-up"></i><span>+${data.metrics.revenue_change}%</span> from last year`;
+            document.getElementById('profitChange').innerHTML = 
+                `<i data-lucide="trending-up"></i><span>+${data.metrics.profit_change}%</span> from last year`;
+            document.getElementById('predictionChange').innerHTML = 
+                `<i data-lucide="arrow-up"></i><span>+${data.metrics.prediction_growth}%</span> expected growth`;
+            
+            // Update ranking
+            displayRanking(data.ranking);
+            
+            // Update products
+            displayProducts(data.top_products);
+            
+            // Refresh icons
+            lucide.createIcons();
+        }
+
+        function displayRanking(ranking) {
+            const table = document.getElementById('rankingTable');
+            let html = '';
+            
+            ranking.forEach((company, index) => {
+                const rank = index + 1;
+                const isOurs = company.is_our_company;
+                const rankClass = rank === 1 ? 'first' : rank === 2 ? 'second' : rank === 3 ? 'third' : '';
+                
+                html += `
+                    <div class="ranking-row ${isOurs ? 'highlight' : ''}">
+                        <div class="rank ${rankClass}">#${rank}</div>
+                        <div class="company-name-cell">
+                            <div class="company-avatar">${company.name.substring(0, 2).toUpperCase()}</div>
+                            <div class="company-details">
+                                <h4>${company.name}</h4>
+                                <p>${company.country}</p>
+                            </div>
+                        </div>
+                        <div class="metric-cell">€${Number(company.revenue_ytd).toLocaleString('de-DE')}</div>
+                        <div class="metric-cell">€${Number(company.profit_ytd).toLocaleString('de-DE')}</div>
+                        <div class="metric-cell">${company.market_share}%</div>
+                        <div>
+                            <span class="badge ${isOurs ? 'you' : 'competitor'}">
+                                ${isOurs ? 'YOU' : 'Competitor'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            table.innerHTML = html;
+        }
+
+        function displayProducts(products) {
+            const list = document.getElementById('productList');
+            let html = '';
+            
+            products.forEach((product, index) => {
+                const rank = index + 1;
+                const isTop = rank <= 3;
+                
+                html += `
+                    <div class="product-item">
+                        <div class="product-info">
+                            <div class="product-rank ${isTop ? 'top' : ''}">${rank}</div>
+                            <div class="product-details">
+                                <h4>${product.name}</h4>
+                                <p>${product.category} • SKU: ${product.sku}</p>
+                            </div>
+                        </div>
+                        <div class="product-stats">
+                            <div class="product-units">${product.units_sold.toLocaleString()}</div>
+                            <div class="product-revenue">€${Number(product.revenue).toLocaleString('de-DE')}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            list.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
