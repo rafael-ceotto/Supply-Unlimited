@@ -244,12 +244,18 @@
             </div>
 
             <!-- Sub-tabs for Reports -->
-            <div style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid #e5e7eb; padding-bottom: 0;">
-                <button class="tab-button active" onclick="showSubsection('reports', 'analytics'); return false;" style="padding: 12px 16px; border: none; background: none; font-size: 14px; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px;">
+            <div style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid #e5e7eb; padding-bottom: 0; overflow-x: auto;">
+                <button class="tab-button active" onclick="showSubsection('reports', 'analytics'); return false;" style="padding: 12px 16px; border: none; background: none; font-size: 14px; font-weight: 600; color: #111827; cursor: pointer; border-bottom: 3px solid #2563eb; margin-bottom: -2px; white-space: nowrap;">
                     <i data-lucide="trending-up" style="width: 16px; height: 16px; display: inline; margin-right: 6px;"></i>Sales Analytics
                 </button>
-                <button class="tab-button" onclick="showSubsection('reports', 'reports'); return false;" style="padding: 12px 16px; border: none; background: none; font-size: 14px; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px;">
-                    <i data-lucide="file-text" style="width: 16px; height: 16px; display: inline; margin-right: 6px;"></i>Other Reports
+                <button class="tab-button" onclick="showSubsection('reports', 'risk'); return false;" style="padding: 12px 16px; border: none; background: none; font-size: 14px; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap;">
+                    <i data-lucide="alert-triangle" style="width: 16px; height: 16px; display: inline; margin-right: 6px;"></i>Risk Report
+                </button>
+                <button class="tab-button" onclick="showSubsection('reports', 'sustainability'); return false;" style="padding: 12px 16px; border: none; background: none; font-size: 14px; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap;">
+                    <i data-lucide="leaf" style="width: 16px; height: 16px; display: inline; margin-right: 6px;"></i>Sustainability
+                </button>
+                <button class="tab-button" onclick="showSubsection('reports', 'inventory'); return false;" style="padding: 12px 16px; border: none; background: none; font-size: 14px; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap;">
+                    <i data-lucide="package" style="width: 16px; height: 16px; display: inline; margin-right: 6px;"></i>Inventory Report
                 </button>
             </div>
 
@@ -348,13 +354,173 @@
             </div>
 
             <!-- Other Reports Sub-section -->
-            <div id="subsection-reports" style="display: none;">
-                <div style="text-align: center; padding: 60px 24px;">
-                    <div style="width: 80px; height: 80px; background: #f3f4f6; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-                        <i data-lucide="file-text" style="width: 40px; height: 40px; color: #d1d5db;"></i>
+            <div id="subsection-risk" style="display: none;">
+                <div class="page-header" style="margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; background: #fee2e2; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="alert-triangle" style="width: 24px; height: 24px; color: #dc2626;"></i>
+                        </div>
+                        <div>
+                            <h2 style="font-size: 24px; font-weight: 700; margin: 0;">Risk & Exceptions Report</h2>
+                            <p style="color: #6b7280; margin: 0; font-size: 14px;">Supply Chain Risk Analysis</p>
+                        </div>
                     </div>
-                    <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin: 0 0 8px 0;">Other Reports</h3>
-                    <p style="color: #6b7280; margin: 0;">Additional reports and analytics will be available here</p>
+                </div>
+
+                <!-- Risk Filters -->
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Period</label>
+                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option>Last 7 Days</option>
+                            <option selected>Last 30 Days</option>
+                            <option>Last 90 Days</option>
+                            <option>Year to Date</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Country</label>
+                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option selected>All Countries</option>
+                            <option>Germany</option>
+                            <option>France</option>
+                            <option>Italy</option>
+                            <option>Spain</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">SKU</label>
+                        <input type="text" placeholder="Filter by SKU..." style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Supplier</label>
+                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option selected>All Suppliers</option>
+                            <option>Supplier A</option>
+                            <option>Supplier B</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Risk KPI Cards -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #dc2626; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #fee2e2; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="alert-triangle" style="width: 20px; height: 20px; color: #dc2626;"></i>
+                            </div>
+                            <div style="font-size: 13px; font-weight: 600; color: #6b7280;">SKUs at Risk</div>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">23.5%</div>
+                        <div style="font-size: 13px; color: #dc2626;">Stock out risk</div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #f97316; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #fef3c7; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="clock" style="width: 20px; height: 20px; color: #f97316;"></i>
+                            </div>
+                            <div style="font-size: 13px; font-weight: 600; color: #6b7280;">High Lead Time</div>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">156</div>
+                        <div style="font-size: 13px; color: #f97316;">Orders above P95</div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #eab308; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #fef08a; border-radius: 8px; display: flex; align-items: center; justify-center;">
+                                <i data-lucide="truck" style="width: 20px; height: 20px; color: #eab308;"></i>
+                            </div>
+                            <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Critical Suppliers</div>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">8</div>
+                        <div style="font-size: 13px; color: #eab308;">High dependency</div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #22c55e; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #dcfce7; border-radius: 8px; display: flex; align-items: center; justify-center;">
+                                <i data-lucide="trending-down" style="width: 20px; height: 20px; color: #22c55e;"></i>
+                            </div>
+                            <div style="font-size: 13px; font-weight: 600; color: #6b7280;">OTIF Performance</div>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">87.2%</div>
+                        <div style="font-size: 13px; color: #22c55e;">On-time, in-full</div>
+                    </div>
+                </div>
+
+                <!-- Risk Exceptions Table -->
+                <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e5e7eb;">
+                        <i data-lucide="alert-octagon" style="width: 20px; height: 20px; color: #dc2626;"></i>
+                        <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin: 0;">Top Exceptions</h3>
+                    </div>
+                    <div style="space-y: 12px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 12px; padding: 16px; background: #f9fafb; border-radius: 8px; font-weight: 600; font-size: 13px; color: #6b7280;">
+                            <div>SKU</div>
+                            <div>Country</div>
+                            <div>Problem</div>
+                            <div>Impact (€)</div>
+                            <div>Severity</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 12px; padding: 16px; border-bottom: 1px solid #e5e7eb; align-items: center;">
+                            <div style="font-weight: 600; color: #111827;">SUP-2847</div>
+                            <div style="color: #6b7280;">Spain</div>
+                            <div style="color: #6b7280;">Stock Out Risk</div>
+                            <div style="font-weight: 600; color: #111827;">€45,000</div>
+                            <div><span style="display: inline-block; padding: 4px 8px; background: #fee2e2; color: #dc2626; border-radius: 6px; font-size: 12px; font-weight: 600;">Critical</span></div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 12px; padding: 16px; border-bottom: 1px solid #e5e7eb; align-items: center;">
+                            <div style="font-weight: 600; color: #111827;">SUP-1923</div>
+                            <div style="color: #6b7280;">Italy</div>
+                            <div style="color: #6b7280;">Delayed Shipment</div>
+                            <div style="font-weight: 600; color: #111827;">€38,500</div>
+                            <div><span style="display: inline-block; padding: 4px 8px; background: #fee2e2; color: #dc2626; border-radius: 6px; font-size: 12px; font-weight: 600;">Critical</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sustainability Sub-section -->
+            <div id="subsection-sustainability" style="display: none;">
+                <div class="page-header" style="margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; background: #dcfce7; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="leaf" style="width: 24px; height: 24px; color: #22c55e;"></i>
+                        </div>
+                        <div>
+                            <h2 style="font-size: 24px; font-weight: 700; margin: 0;">Sustainability Report</h2>
+                            <p style="color: #6b7280; margin: 0; font-size: 14px;">Environmental & Social Impact</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; padding: 80px 24px; background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="width: 80px; height: 80px; background: #f3f4f6; border-radius: 12px; display: flex; align-items: center; justify-center; margin: 0 auto 20px;">
+                        <i data-lucide="leaf" style="width: 40px; height: 40px; color: #d1d5db;"></i>
+                    </div>
+                    <h3 style="font-size: 20px; font-weight: 600; color: #111827; margin: 0 0 8px 0;">Sustainability Metrics</h3>
+                    <p style="color: #6b7280; margin: 0; max-width: 500px; margin: 0 auto;">Carbon footprint analysis, waste reduction initiatives, and environmental compliance reports coming soon</p>
+                </div>
+            </div>
+
+            <!-- Inventory Report Sub-section -->
+            <div id="subsection-inventory" style="display: none;">
+                <div class="page-header" style="margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; background: #e0e7ff; border-radius: 8px; display: flex; align-items: center; justify-center;">
+                            <i data-lucide="package" style="width: 24px; height: 24px; color: #4f46e5;"></i>
+                        </div>
+                        <div>
+                            <h2 style="font-size: 24px; font-weight: 700; margin: 0;">Inventory Report</h2>
+                            <p style="color: #6b7280; margin: 0; font-size: 14px;">Stock Levels & Warehouse Analysis</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; padding: 80px 24px; background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="width: 80px; height: 80px; background: #f3f4f6; border-radius: 12px; display: flex; align-items: center; justify-center; margin: 0 auto 20px;">
+                        <i data-lucide="package" style="width: 40px; height: 40px; color: #d1d5db;"></i>
+                    </div>
+                    <h3 style="font-size: 20px; font-weight: 600; color: #111827; margin: 0 0 8px 0;">Stock Analysis</h3>
+                    <p style="color: #6b7280; margin: 0; max-width: 500px; margin: 0 auto;">Detailed inventory metrics, warehouse utilization, and stock movement trends detailed analysis coming soon</p>
                 </div>
             </div>
         </div>
