@@ -863,7 +863,20 @@ function initializeReportsCharts() {
 }
 
 // Risk Report Charts
-function initRiskCharts() {
+function initRiskCharts(period = '30', country = 'all') {
+    // Destroy existing instances
+    if (chartInstances.riskCountry) chartInstances.riskCountry.destroy();
+    if (chartInstances.deliveryCalendar) chartInstances.deliveryCalendar.destroy();
+    
+    // Calculate multipliers
+    const periodMult = {7: 0.6, 30: 1.0, 90: 1.3, 365: 1.5}[period] || 1.0;
+    const countryMult = {all: 1.0, Germany: 0.8, France: 1.0, Italy: 1.2, Spain: 1.1}[country] || 1.0;
+    const totalMult = periodMult * countryMult;
+    
+    // Generate varied risk data
+    const baseRiskData = [23.5, 18.2, 15.8, 22.1, 12.4];
+    const riskData = baseRiskData.map(val => Math.min(Math.max(val * totalMult, 5), 40));
+    
     // SKUs at Risk by Country
     const riskCountryCtx = document.getElementById('riskCountryChart');
     if (riskCountryCtx) {
@@ -873,7 +886,7 @@ function initRiskCharts() {
                 labels: ['Germany', 'France', 'Italy', 'Spain', 'Netherlands'],
                 datasets: [{
                     label: 'SKUs at Risk %',
-                    data: [23.5, 18.2, 15.8, 22.1, 12.4],
+                    data: riskData,
                     backgroundColor: ['#dc2626', '#ef4444', '#f87171', '#fca5a5', '#fee2e2'],
                     borderRadius: 8,
                     borderSkipped: false
@@ -889,14 +902,18 @@ function initRiskCharts() {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 30
+                        max: 50
                     }
                 }
             }
         });
     }
     
-    // Delivery by Logistics Calendar
+    // Delivery by Logistics Calendar with varied data
+    const baseOnTime = [85, 88, 86, 89, 87, 89];
+    const onTimeData = baseOnTime.map(val => Math.max(Math.round(val - (periodMult * 3)), 75));
+    const delayedData = [100, 100, 100, 100, 100, 100].map((val, idx) => val - onTimeData[idx]);
+    
     const deliveryCalendarCtx = document.getElementById('deliveryCalendarChart');
     if (deliveryCalendarCtx) {
         chartInstances.deliveryCalendar = new Chart(deliveryCalendarCtx, {
@@ -906,14 +923,14 @@ function initRiskCharts() {
                 datasets: [
                     {
                         label: 'On-Time',
-                        data: [85, 88, 86, 89, 87, 89],
+                        data: onTimeData,
                         backgroundColor: '#10b981',
                         borderRadius: 8,
                         borderSkipped: false
                     },
                     {
                         label: 'Delayed',
-                        data: [15, 12, 14, 11, 13, 11],
+                        data: delayedData,
                         backgroundColor: '#dc2626',
                         borderRadius: 8,
                         borderSkipped: false
@@ -937,7 +954,22 @@ function initRiskCharts() {
 }
 
 // Sustainability Report Charts
-function initSustainabilityCharts() {
+function initSustainabilityCharts(period = '30', country = 'all', mode = 'all') {
+    // Destroy existing instances
+    if (chartInstances.co2Country) chartInstances.co2Country.destroy();
+    if (chartInstances.emissionsMode) chartInstances.emissionsMode.destroy();
+    if (chartInstances.co2Trend) chartInstances.co2Trend.destroy();
+    
+    // Calculate multipliers
+    const periodMult = {7: 0.25, 30: 1.0, 90: 2.8, 365: 10.5}[period] || 1.0;
+    const countryMult = {all: 1.0, Germany: 0.85, France: 0.82, Italy: 1.15, Spain: 1.0}[country] || 1.0;
+    const modeMult = {all: 1.0, Road: 1.2, Rail: 0.3, Sea: 0.15, Air: 3.5}[mode] || 1.0;
+    const totalMult = Math.min(periodMult * countryMult * modeMult, 3.5);
+    
+    // Generate varied CO2 data by country
+    const baseCo2Data = [52.3, 38.5, 45.2, 41.8, 35.2];
+    const co2Data = baseCo2Data.map(val => Math.round(val * totalMult));
+    
     // CO2 Intensity by Country
     const co2CountryCtx = document.getElementById('co2CountryChart');
     if (co2CountryCtx) {
@@ -947,7 +979,7 @@ function initSustainabilityCharts() {
                 labels: ['Germany', 'France', 'Italy', 'Spain', 'Netherlands'],
                 datasets: [{
                     label: 'kg CO₂e per shipment',
-                    data: [52.3, 38.5, 45.2, 41.8, 35.2],
+                    data: co2Data,
                     backgroundColor: ['#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe'],
                     borderRadius: 8,
                     borderSkipped: false
@@ -967,7 +999,14 @@ function initSustainabilityCharts() {
         });
     }
     
-    // Emissions by Transport Mode
+    // Emissions by Transport Mode - vary distribution
+    const modeData = mode === 'all' 
+        ? [45, 25, 22, 8]
+        : mode === 'Road' ? [70, 15, 10, 5]
+        : mode === 'Rail' ? [10, 75, 12, 3]
+        : mode === 'Sea' ? [8, 12, 75, 5]
+        : [15, 10, 15, 60];
+    
     const emissionsModeCtx = document.getElementById('emissionsModeChart');
     if (emissionsModeCtx) {
         chartInstances.emissionsMode = new Chart(emissionsModeCtx, {
@@ -975,7 +1014,7 @@ function initSustainabilityCharts() {
             data: {
                 labels: ['Road', 'Rail', 'Sea', 'Air'],
                 datasets: [{
-                    data: [45, 25, 22, 8],
+                    data: modeData,
                     backgroundColor: ['#f87171', '#4ade80', '#60a5fa', '#fbbf24'],
                     borderColor: 'white',
                     borderWidth: 2
@@ -992,6 +1031,10 @@ function initSustainabilityCharts() {
     }
     
     // CO2 Emissions Trend vs Target
+    const baseTrendData = [45000, 42000, 44000, 41000, 38000, 36000];
+    const trendData = baseTrendData.map(val => Math.round(val * totalMult));
+    const targetData = trendData.map(val => Math.round(val * 1.15));
+    
     const co2TrendCtx = document.getElementById('co2TrendChart');
     if (co2TrendCtx) {
         chartInstances.co2Trend = new Chart(co2TrendCtx, {
@@ -1001,7 +1044,7 @@ function initSustainabilityCharts() {
                 datasets: [
                     {
                         label: 'Actual Emissions',
-                        data: [45000, 42000, 44000, 41000, 38000, 36000],
+                        data: trendData,
                         borderColor: '#8b5cf6',
                         backgroundColor: 'rgba(139, 92, 246, 0.1)',
                         borderWidth: 3,
@@ -1010,7 +1053,7 @@ function initSustainabilityCharts() {
                     },
                     {
                         label: 'Target',
-                        data: [50000, 48000, 46000, 44000, 42000, 40000],
+                        data: targetData,
                         borderColor: '#dc2626',
                         backgroundColor: 'transparent',
                         borderWidth: 2,
@@ -1034,7 +1077,21 @@ function initSustainabilityCharts() {
 }
 
 // Inventory Report Charts
-function initInventoryCharts() {
+function initInventoryCharts(period = '30', country = 'all', breakdown = 'warehouse') {
+    // Destroy existing instances
+    if (chartInstances.inventoryTurnover) chartInstances.inventoryTurnover.destroy();
+    if (chartInstances.inventoryCapital) chartInstances.inventoryCapital.destroy();
+    
+    // Calculate multipliers
+    const periodMult = {7: 0.3, 30: 1.0, 90: 2.2, 365: 8.0}[period] || 1.0;
+    const countryMult = {all: 1.0, Germany: 1.1, France: 0.95, Italy: 1.05, Spain: 0.9}[country] || 1.0;
+    const breakdownMult = {warehouse: 1.0, product: 0.8, region: 1.15}[breakdown] || 1.0;
+    const totalMult = periodMult * countryMult * breakdownMult;
+    
+    // Generate varied inventory turnover data
+    const baseTurnoverData = [8.2, 6.5, 7.8, 5.9, 6.2];
+    const turnoverData = baseTurnoverData.map(val => (val * totalMult).toFixed(1));
+    
     // Inventory Turnover by Warehouse
     const inventoryTurnoverCtx = document.getElementById('inventoryTurnoverChart');
     if (inventoryTurnoverCtx) {
@@ -1044,7 +1101,7 @@ function initInventoryCharts() {
                 labels: ['Berlin', 'Frankfurt', 'Munich', 'Hamburg', 'Cologne'],
                 datasets: [{
                     label: 'Turnover Rate',
-                    data: [8.2, 6.5, 7.8, 5.9, 6.2],
+                    data: turnoverData.map(v => parseFloat(v)),
                     backgroundColor: '#3b82f6',
                     borderRadius: 8,
                     borderSkipped: false
@@ -1065,6 +1122,11 @@ function initInventoryCharts() {
     }
     
     // Inventory Capital vs Sales Evolution
+    const baseCapitalData = [2.1, 2.15, 2.25, 2.3, 2.35, 2.456];
+    const capitalData = baseCapitalData.map(val => parseFloat((val * totalMult).toFixed(3)));
+    const baseSalesData = [8.5, 9.2, 9.8, 10.5, 11.2, 12.1];
+    const salesData = baseSalesData.map(val => parseFloat((val * totalMult * 0.8).toFixed(2)));
+    
     const inventoryCapitalCtx = document.getElementById('inventoryCapitalChart');
     if (inventoryCapitalCtx) {
         chartInstances.inventoryCapital = new Chart(inventoryCapitalCtx, {
@@ -1074,7 +1136,7 @@ function initInventoryCharts() {
                 datasets: [
                     {
                         label: 'Inventory Capital (€M)',
-                        data: [2.1, 2.15, 2.25, 2.3, 2.35, 2.456],
+                        data: capitalData,
                         borderColor: '#3b82f6',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         borderWidth: 3,
@@ -1084,7 +1146,7 @@ function initInventoryCharts() {
                     },
                     {
                         label: 'Sales (€M)',
-                        data: [8.5, 9.2, 9.8, 10.5, 11.2, 12.1],
+                        data: salesData,
                         borderColor: '#10b981',
                         backgroundColor: 'transparent',
                         borderWidth: 3,
@@ -1196,5 +1258,186 @@ function populateInventoryTable() {
     
     // Re-render Lucide icons for the new trend icons
     lucide.createIcons();
+}
+
+// Update Risk Data based on selected filters
+function updateRiskData() {
+    const period = document.getElementById('risk-period-filter').value;
+    const country = document.getElementById('risk-country-filter').value;
+    const sku = document.getElementById('risk-sku-filter').value;
+    const supplier = document.getElementById('risk-supplier-filter').value;
+    
+    // Define base values
+    const baseValues = {
+        skusAtRisk: 23.5,        // %
+        highLeadTime: 156,        // count
+        criticalSuppliers: 8,     // count
+        otifPerformance: 87.2     // %
+    };
+    
+    // Period multipliers (effect on risk level)
+    const periodMult = {
+        '7': 0.6,   // Less data = lower visibility
+        '30': 1.0,  // Base period
+        '90': 1.3,  // More patterns visible
+        '365': 1.5  // Full year = higher risks
+    };
+    
+    // Country risk factors
+    const countryMult = {
+        'all': 1.0,
+        'Germany': 0.8,   // Stable supply
+        'France': 1.0,
+        'Italy': 1.2,     // Higher risk
+        'Spain': 1.1
+    };
+    
+    // Calculate multipliers
+    const period_val = periodMult[period] || 1.0;
+    const country_val = countryMult[country] || 1.0;
+    const totalMult = period_val * country_val;
+    
+    // Calculate new values
+    const newKpi1 = Math.min(Math.max((baseValues.skusAtRisk * totalMult).toFixed(1), 5), 95);
+    const newKpi2 = Math.round(baseValues.highLeadTime * totalMult);
+    const newKpi3 = Math.round(baseValues.criticalSuppliers * totalMult);
+    const newKpi4 = Math.max((baseValues.otifPerformance / totalMult).toFixed(1), 60);
+    
+    // Update KPI cards
+    document.getElementById('risk-kpi-1').textContent = newKpi1 + '%';
+    document.getElementById('risk-kpi-2').textContent = newKpi2;
+    document.getElementById('risk-kpi-3').textContent = newKpi3;
+    document.getElementById('risk-kpi-4').textContent = newKpi4 + '%';
+    
+    // Reinitialize Risk charts with new data
+    setTimeout(() => {
+        initRiskCharts(period, country);
+    }, 100);
+}
+
+// Update Sustainability Data based on selected filters
+function updateSustainabilityData() {
+    const period = document.getElementById('sust-period-filter').value;
+    const country = document.getElementById('sust-country-filter').value;
+    const mode = document.getElementById('sust-mode-filter').value;
+    
+    // Define base values for 30-day period
+    const baseValues = {
+        totalCo2: 284500,        // kg
+        co2PerShipment: 42.3,    // kg per shipment
+        renewableEnergy: 0.18,   // %
+        loadReduction: 34.5      // %
+    };
+    
+    // Period multipliers
+    const periodMult = {
+        '7': 0.25,
+        '30': 1.0,
+        '90': 2.8,
+        '365': 10.5
+    };
+    
+    // Country sustainability factors
+    const countryMult = {
+        'all': 1.0,
+        'Germany': 0.85,    // More sustainable practices
+        'France': 0.82,
+        'Italy': 1.15,
+        'Spain': 1.0
+    };
+    
+    // Transport mode impact
+    const modeMult = {
+        'all': 1.0,
+        'Road': 1.2,        // Higher emissions
+        'Rail': 0.3,        // Lower emissions
+        'Sea': 0.15,        // Lowest emissions
+        'Air': 3.5          // Highest emissions
+    };
+    
+    // Calculate multipliers
+    const period_val = periodMult[period] || 1.0;
+    const country_val = countryMult[country] || 1.0;
+    const mode_val = modeMult[mode] || 1.0;
+    const totalMult = period_val * country_val * mode_val;
+    
+    // Calculate new values
+    const newKpi1 = Math.round(baseValues.totalCo2 * totalMult);
+    const newKpi2 = (baseValues.co2PerShipment * totalMult).toFixed(1);
+    const newKpi3 = Math.max(Math.min((baseValues.renewableEnergy * (country_val / mode_val)).toFixed(2), 0.95), 0.05);
+    const newKpi4 = Math.max((baseValues.loadReduction / mode_val).toFixed(1), 5);
+    
+    // Update KPI cards
+    document.getElementById('sust-kpi-1').textContent = newKpi1.toLocaleString();
+    document.getElementById('sust-kpi-2').textContent = newKpi2;
+    document.getElementById('sust-kpi-3').textContent = newKpi3;
+    document.getElementById('sust-kpi-4').textContent = newKpi4 + '%';
+    
+    // Reinitialize Sustainability charts
+    setTimeout(() => {
+        initSustainabilityCharts(period, country, mode);
+    }, 100);
+}
+
+// Update Inventory Data based on selected filters
+function updateInventoryData() {
+    const period = document.getElementById('inv-period-filter').value;
+    const country = document.getElementById('inv-country-filter').value;
+    const breakdown = document.getElementById('inv-breakdown-filter').value;
+    
+    // Define base values
+    const baseValues = {
+        totalInventory: 42.3,     // Million units
+        stockoutRisk: 8.6,        // k SKUs
+        workingCapital: 2.456,    // Million €
+        stockHealth: 18.5         // %
+    };
+    
+    // Period multipliers
+    const periodMult = {
+        '7': 0.3,
+        '30': 1.0,
+        '90': 2.2,
+        '365': 8.0
+    };
+    
+    // Country inventory factors
+    const countryMult = {
+        'all': 1.0,
+        'Germany': 1.1,    // Higher inventory
+        'France': 0.95,
+        'Italy': 1.05,
+        'Spain': 0.9
+    };
+    
+    // Breakdown impact
+    const breakdownMult = {
+        'warehouse': 1.0,
+        'product': 0.8,   // Less inventory visible by product
+        'region': 1.15    // More inventory visible by region
+    };
+    
+    // Calculate multipliers
+    const period_val = periodMult[period] || 1.0;
+    const country_val = countryMult[country] || 1.0;
+    const breakdown_val = breakdownMult[breakdown] || 1.0;
+    const totalMult = period_val * country_val * breakdown_val;
+    
+    // Calculate new values
+    const newKpi1 = (baseValues.totalInventory * totalMult).toFixed(1);
+    const newKpi2 = (baseValues.stockoutRisk * totalMult).toFixed(1);
+    const newKpi3 = (baseValues.workingCapital * totalMult).toFixed(3);
+    const newKpi4 = Math.min((baseValues.stockHealth + (period_val * 5)).toFixed(1), 45);
+    
+    // Update KPI cards
+    document.getElementById('inv-kpi-1').textContent = newKpi1;
+    document.getElementById('inv-kpi-2').textContent = newKpi2 + 'k';
+    document.getElementById('inv-kpi-3').textContent = newKpi3 + 'M €';
+    document.getElementById('inv-kpi-4').textContent = newKpi4 + '%';
+    
+    // Reinitialize Inventory charts
+    setTimeout(() => {
+        initInventoryCharts(period, country, breakdown);
+    }, 100);
 }
 

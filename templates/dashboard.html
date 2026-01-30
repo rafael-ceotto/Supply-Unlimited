@@ -374,33 +374,33 @@
                 <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
                     <div>
                         <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Period</label>
-                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
-                            <option>Last 7 Days</option>
-                            <option selected>Last 30 Days</option>
-                            <option>Last 90 Days</option>
-                            <option>Year to Date</option>
+                        <select id="risk-period-filter" onchange="updateRiskData()" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option value="7">Last 7 Days</option>
+                            <option value="30" selected>Last 30 Days</option>
+                            <option value="90">Last 90 Days</option>
+                            <option value="365">Year to Date</option>
                         </select>
                     </div>
                     <div>
                         <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Country</label>
-                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
-                            <option selected>All Countries</option>
-                            <option>Germany</option>
-                            <option>France</option>
-                            <option>Italy</option>
-                            <option>Spain</option>
+                        <select id="risk-country-filter" onchange="updateRiskData()" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option value="all" selected>All Countries</option>
+                            <option value="Germany">Germany</option>
+                            <option value="France">France</option>
+                            <option value="Italy">Italy</option>
+                            <option value="Spain">Spain</option>
                         </select>
                     </div>
                     <div>
                         <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">SKU</label>
-                        <input type="text" placeholder="Filter by SKU..." style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                        <input type="text" id="risk-sku-filter" placeholder="Filter by SKU..." onchange="updateRiskData()" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
                     </div>
                     <div>
                         <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Supplier</label>
-                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
-                            <option selected>All Suppliers</option>
-                            <option>Supplier A</option>
-                            <option>Supplier B</option>
+                        <select id="risk-supplier-filter" onchange="updateRiskData()" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option value="all" selected>All Suppliers</option>
+                            <option value="Supplier A">Supplier A</option>
+                            <option value="Supplier B">Supplier B</option>
                         </select>
                     </div>
                 </div>
@@ -414,7 +414,7 @@
                             </div>
                             <div style="font-size: 13px; font-weight: 600; color: #6b7280;">SKUs at Risk</div>
                         </div>
-                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">23.5%</div>
+                        <div id="risk-kpi-1" style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">23.5%</div>
                         <div style="font-size: 13px; color: #dc2626;">Stock out risk</div>
                     </div>
                     <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #f97316; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -424,7 +424,7 @@
                             </div>
                             <div style="font-size: 13px; font-weight: 600; color: #6b7280;">High Lead Time</div>
                         </div>
-                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">156</div>
+                        <div id="risk-kpi-2" style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">156</div>
                         <div style="font-size: 13px; color: #f97316;">Orders above P95</div>
                     </div>
                     <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #eab308; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -434,7 +434,7 @@
                             </div>
                             <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Critical Suppliers</div>
                         </div>
-                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">8</div>
+                        <div id="risk-kpi-3" style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">8</div>
                         <div style="font-size: 13px; color: #eab308;">High dependency</div>
                     </div>
                     <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #22c55e; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -444,7 +444,7 @@
                             </div>
                             <div style="font-size: 13px; font-weight: 600; color: #6b7280;">OTIF Performance</div>
                         </div>
-                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">87.2%</div>
+                        <div id="risk-kpi-4" style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">87.2%</div>
                         <div style="font-size: 13px; color: #22c55e;">On-time, in-full</div>
                     </div>
                 </div>
@@ -506,31 +506,31 @@
                 <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
                     <div>
                         <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Period</label>
-                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
-                            <option>Last 7 Days</option>
-                            <option selected>Last 30 Days</option>
-                            <option>Last 90 Days</option>
-                            <option>Year to Date</option>
+                        <select id="sust-period-filter" onchange="updateSustainabilityData()" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option value="7">Last 7 Days</option>
+                            <option value="30" selected>Last 30 Days</option>
+                            <option value="90">Last 90 Days</option>
+                            <option value="365">Year to Date</option>
                         </select>
                     </div>
                     <div>
                         <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Country</label>
-                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
-                            <option selected>All Countries</option>
-                            <option>Germany</option>
-                            <option>France</option>
-                            <option>Italy</option>
-                            <option>Spain</option>
+                        <select id="sust-country-filter" onchange="updateSustainabilityData()" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option value="all" selected>All Countries</option>
+                            <option value="Germany">Germany</option>
+                            <option value="France">France</option>
+                            <option value="Italy">Italy</option>
+                            <option value="Spain">Spain</option>
                         </select>
                     </div>
                     <div>
                         <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Transport Mode</label>
-                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
-                            <option selected>All Modes</option>
-                            <option>Road</option>
-                            <option>Rail</option>
-                            <option>Sea</option>
-                            <option>Air</option>
+                        <select id="sust-mode-filter" onchange="updateSustainabilityData()" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option value="all" selected>All Modes</option>
+                            <option value="Road">Road</option>
+                            <option value="Rail">Rail</option>
+                            <option value="Sea">Sea</option>
+                            <option value="Air">Air</option>
                         </select>
                     </div>
                 </div>
@@ -544,7 +544,7 @@
                             </div>
                             <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Total CO₂</div>
                         </div>
-                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">284,500</div>
+                        <div id="sust-kpi-1" style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">284,500</div>
                         <div style="font-size: 13px; color: #8b5cf6;">kg CO₂e</div>
                     </div>
                     <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #f59e0b; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -554,7 +554,7 @@
                             </div>
                             <div style="font-size: 13px; font-weight: 600; color: #6b7280;">CO₂ per Shipment</div>
                         </div>
-                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">42.3</div>
+                        <div id="sust-kpi-2" style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">42.3</div>
                         <div style="font-size: 13px; color: #f59e0b;">kg CO₂e/shipment</div>
                     </div>
                     <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #06b6d4; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -564,7 +564,7 @@
                             </div>
                             <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Renewable Energy</div>
                         </div>
-                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">0.18</div>
+                        <div id="sust-kpi-3" style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">0.18</div>
                         <div style="font-size: 13px; color: #06b6d4;">% of operations</div>
                     </div>
                     <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #10b981; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -574,7 +574,7 @@
                             </div>
                             <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Load Reduction</div>
                         </div>
-                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">34.5%</div>
+                        <div id="sust-kpi-4" style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">34.5%</div>
                         <div style="font-size: 13px; color: #10b981;">vs. last period</div>
                     </div>
                 </div>
@@ -644,29 +644,29 @@
                 <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
                     <div>
                         <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Period</label>
-                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
-                            <option>Last 7 Days</option>
-                            <option selected>Last 30 Days</option>
-                            <option>Last 90 Days</option>
-                            <option>Year to Date</option>
+                        <select id="inv-period-filter" onchange="updateInventoryData()" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option value="7">Last 7 Days</option>
+                            <option value="30" selected>Last 30 Days</option>
+                            <option value="90">Last 90 Days</option>
+                            <option value="365">Year to Date</option>
                         </select>
                     </div>
                     <div>
                         <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Country</label>
-                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
-                            <option selected>All Countries</option>
-                            <option>Germany</option>
-                            <option>France</option>
-                            <option>Italy</option>
-                            <option>Spain</option>
+                        <select id="inv-country-filter" onchange="updateInventoryData()" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option value="all" selected>All Countries</option>
+                            <option value="Germany">Germany</option>
+                            <option value="France">France</option>
+                            <option value="Italy">Italy</option>
+                            <option value="Spain">Spain</option>
                         </select>
                     </div>
                     <div>
                         <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Breakdown Level</label>
-                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
-                            <option selected>By Warehouse</option>
-                            <option>By Product</option>
-                            <option>By Region</option>
+                        <select id="inv-breakdown-filter" onchange="updateInventoryData()" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option value="warehouse" selected>By Warehouse</option>
+                            <option value="product">By Product</option>
+                            <option value="region">By Region</option>
                         </select>
                     </div>
                 </div>
@@ -680,7 +680,7 @@
                             </div>
                             <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Total Inventory</div>
                         </div>
-                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">42.3</div>
+                        <div id="inv-kpi-1" style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">42.3</div>
                         <div style="font-size: 13px; color: #3b82f6;">Million units</div>
                     </div>
                     <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #10b981; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -690,7 +690,7 @@
                             </div>
                             <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Stockout Risk</div>
                         </div>
-                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">8.6k</div>
+                        <div id="inv-kpi-2" style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">8.6k</div>
                         <div style="font-size: 13px; color: #10b981;">SKUs</div>
                     </div>
                     <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #f59e0b; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -700,7 +700,7 @@
                             </div>
                             <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Working Capital</div>
                         </div>
-                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">2.456M €</div>
+                        <div id="inv-kpi-3" style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">2.456M €</div>
                         <div style="font-size: 13px; color: #f59e0b;">Locked in inventory</div>
                     </div>
                     <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #8b5cf6; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -710,7 +710,7 @@
                             </div>
                             <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Stock Health</div>
                         </div>
-                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">18.5%</div>
+                        <div id="inv-kpi-4" style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">18.5%</div>
                         <div style="font-size: 13px; color: #8b5cf6;">Growth YoY</div>
                     </div>
                 </div>
