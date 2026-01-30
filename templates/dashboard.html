@@ -446,35 +446,42 @@
                     </div>
                 </div>
 
+                <!-- Risk Charts -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                    <!-- SKUs at Risk by Country -->
+                    <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0 0 20px 0;">SKUs at Risk by Country</h3>
+                        <canvas id="riskCountryChart" style="max-height: 300px;"></canvas>
+                    </div>
+
+                    <!-- Delivery by Logistics Calendar -->
+                    <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0 0 20px 0;">Delivery by Logistics Calendar</h3>
+                        <canvas id="deliveryCalendarChart" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
+
                 <!-- Risk Exceptions Table -->
-                <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto;">
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e5e7eb;">
                         <i data-lucide="alert-octagon" style="width: 20px; height: 20px; color: #dc2626;"></i>
                         <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin: 0;">Top Exceptions</h3>
                     </div>
-                    <div style="space-y: 12px;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 12px; padding: 16px; background: #f9fafb; border-radius: 8px; font-weight: 600; font-size: 13px; color: #6b7280;">
-                            <div>SKU</div>
-                            <div>Country</div>
-                            <div>Problem</div>
-                            <div>Impact (€)</div>
-                            <div>Severity</div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 12px; padding: 16px; border-bottom: 1px solid #e5e7eb; align-items: center;">
-                            <div style="font-weight: 600; color: #111827;">SUP-2847</div>
-                            <div style="color: #6b7280;">Spain</div>
-                            <div style="color: #6b7280;">Stock Out Risk</div>
-                            <div style="font-weight: 600; color: #111827;">€45,000</div>
-                            <div><span style="display: inline-block; padding: 4px 8px; background: #fee2e2; color: #dc2626; border-radius: 6px; font-size: 12px; font-weight: 600;">Critical</span></div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 12px; padding: 16px; border-bottom: 1px solid #e5e7eb; align-items: center;">
-                            <div style="font-weight: 600; color: #111827;">SUP-1923</div>
-                            <div style="color: #6b7280;">Italy</div>
-                            <div style="color: #6b7280;">Delayed Shipment</div>
-                            <div style="font-weight: 600; color: #111827;">€38,500</div>
-                            <div><span style="display: inline-block; padding: 4px 8px; background: #fee2e2; color: #dc2626; border-radius: 6px; font-size: 12px; font-weight: 600;">Critical</span></div>
-                        </div>
-                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                        <thead>
+                            <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                                <th style="padding: 16px; text-align: left; font-weight: 600; color: #6b7280;">SKU</th>
+                                <th style="padding: 16px; text-align: left; font-weight: 600; color: #6b7280;">Country</th>
+                                <th style="padding: 16px; text-align: left; font-weight: 600; color: #6b7280;">Product Type</th>
+                                <th style="padding: 16px; text-align: left; font-weight: 600; color: #6b7280;">Problem</th>
+                                <th style="padding: 16px; text-align: left; font-weight: 600; color: #6b7280;">Impact (€)</th>
+                                <th style="padding: 16px; text-align: center; font-weight: 600; color: #6b7280;">Severity</th>
+                            </tr>
+                        </thead>
+                        <tbody id="risk-exceptions-table">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -486,18 +493,133 @@
                             <i data-lucide="leaf" style="width: 24px; height: 24px; color: #22c55e;"></i>
                         </div>
                         <div>
-                            <h2 style="font-size: 24px; font-weight: 700; margin: 0;">Sustainability Report</h2>
-                            <p style="color: #6b7280; margin: 0; font-size: 14px;">Environmental & Social Impact</p>
+                            <h2 style="font-size: 24px; font-weight: 700; margin: 0;">CO₂ & Sustainability Report</h2>
+                            <p style="color: #6b7280; margin: 0; font-size: 14px;">Carbon Footprint Analysis & Environmental Impact</p>
                         </div>
                     </div>
                 </div>
 
-                <div style="text-align: center; padding: 80px 24px; background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                    <div style="width: 80px; height: 80px; background: #f3f4f6; border-radius: 12px; display: flex; align-items: center; justify-center; margin: 0 auto 20px;">
-                        <i data-lucide="leaf" style="width: 40px; height: 40px; color: #d1d5db;"></i>
+                <!-- Sustainability Filters -->
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Period</label>
+                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option>Last 7 Days</option>
+                            <option selected>Last 30 Days</option>
+                            <option>Last 90 Days</option>
+                            <option>Year to Date</option>
+                        </select>
                     </div>
-                    <h3 style="font-size: 20px; font-weight: 600; color: #111827; margin: 0 0 8px 0;">Sustainability Metrics</h3>
-                    <p style="color: #6b7280; margin: 0; max-width: 500px; margin: 0 auto;">Carbon footprint analysis, waste reduction initiatives, and environmental compliance reports coming soon</p>
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Country</label>
+                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option selected>All Countries</option>
+                            <option>Germany</option>
+                            <option>France</option>
+                            <option>Italy</option>
+                            <option>Spain</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Transport Mode</label>
+                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option selected>All Modes</option>
+                            <option>Road</option>
+                            <option>Rail</option>
+                            <option>Sea</option>
+                            <option>Air</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Sustainability KPI Cards -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #8b5cf6; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #ede9fe; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="gauge" style="width: 20px; height: 20px; color: #8b5cf6;"></i>
+                            </div>
+                            <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Total CO₂</div>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">284,500</div>
+                        <div style="font-size: 13px; color: #8b5cf6;">kg CO₂e</div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #f59e0b; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #fef3c7; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="package" style="width: 20px; height: 20px; color: #f59e0b;"></i>
+                            </div>
+                            <div style="font-size: 13px; font-weight: 600; color: #6b7280;">CO₂ per Shipment</div>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">42.3</div>
+                        <div style="font-size: 13px; color: #f59e0b;">kg CO₂e/shipment</div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #06b6d4; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #cffafe; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="zap" style="width: 20px; height: 20px; color: #06b6d4;"></i>
+                            </div>
+                            <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Renewable Energy</div>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">0.18</div>
+                        <div style="font-size: 13px; color: #06b6d4;">% of operations</div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #10b981; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #dcfce7; border-radius: 8px; display: flex; align-items: center; justify-center;">
+                                <i data-lucide="trending-down" style="width: 20px; height: 20px; color: #10b981;"></i>
+                            </div>
+                            <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Load Reduction</div>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">34.5%</div>
+                        <div style="font-size: 13px; color: #10b981;">vs. last period</div>
+                    </div>
+                </div>
+
+                <!-- Sustainability Charts -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0 0 20px 0;">CO₂ Intensity by Country</h3>
+                        <canvas id="co2CountryChart" style="max-height: 300px;"></canvas>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0 0 20px 0;">Emissions by Transport Mode</h3>
+                        <canvas id="emissionsModeChart" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
+
+                <!-- CO2 Trend Chart -->
+                <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px;">
+                    <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0 0 20px 0;">CO₂ Emissions Trend vs Target</h3>
+                    <canvas id="co2TrendChart" style="max-height: 250px;"></canvas>
+                </div>
+
+                <!-- Sustainability Metrics Bottom Cards -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                    <div style="background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%); border-radius: 12px; padding: 24px; border-left: 4px solid #10b981;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <i data-lucide="leaf" style="width: 24px; height: 24px; color: #059669;"></i>
+                            <h4 style="font-size: 14px; font-weight: 600; color: #065f46; margin: 0;">Saved by Modal Split</h4>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; color: #047857;">52,380 kg</div>
+                        <p style="font-size: 12px; color: #065f46; margin: 8px 0 0 0;">CO₂e reduction through smart routing</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%); border-radius: 12px; padding: 24px; border-left: 4px solid #dc2626;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <i data-lucide="award" style="width: 24px; height: 24px; color: #991b1b;"></i>
+                            <h4 style="font-size: 14px; font-weight: 600; color: #7f1d1d; margin: 0;">CO₂ Offset</h4>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; color: #b91c1c;">12,980 kg</div>
+                        <p style="font-size: 12px; color: #7f1d1d; margin: 8px 0 0 0;">Purchased carbon credits</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 12px; padding: 24px; border-left: 4px solid #4f46e5;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <i data-lucide="globe" style="width: 24px; height: 24px; color: #312e81;"></i>
+                            <h4 style="font-size: 14px; font-weight: 600; color: #3730a3; margin: 0;">Carbon Footprint</h4>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; color: #4f46e5;">164,000 kg</div>
+                        <p style="font-size: 12px; color: #3730a3; margin: 8px 0 0 0;">Current period total</p>
+                    </div>
                 </div>
             </div>
 
@@ -509,18 +631,117 @@
                             <i data-lucide="package" style="width: 24px; height: 24px; color: #4f46e5;"></i>
                         </div>
                         <div>
-                            <h2 style="font-size: 24px; font-weight: 700; margin: 0;">Inventory Report</h2>
+                            <h2 style="font-size: 24px; font-weight: 700; margin: 0;">Inventory & Working Capital Report</h2>
                             <p style="color: #6b7280; margin: 0; font-size: 14px;">Stock Levels & Warehouse Analysis</p>
                         </div>
                     </div>
                 </div>
 
-                <div style="text-align: center; padding: 80px 24px; background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                    <div style="width: 80px; height: 80px; background: #f3f4f6; border-radius: 12px; display: flex; align-items: center; justify-center; margin: 0 auto 20px;">
-                        <i data-lucide="package" style="width: 40px; height: 40px; color: #d1d5db;"></i>
+                <!-- Inventory Filters -->
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Period</label>
+                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option>Last 7 Days</option>
+                            <option selected>Last 30 Days</option>
+                            <option>Last 90 Days</option>
+                            <option>Year to Date</option>
+                        </select>
                     </div>
-                    <h3 style="font-size: 20px; font-weight: 600; color: #111827; margin: 0 0 8px 0;">Stock Analysis</h3>
-                    <p style="color: #6b7280; margin: 0; max-width: 500px; margin: 0 auto;">Detailed inventory metrics, warehouse utilization, and stock movement trends detailed analysis coming soon</p>
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Country</label>
+                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option selected>All Countries</option>
+                            <option>Germany</option>
+                            <option>France</option>
+                            <option>Italy</option>
+                            <option>Spain</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Breakdown Level</label>
+                        <select style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
+                            <option selected>By Warehouse</option>
+                            <option>By Product</option>
+                            <option>By Region</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Inventory KPI Cards -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #3b82f6; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #dbeafe; border-radius: 8px; display: flex; align-items: center; justify-center;">
+                                <i data-lucide="boxes" style="width: 20px; height: 20px; color: #3b82f6;"></i>
+                            </div>
+                            <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Total Inventory</div>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">42.3</div>
+                        <div style="font-size: 13px; color: #3b82f6;">Million units</div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #10b981; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #dcfce7; border-radius: 8px; display: flex; align-items: center; justify-center;">
+                                <i data-lucide="check-circle" style="width: 20px; height: 20px; color: #10b981;"></i>
+                            </div>
+                            <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Stockout Risk</div>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">8.6k</div>
+                        <div style="font-size: 13px; color: #10b981;">SKUs</div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #f59e0b; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #fef3c7; border-radius: 8px; display: flex; align-items: center; justify-center;">
+                                <i data-lucide="dollar-sign" style="width: 20px; height: 20px; color: #f59e0b;"></i>
+                            </div>
+                            <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Working Capital</div>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">2.456M €</div>
+                        <div style="font-size: 13px; color: #f59e0b;">Locked in inventory</div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 24px; border-left: 4px solid #8b5cf6; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #ede9fe; border-radius: 8px; display: flex; align-items: center; justify-center;">
+                                <i data-lucide="trending-up" style="width: 20px; height: 20px; color: #8b5cf6;"></i>
+                            </div>
+                            <div style="font-size: 13px; font-weight: 600; color: #6b7280;">Stock Health</div>
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px;">18.5%</div>
+                        <div style="font-size: 13px; color: #8b5cf6;">Growth YoY</div>
+                    </div>
+                </div>
+
+                <!-- Inventory Charts -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0 0 20px 0;">Inventory Turnover by Warehouse</h3>
+                        <canvas id="inventoryTurnoverChart" style="max-height: 300px;"></canvas>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0 0 20px 0;">Inventory Capital vs Sales Evolution</h3>
+                        <canvas id="inventoryCapitalChart" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
+
+                <!-- Inventory Table -->
+                <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto;">
+                    <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0 0 20px 0;">Cash Outlook & Inventory Status</h3>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                        <thead>
+                            <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                                <th style="padding: 16px; text-align: left; font-weight: 600; color: #6b7280;">SKU</th>
+                                <th style="padding: 16px; text-align: left; font-weight: 600; color: #6b7280;">Warehouse</th>
+                                <th style="padding: 16px; text-align: left; font-weight: 600; color: #6b7280;">Status</th>
+                                <th style="padding: 16px; text-align: left; font-weight: 600; color: #6b7280;">Net Days</th>
+                                <th style="padding: 16px; text-align: left; font-weight: 600; color: #6b7280;">Turnover</th>
+                                <th style="padding: 16px; text-align: left; font-weight: 600; color: #6b7280;">Trend</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

@@ -74,6 +74,19 @@ function showSubsection(mainSection, subsectionName) {
     const subsection = document.getElementById(`subsection-${subsectionName}`);
     if (subsection) {
         subsection.style.display = 'block';
+        
+        // Initialize charts for specific subsections
+        setTimeout(() => {
+            if (subsectionName === 'risk') {
+                initRiskCharts();
+                populateRiskExceptionsTable();
+            } else if (subsectionName === 'sustainability') {
+                initSustainabilityCharts();
+            } else if (subsectionName === 'inventory') {
+                initInventoryCharts();
+                populateInventoryTable();
+            }
+        }, 50);
     }
     
     // Add active styling to clicked tab button
@@ -821,5 +834,357 @@ window.onclick = function(event) {
     if (event.target === warehouseModal) {
         closeWarehouseModal();
     }
+}
+
+// ===== REPORTS CHARTS & DATA =====
+
+// Initialize all charts for Reports section
+function initializeReportsCharts() {
+    // Risk Report Charts
+    initRiskCharts();
+    // Sustainability Charts
+    initSustainabilityCharts();
+    // Inventory Charts
+    initInventoryCharts();
+    
+    // Populate tables
+    populateRiskExceptionsTable();
+    populateInventoryTable();
+}
+
+// Risk Report Charts
+function initRiskCharts() {
+    // SKUs at Risk by Country
+    const riskCountryCtx = document.getElementById('riskCountryChart');
+    if (riskCountryCtx && !chartInstances.riskCountry) {
+        chartInstances.riskCountry = new Chart(riskCountryCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Germany', 'France', 'Italy', 'Spain', 'Netherlands'],
+                datasets: [{
+                    label: 'SKUs at Risk %',
+                    data: [23.5, 18.2, 15.8, 22.1, 12.4],
+                    backgroundColor: ['#dc2626', '#ef4444', '#f87171', '#fca5a5', '#fee2e2'],
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'x',
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 30
+                    }
+                }
+            }
+        });
+    }
+    
+    // Delivery by Logistics Calendar
+    const deliveryCalendarCtx = document.getElementById('deliveryCalendarChart');
+    if (deliveryCalendarCtx && !chartInstances.deliveryCalendar) {
+        chartInstances.deliveryCalendar = new Chart(deliveryCalendarCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [
+                    {
+                        label: 'On-Time',
+                        data: [85, 88, 86, 89, 87, 89],
+                        backgroundColor: '#10b981',
+                        borderRadius: 8,
+                        borderSkipped: false
+                    },
+                    {
+                        label: 'Delayed',
+                        data: [15, 12, 14, 11, 13, 11],
+                        backgroundColor: '#dc2626',
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                indexAxis: 'x',
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true, max: 100 }
+                },
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    }
+}
+
+// Sustainability Report Charts
+function initSustainabilityCharts() {
+    // CO2 Intensity by Country
+    const co2CountryCtx = document.getElementById('co2CountryChart');
+    if (co2CountryCtx && !chartInstances.co2Country) {
+        chartInstances.co2Country = new Chart(co2CountryCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Germany', 'France', 'Italy', 'Spain', 'Netherlands'],
+                datasets: [{
+                    label: 'kg CO₂e per shipment',
+                    data: [52.3, 38.5, 45.2, 41.8, 35.2],
+                    backgroundColor: ['#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe'],
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'x',
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
+    
+    // Emissions by Transport Mode
+    const emissionsModeCtx = document.getElementById('emissionsModeChart');
+    if (emissionsModeCtx && !chartInstances.emissionsMode) {
+        chartInstances.emissionsMode = new Chart(emissionsModeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Road', 'Rail', 'Sea', 'Air'],
+                datasets: [{
+                    data: [45, 25, 22, 8],
+                    backgroundColor: ['#f87171', '#4ade80', '#60a5fa', '#fbbf24'],
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    }
+    
+    // CO2 Emissions Trend vs Target
+    const co2TrendCtx = document.getElementById('co2TrendChart');
+    if (co2TrendCtx && !chartInstances.co2Trend) {
+        chartInstances.co2Trend = new Chart(co2TrendCtx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
+                datasets: [
+                    {
+                        label: 'Actual Emissions',
+                        data: [45000, 42000, 44000, 41000, 38000, 36000],
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Target',
+                        data: [50000, 48000, 46000, 44000, 42000, 40000],
+                        borderColor: '#dc2626',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
+}
+
+// Inventory Report Charts
+function initInventoryCharts() {
+    // Inventory Turnover by Warehouse
+    const inventoryTurnoverCtx = document.getElementById('inventoryTurnoverChart');
+    if (inventoryTurnoverCtx && !chartInstances.inventoryTurnover) {
+        chartInstances.inventoryTurnover = new Chart(inventoryTurnoverCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Berlin', 'Frankfurt', 'Munich', 'Hamburg', 'Cologne'],
+                datasets: [{
+                    label: 'Turnover Rate',
+                    data: [8.2, 6.5, 7.8, 5.9, 6.2],
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'x',
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
+    
+    // Inventory Capital vs Sales Evolution
+    const inventoryCapitalCtx = document.getElementById('inventoryCapitalChart');
+    if (inventoryCapitalCtx && !chartInstances.inventoryCapital) {
+        chartInstances.inventoryCapital = new Chart(inventoryCapitalCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [
+                    {
+                        label: 'Inventory Capital (€M)',
+                        data: [2.1, 2.15, 2.25, 2.3, 2.35, 2.456],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Sales (€M)',
+                        data: [8.5, 9.2, 9.8, 10.5, 11.2, 12.1],
+                        borderColor: '#10b981',
+                        backgroundColor: 'transparent',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'Inventory Capital' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: 'Sales' },
+                        grid: { drawOnChartArea: false }
+                    }
+                }
+            }
+        });
+    }
+}
+
+// Populate Risk Exceptions Table
+function populateRiskExceptionsTable() {
+    const exceptions = [
+        { sku: 'SUP-2847', country: 'Spain', product: 'Industrial Drill Kit', problem: 'Stock Out Risk', impact: 45000, severity: 'Critical' },
+        { sku: 'SUP-1923', country: 'Italy', product: 'Office Chair Premium', problem: 'Delayed Shipment', impact: 38500, severity: 'Critical' },
+        { sku: 'SUP-3421', country: 'Germany', product: 'Laptop Stand', problem: 'High Lead Time', impact: 22800, severity: 'Warning' },
+        { sku: 'SUP-4156', country: 'France', product: 'Cable Organizer Set', problem: 'Supplier Risk', impact: 18200, severity: 'Warning' },
+        { sku: 'SUP-2891', country: 'Netherlands', product: 'Printer Paper A4', problem: 'Quality Issue', impact: 12500, severity: 'Info' },
+        { sku: 'SUP-5623', country: 'Spain', product: 'Monitor Stand', problem: 'Stock Out Risk', impact: 8900, severity: 'Warning' },
+        { sku: 'SUP-1856', country: 'Germany', product: 'USB Hub', problem: 'Delayed Shipment', impact: 6200, severity: 'Info' },
+        { sku: 'SUP-4332', country: 'France', product: 'Keyboard Mechanical', problem: 'High Lead Time', impact: 5100, severity: 'Info' },
+        { sku: 'SUP-2905', country: 'Italy', product: 'Mouse Pad Large', problem: 'Low Demand', impact: 3200, severity: 'Low' },
+        { sku: 'SUP-6142', country: 'Spain', product: 'Cable HDMI', problem: 'Overstock', impact: 2100, severity: 'Low' }
+    ];
+    
+    const tbody = document.getElementById('risk-exceptions-table');
+    if (!tbody) return;
+    
+    tbody.innerHTML = exceptions.map(exc => `
+        <tr style="border-bottom: 1px solid #e5e7eb;">
+            <td style="padding: 12px; font-weight: 600; color: #111827; font-family: monospace; font-size: 13px;">${exc.sku}</td>
+            <td style="padding: 12px; color: #6b7280;">${exc.country}</td>
+            <td style="padding: 12px; color: #6b7280;">${exc.product}</td>
+            <td style="padding: 12px; color: #6b7280;">${exc.problem}</td>
+            <td style="padding: 12px; color: #111827; font-weight: 600;">€${exc.impact.toLocaleString()}</td>
+            <td style="padding: 12px; text-align: center;">
+                <span style="display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;
+                ${exc.severity === 'Critical' ? 'background: #fee2e2; color: #dc2626;' : ''}
+                ${exc.severity === 'Warning' ? 'background: #fef3c7; color: #d97706;' : ''}
+                ${exc.severity === 'Info' ? 'background: #dbeafe; color: #0284c7;' : ''}
+                ${exc.severity === 'Low' ? 'background: #dcfce7; color: #059669;' : ''}
+                ">${exc.severity}</span>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Populate Inventory Table
+function populateInventoryTable() {
+    const inventoryData = [
+        { sku: 'SUP-001', warehouse: 'Berlin', status: 'In Stock', netDays: 45, turnover: 8.2, trend: 'up' },
+        { sku: 'SUP-002', warehouse: 'Frankfurt', status: 'In Stock', netDays: 38, turnover: 6.5, trend: 'up' },
+        { sku: 'SUP-003', warehouse: 'Munich', status: 'Low Stock', netDays: 12, turnover: 7.8, trend: 'down' },
+        { sku: 'SUP-004', warehouse: 'Hamburg', status: 'In Stock', netDays: 52, turnover: 5.9, trend: 'flat' },
+        { sku: 'SUP-005', warehouse: 'Cologne', status: 'Critical', netDays: 3, turnover: 6.2, trend: 'down' },
+        { sku: 'SUP-006', warehouse: 'Berlin', status: 'In Stock', netDays: 41, turnover: 7.1, trend: 'up' },
+        { sku: 'SUP-007', warehouse: 'Frankfurt', status: 'In Stock', netDays: 35, turnover: 5.8, trend: 'flat' },
+        { sku: 'SUP-008', warehouse: 'Munich', status: 'In Stock', netDays: 48, turnover: 8.5, trend: 'up' }
+    ];
+    
+    const tbody = document.getElementById('inventory-table');
+    if (!tbody) return;
+    
+    tbody.innerHTML = inventoryData.map(inv => `
+        <tr style="border-bottom: 1px solid #e5e7eb;">
+            <td style="padding: 12px; font-weight: 600; color: #111827; font-family: monospace; font-size: 13px;">${inv.sku}</td>
+            <td style="padding: 12px; color: #6b7280;">${inv.warehouse}</td>
+            <td style="padding: 12px;">
+                <span style="display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;
+                ${inv.status === 'In Stock' ? 'background: #dcfce7; color: #059669;' : ''}
+                ${inv.status === 'Low Stock' ? 'background: #fef3c7; color: #d97706;' : ''}
+                ${inv.status === 'Critical' ? 'background: #fee2e2; color: #dc2626;' : ''}
+                ">${inv.status}</span>
+            </td>
+            <td style="padding: 12px; color: #111827; font-weight: 600;">${inv.netDays}</td>
+            <td style="padding: 12px; color: #111827; font-weight: 600;">${inv.turnover.toFixed(1)}</td>
+            <td style="padding: 12px; text-align: center;">
+                ${inv.trend === 'up' ? '<i data-lucide="trending-up" style="width: 16px; height: 16px; color: #10b981; display: inline;"></i>' : ''}
+                ${inv.trend === 'down' ? '<i data-lucide="trending-down" style="width: 16px; height: 16px; color: #dc2626; display: inline;"></i>' : ''}
+                ${inv.trend === 'flat' ? '<i data-lucide="minus" style="width: 16px; height: 16px; color: #6b7280; display: inline;"></i>' : ''}
+            </td>
+        </tr>
+    `).join('');
+    
+    // Re-render Lucide icons for the new trend icons
+    lucide.createIcons();
 }
 
