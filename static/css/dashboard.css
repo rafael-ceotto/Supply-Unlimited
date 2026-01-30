@@ -10,6 +10,32 @@ body {
     background: #f9fafb;
 }
 
+/* SVG Animations for Logo */
+@keyframes rotate-ellipse-1 {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes rotate-ellipse-2 {
+    from { transform: rotate(90deg); }
+    to { transform: rotate(450deg); }
+}
+
+.ellipse-group-1 {
+    animation: rotate-ellipse-1 8s linear infinite;
+    transform-origin: 100px 100px;
+}
+
+.ellipse-group-2 {
+    animation: rotate-ellipse-2 8s linear infinite;
+    transform-origin: 100px 100px;
+}
+
+.logo-svg-dashboard {
+    display: flex;
+    align-items: center;
+}
+
 /* Top Bar */
 .top-bar {
     height: 64px;
@@ -36,20 +62,19 @@ body {
 .logo-mini {
     width: 40px;
     height: 40px;
-    background: #10b981;
     border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #417e40;
     font-weight: 700;
     font-size: 16px;
 }
 
 .logo-text {
     font-size: 16px;
-    font-weight: bold;
-    color: #1f2937;
+    color: #417e40;
+    font-weight: 700;
 }
 
 .user-section {
@@ -106,7 +131,7 @@ body {
 .main-container {
     display: flex;
     height: calc(100vh - 64px);
-    margin-top: 64px;
+    margin-top: 0px;
 }
 
 /* Sidebar */
@@ -115,6 +140,7 @@ body {
     background: linear-gradient(to bottom right, #dcfce7, #f5f5f5, #f0fdf4);
     border-right: 1px solid #e5e7eb;
     overflow-y: auto;
+    margin-top: 15px;
 }
 
 .sidebar-header {
@@ -161,7 +187,7 @@ body {
 .content {
     flex: 1;
     overflow-y: auto;
-    padding: 24px;
+    padding: 0px 24px 24px 24px;
 }
 
 .page-header {
@@ -172,6 +198,7 @@ body {
     font-size: 28px;
     color: #1f2937;
     margin-bottom: 4px;
+    margin-top: 35px;
 }
 
 .page-header p {
