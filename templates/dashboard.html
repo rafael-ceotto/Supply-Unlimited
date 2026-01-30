@@ -244,36 +244,38 @@
             </div>
 
             <!-- Sub-tabs for Reports -->
-            <div style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid #e5e7eb; padding-bottom: 0; overflow-x: auto;">
-                <button class="tab-button active" onclick="showSubsection('reports', 'analytics'); return false;" style="padding: 12px 16px; border: none; background: none; font-size: 14px; font-weight: 600; color: #111827; cursor: pointer; border-bottom: 3px solid #2563eb; margin-bottom: -2px; white-space: nowrap;">
+            <div style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid #e5e7eb; padding-bottom: 0; overflow: hidden;">
+                <button class="tab-button active" onclick="showSubsection('reports', 'analytics'); return false;" style="padding: 12px 16px; border: none; background: none; font-size: 13px; font-weight: 600; color: #111827; cursor: pointer; border-bottom: 3px solid #2563eb; margin-bottom: -2px; white-space: nowrap; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
                     <i data-lucide="trending-up" style="width: 16px; height: 16px; display: inline; margin-right: 6px;"></i>Sales Analytics
                 </button>
-                <button class="tab-button" onclick="showSubsection('reports', 'risk'); return false;" style="padding: 12px 16px; border: none; background: none; font-size: 14px; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap;">
+                <button class="tab-button" onclick="showSubsection('reports', 'risk'); return false;" style="padding: 12px 16px; border: none; background: none; font-size: 13px; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
                     <i data-lucide="alert-triangle" style="width: 16px; height: 16px; display: inline; margin-right: 6px;"></i>Risk Report
                 </button>
-                <button class="tab-button" onclick="showSubsection('reports', 'sustainability'); return false;" style="padding: 12px 16px; border: none; background: none; font-size: 14px; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap;">
+                <button class="tab-button" onclick="showSubsection('reports', 'sustainability'); return false;" style="padding: 12px 16px; border: none; background: none; font-size: 13px; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
                     <i data-lucide="leaf" style="width: 16px; height: 16px; display: inline; margin-right: 6px;"></i>Sustainability
                 </button>
-                <button class="tab-button" onclick="showSubsection('reports', 'inventory'); return false;" style="padding: 12px 16px; border: none; background: none; font-size: 14px; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap;">
+                <button class="tab-button" onclick="showSubsection('reports', 'inventory'); return false;" style="padding: 12px 16px; border: none; background: none; font-size: 13px; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
                     <i data-lucide="package" style="width: 16px; height: 16px; display: inline; margin-right: 6px;"></i>Inventory Report
                 </button>
             </div>
 
             <!-- Sales Analytics Sub-section -->
             <div id="subsection-analytics" style="display: block;">
-                <!-- Search Company Section -->
-                <div class="search-container" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-                        <div style="width: 48px; height: 48px; background: #dbeafe; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                            <i data-lucide="search" style="width: 24px; height: 24px; color: #2563eb;"></i>
+                <div class="page-header" style="margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; background: #dbeafe; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="trending-up" style="width: 24px; height: 24px; color: #2563eb;"></i>
                         </div>
                         <div>
-                            <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin: 0 0 4px 0;">Search Company</h3>
-                            <p style="font-size: 14px; color: #6b7280; margin: 0;">Find detailed sales analytics and market insights</p>
+                            <h2 style="font-size: 24px; font-weight: 700; margin: 0;">Sales Analytics</h2>
+                            <p style="color: #6b7280; margin: 0; font-size: 14px;">Company Performance & Market Insights</p>
                         </div>
                     </div>
-                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: flex-end;">
-                        <div>
+                </div>
+                <!-- Search Company Section -->
+                <div class="search-container" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px;">
+                    <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0 0 12px 0;\">Search Company</h3>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: flex-end;\">\n                        <div>
                             <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">Company Name</label>
                             <input type="text" id="sales-company-name" placeholder="Enter company name..." style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; outline: none;">
                         </div>

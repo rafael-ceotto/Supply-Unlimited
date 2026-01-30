@@ -78,15 +78,25 @@ function showSubsection(mainSection, subsectionName) {
         // Initialize charts for specific subsections
         setTimeout(() => {
             if (subsectionName === 'risk') {
+                // Destroy existing charts first
+                if (chartInstances.riskCountry) chartInstances.riskCountry.destroy();
+                if (chartInstances.deliveryCalendar) chartInstances.deliveryCalendar.destroy();
                 initRiskCharts();
                 populateRiskExceptionsTable();
             } else if (subsectionName === 'sustainability') {
+                // Destroy existing charts first
+                if (chartInstances.co2Country) chartInstances.co2Country.destroy();
+                if (chartInstances.emissionsMode) chartInstances.emissionsMode.destroy();
+                if (chartInstances.co2Trend) chartInstances.co2Trend.destroy();
                 initSustainabilityCharts();
             } else if (subsectionName === 'inventory') {
+                // Destroy existing charts first
+                if (chartInstances.inventoryTurnover) chartInstances.inventoryTurnover.destroy();
+                if (chartInstances.inventoryCapital) chartInstances.inventoryCapital.destroy();
                 initInventoryCharts();
                 populateInventoryTable();
             }
-        }, 50);
+        }, 200);
     }
     
     // Add active styling to clicked tab button
@@ -856,7 +866,7 @@ function initializeReportsCharts() {
 function initRiskCharts() {
     // SKUs at Risk by Country
     const riskCountryCtx = document.getElementById('riskCountryChart');
-    if (riskCountryCtx && !chartInstances.riskCountry) {
+    if (riskCountryCtx) {
         chartInstances.riskCountry = new Chart(riskCountryCtx, {
             type: 'bar',
             data: {
@@ -888,7 +898,7 @@ function initRiskCharts() {
     
     // Delivery by Logistics Calendar
     const deliveryCalendarCtx = document.getElementById('deliveryCalendarChart');
-    if (deliveryCalendarCtx && !chartInstances.deliveryCalendar) {
+    if (deliveryCalendarCtx) {
         chartInstances.deliveryCalendar = new Chart(deliveryCalendarCtx, {
             type: 'bar',
             data: {
@@ -930,7 +940,7 @@ function initRiskCharts() {
 function initSustainabilityCharts() {
     // CO2 Intensity by Country
     const co2CountryCtx = document.getElementById('co2CountryChart');
-    if (co2CountryCtx && !chartInstances.co2Country) {
+    if (co2CountryCtx) {
         chartInstances.co2Country = new Chart(co2CountryCtx, {
             type: 'bar',
             data: {
@@ -959,7 +969,7 @@ function initSustainabilityCharts() {
     
     // Emissions by Transport Mode
     const emissionsModeCtx = document.getElementById('emissionsModeChart');
-    if (emissionsModeCtx && !chartInstances.emissionsMode) {
+    if (emissionsModeCtx) {
         chartInstances.emissionsMode = new Chart(emissionsModeCtx, {
             type: 'doughnut',
             data: {
@@ -983,7 +993,7 @@ function initSustainabilityCharts() {
     
     // CO2 Emissions Trend vs Target
     const co2TrendCtx = document.getElementById('co2TrendChart');
-    if (co2TrendCtx && !chartInstances.co2Trend) {
+    if (co2TrendCtx) {
         chartInstances.co2Trend = new Chart(co2TrendCtx, {
             type: 'line',
             data: {
@@ -1027,7 +1037,7 @@ function initSustainabilityCharts() {
 function initInventoryCharts() {
     // Inventory Turnover by Warehouse
     const inventoryTurnoverCtx = document.getElementById('inventoryTurnoverChart');
-    if (inventoryTurnoverCtx && !chartInstances.inventoryTurnover) {
+    if (inventoryTurnoverCtx) {
         chartInstances.inventoryTurnover = new Chart(inventoryTurnoverCtx, {
             type: 'bar',
             data: {
@@ -1056,7 +1066,7 @@ function initInventoryCharts() {
     
     // Inventory Capital vs Sales Evolution
     const inventoryCapitalCtx = document.getElementById('inventoryCapitalChart');
-    if (inventoryCapitalCtx && !chartInstances.inventoryCapital) {
+    if (inventoryCapitalCtx) {
         chartInstances.inventoryCapital = new Chart(inventoryCapitalCtx, {
             type: 'line',
             data: {
