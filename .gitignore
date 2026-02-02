@@ -81,3 +81,5 @@ postgres_data/
 *.pot
 temp/
 tmp/
+# Archive folder (development files not for production)
+_archive/

@@ -1,6 +1,50 @@
 """
 LangGraph AI Agent para Supply Chain Reports
 Orquestra o fluxo de processamento de requisições de relatórios usando LangGraph
+
+🔥 PROMPT DE CONTEXTO PARA DESENVOLVIMENTO
+============================================
+
+Este módulo implementa um agente de IA que atua como analista sênior de supply chain.
+
+PRINCÍPIOS FUNDAMENTAIS:
+------------------------
+1. O agente NÃO executa lógica pesada dentro do LLM
+   - LLM apenas: planeja, decide, orquestra
+   - Python executa: ETL, queries, cálculos, validação
+
+2. Código deve ser: legível, modular, auditável
+   - Funções pequenas e bem definidas
+   - Type hints sempre
+   - Docstrings objetivas
+
+3. SQL: apenas SELECT, usar ORM Django quando possível
+
+4. Sempre considerar: cache e execução assíncrona (Celery/asyncio)
+
+ESTÁGIOS DO AGENT (LangGraph):
+------------------------------
+1. INTERPRETING  → Entender pedido em linguagem natural
+2. PLANNING      → Detectar KPIs necessários
+3. DATA_COLLECTION → Checagem de dados disponíveis
+4. ANALYSIS      → Planejamento e execução de ETL, validação
+5. GENERATING    → Geração de insights e relatório final
+
+KPIs ESPERADOS:
+---------------
+- Estoque: nível, rotação, envelhecimento, obsolescência
+- Transporte: custo, lead time, OTIF (On Time In Full)
+- Fornecedores: performance, confiabilidade, entrega
+- Demanda: previsão, variabilidade, sazonalidade
+- Rupturas: frequência, impacto, causas
+- Receita: por produto, região, canal, cliente
+
+ESTRUTURA DE CÓDIGO:
+-------------------
+✅ DO: pequenas funções, tipagem clara, async quando possível
+❌ DON'T: monolitos, lógica "mágica", queries hardcoded
+
+Refer ao ai_reports/README.md para documentação completa.
 """
 
 from typing import TypedDict, List, Optional, Dict, Any
@@ -65,13 +109,24 @@ class AIReportAgent:
         Inicializa o agente com configuração opcional
         
         Args:
-            config: Configuração do agente (model, temperatura, etc.)
+            config: Configuração do agente (AIAgentConfig model ou dict com model, temperatura, etc.)
         """
-        self.config = config or {
-            'model': 'gpt-4',
-            'temperature': 0.7,
-            'max_tokens': 2000
-        }
+        if config and hasattr(config, 'model_name'):
+            # É uma instância do modelo AIAgentConfig
+            self.config = {
+                'model': config.model_name,
+                'temperature': config.temperature,
+                'max_tokens': config.max_tokens,
+                'system_prompt': config.system_prompt,
+                'name': config.name
+            }
+        else:
+            # É um dict ou None
+            self.config = config or {
+                'model': 'gpt-4',
+                'temperature': 0.7,
+                'max_tokens': 2000
+            }
         self.stage_handlers = {
             ProcessingStage.INTERPRETING: self._interpret_request,
             ProcessingStage.PLANNING: self._plan_analysis,
@@ -223,41 +278,78 @@ class AIReportAgent:
     async def _collect_data(self, state: AIReportState) -> AIReportState:
         """
         Estágio 3: Coletar dados
-        - Buscar dados de inventário
-        - Buscar dados de vendas
-        - Buscar informações de armazém
+        - Buscar dados baseado no tipo de relatório
+        - Retornar dados diferentes para cada análise
         """
-        # Simular coleta de dados com mock data
-        # Em produção, isso faria queries reais no banco de dados
+        # Gerar dados diferentes baseado no tipo de relatório
+        report_type = state.get('report_type', 'general_analysis')
         
-        state['raw_data'] = {
-            'inventory': {
-                'total_units': 45230,
-                'total_value_eur': 2500000,
-                'by_country': {
-                    'DE': 15000,
-                    'FR': 12000,
-                    'IT': 10000,
-                    'ES': 8230
+        if report_type == 'inventory_analysis':
+            state['raw_data'] = {
+                'inventory': {
+                    'total_units': 45230,
+                    'total_value_eur': 2500000,
+                    'by_country': {'DE': 15000, 'FR': 12000, 'IT': 10000, 'ES': 8230},
+                    'by_category': {'Electronics': 18000, 'Components': 16000, 'Raw Materials': 11230}
                 },
-                'by_category': {
-                    'Electronics': 18000,
-                    'Components': 16000,
-                    'Raw Materials': 11230
-                }
-            },
-            'sales': {
-                'last_30_days': 125000,
-                'last_90_days': 385000,
-                'growth_rate': 0.15,
-                'top_products': ['Product A', 'Product B', 'Product C']
-            },
-            'warehouse': {
-                'utilization': 0.78,
-                'efficiency_score': 0.94,
-                'locations_active': 12
+                'sales': {'last_30_days': 125000, 'last_90_days': 385000, 'growth_rate': 0.15},
+                'warehouse': {'utilization': 0.78, 'efficiency_score': 0.94, 'locations_active': 12}
             }
-        }
+        
+        elif report_type == 'sales_performance':
+            state['raw_data'] = {
+                'sales': {
+                    'total_sales_eur': 4850000,
+                    'last_30_days': 385000,
+                    'last_90_days': 1250000,
+                    'growth_rate': 0.23,
+                    'by_country': {'DE': 1850000, 'FR': 1350000, 'IT': 950000, 'ES': 700000},
+                    'by_channel': {'Online': 2100000, 'Wholesale': 1950000, 'Retail': 800000},
+                    'top_products': ['Premium Electronics A', 'Standard Components B', 'Bulk Materials C']
+                },
+                'customers': {
+                    'total_customers': 2847,
+                    'repeat_customers': 0.68,
+                    'average_order_value': 1705
+                },
+                'trends': {'month_1': 0.08, 'month_2': 0.15, 'month_3': 0.23}
+            }
+        
+        elif report_type == 'risk_analysis':
+            state['raw_data'] = {
+                'supply_chain': {
+                    'total_suppliers': 127,
+                    'critical_suppliers': 8,
+                    'supplier_concentration': 0.34,
+                    'geographic_concentration': 0.42,
+                    'lead_time_avg_days': 18,
+                    'lead_time_variance': 0.28
+                },
+                'warehouse_risks': {
+                    'obsolete_inventory_pct': 0.12,
+                    'slow_moving_items': 342,
+                    'overstocked_products': 56
+                },
+                'supply_disruptions': {
+                    'incidents_last_90_days': 3,
+                    'average_recovery_time_hours': 24,
+                    'affected_sales_pct': 0.08
+                },
+                'geopolitical_risks': {
+                    'high_risk_regions': 2,
+                    'at_risk_suppliers': 12,
+                    'contingency_plans': 'partial'
+                }
+            }
+        
+        else:  # general_analysis
+            state['raw_data'] = {
+                'inventory': {'total_units': 45230, 'total_value_eur': 2500000},
+                'sales': {'last_90_days': 1250000, 'growth_rate': 0.15},
+                'warehouse': {'utilization': 0.78, 'locations_active': 12},
+                'suppliers': {'total': 127, 'reliable': 0.89},
+                'customers': {'total': 2847, 'satisfaction': 0.92}
+            }
         
         state['data_summary'] = {
             'records_processed': 45230,
@@ -267,7 +359,6 @@ class AIReportAgent:
         }
         
         await asyncio.sleep(0.8)
-        
         print(f"  ✓ Dados coletados: {state['data_summary']['records_processed']} registros")
         print(f"  ✓ Qualidade dos dados: {state['data_summary']['data_quality']}")
         
@@ -276,46 +367,138 @@ class AIReportAgent:
     async def _analyze_data(self, state: AIReportState) -> AIReportState:
         """
         Estágio 4: Analisar dados
-        - Calcular KPIs
+        - Calcular KPIs específicos do tipo de relatório
         - Identificar tendências
-        - Gerar insights
+        - Gerar insights contextualizados
         """
         data = state['raw_data']
+        report_type = state.get('report_type', 'general_analysis')
         
-        # Calcular métricas
-        total_inventory = data['inventory']['total_value_eur']
-        inventory_turnover = data['sales']['last_90_days'] / total_inventory * 4  # annualized
-        
-        state['analysis_results'] = {
-            'kpis': {
-                'total_inventory_eur': f"€{total_inventory:,.0f}",
-                'turnover_rate': f"{inventory_turnover:.1f}x",
-                'fill_rate': "94.3%",
-                'warehouse_utilization': f"{data['warehouse']['utilization']*100:.1f}%",
-                'efficiency_score': f"{data['warehouse']['efficiency_score']*100:.0f}%"
-            },
-            'trends': {
-                'inventory_trend': 'stable',
-                'sales_trend': 'increasing',
-                'efficiency_trend': 'improving'
-            },
-            'top_insights': [
-                "Inventário distribuído principalmente na Alemanha (33%) e França (27%)",
-                "Taxa de rotatividade anual de 8.6x indica bom fluxo de estoque",
-                "Utilização de armazém em 78% - espaço adequado para crescimento",
-                "Categoria Electronics representa 40% do inventário total"
+        # Calcular métricas específicas por tipo
+        if report_type == 'inventory_analysis':
+            total_inventory = data['inventory']['total_value_eur']
+            inventory_turnover = data['sales']['last_90_days'] / total_inventory * 4
+            
+            state['analysis_results'] = {
+                'kpis': {
+                    'total_inventory_eur': f"€{total_inventory:,.0f}",
+                    'turnover_rate': f"{inventory_turnover:.1f}x",
+                    'fill_rate': "94.3%",
+                    'warehouse_utilization': f"{data['warehouse']['utilization']*100:.1f}%",
+                    'efficiency_score': f"{data['warehouse']['efficiency_score']*100:.0f}%"
+                },
+                'trends': {
+                    'inventory_trend': 'stable',
+                    'sales_trend': 'increasing',
+                    'efficiency_trend': 'improving'
+                },
+                'top_insights': [
+                    "Inventário distribuído principalmente na Alemanha (33%) e França (27%)",
+                    "Taxa de rotatividade anual de 8.6x indica bom fluxo de estoque",
+                    "Utilização de armazém em 78% - espaço adequado para crescimento",
+                    "Categoria Electronics representa 40% do inventário total"
+                ]
+            }
+            state['recommendations'] = [
+                "Considerar redistribuição de estoque para Itália e Espanha para melhorar cobertura local",
+                "Taxa de turnover de 8.6x é saudável - manter estratégia atual de reabastecimento",
+                "Aproveitar 22% de capacidade livre para planejar crescimento de 15-20%",
+                "Implementar sistema de previsão para Electronics - categoria mais crítica"
             ]
-        }
+        
+        elif report_type == 'sales_performance':
+            total_sales = data['sales']['total_sales_eur']
+            growth = data['sales']['growth_rate'] * 100
+            avg_order = data['customers']['average_order_value']
+            
+            state['analysis_results'] = {
+                'kpis': {
+                    'total_sales_eur': f"€{total_sales:,.0f}",
+                    'growth_rate': f"{growth:.1f}%",
+                    'avg_order_value': f"€{avg_order:,.0f}",
+                    'repeat_customer_rate': f"{data['customers']['repeat_customers']*100:.0f}%",
+                    'total_customers': f"{data['customers']['total_customers']:,}"
+                },
+                'trends': {
+                    'sales_trend': 'strong_increasing',
+                    'customer_trend': 'growing',
+                    'revenue_trend': 'accelerating'
+                },
+                'top_insights': [
+                    f"Crescimento de vendas de {growth:.1f}% indica forte demanda no mercado",
+                    "Alemanha lidera com €1.85M em vendas (38% do total)",
+                    "Canal online é o maior contribuidor com 43% das vendas totais",
+                    "Taxa de clientes recorrentes de 68% mostra boa retenção"
+                ]
+            }
+            state['recommendations'] = [
+                "Expandir linha de 'Premium Electronics A' que lidera vendas",
+                "Aumentar investimento em canal online - canal com melhor performance",
+                "Implementar programa de fidelidade para aproveitar 68% de clientes recorrentes",
+                "Replicar estratégia de sucesso de Alemanha em mercados secundários"
+            ]
+        
+        elif report_type == 'risk_analysis':
+            suppliers_critical = data['supply_chain']['critical_suppliers']
+            concentration = data['supply_chain']['supplier_concentration'] * 100
+            incidents = data['supply_disruptions']['incidents_last_90_days']
+            
+            state['analysis_results'] = {
+                'kpis': {
+                    'supplier_concentration': f"{concentration:.0f}%",
+                    'critical_suppliers': f"{suppliers_critical} of {data['supply_chain']['total_suppliers']}",
+                    'lead_time_days': f"{data['supply_chain']['lead_time_avg_days']} days",
+                    'supply_disruptions': f"{incidents} em 90 dias",
+                    'at_risk_regions': f"{data['geopolitical_risks']['high_risk_regions']} identified"
+                },
+                'trends': {
+                    'risk_trend': 'moderate',
+                    'supplier_resilience': 'needs_improvement',
+                    'geopolitical_risk': 'increasing'
+                },
+                'top_insights': [
+                    f"Concentração de fornecedores em 34% indica risco moderado de supply chain",
+                    f"12 fornecedores em regiões de alto risco representam {(12/data['supply_chain']['total_suppliers']*100):.0f}% da base",
+                    "3 incidentes em 90 dias com tempo médio de recuperação de 24h",
+                    "Planos de contingência apenas parciais - identificar gaps críticos"
+                ]
+            }
+            state['recommendations'] = [
+                "Diversificar fornecedores: aumentar número de fornecedores alternativos de 8 para 15",
+                "Implementar plano de contingência completo para regiões de risco geopolítico",
+                "Reduzir lead time variância de 28% através de parcerias de longo prazo",
+                "Monitorar itens obsoletos (12%) e desenvolver estratégia de liquidação"
+            ]
+        
+        else:  # general_analysis
+            state['analysis_results'] = {
+                'kpis': {
+                    'total_inventory': f"€{data['inventory']['total_value_eur']:,.0f}",
+                    'total_sales_90d': f"€{data['sales']['last_90_days']:,.0f}",
+                    'warehouse_locations': f"{data['warehouse']['locations_active']}",
+                    'supplier_reliability': f"{data['suppliers']['reliable']*100:.0f}%",
+                    'customer_satisfaction': f"{data['customers']['satisfaction']*100:.0f}%"
+                },
+                'trends': {
+                    'overall_trend': 'positive',
+                    'growth_trend': 'increasing',
+                    'efficiency_trend': 'stable'
+                },
+                'top_insights': [
+                    "Supply chain em condição geral positiva com crescimento de 15%",
+                    "127 fornecedores ativos com 89% de confiabilidade",
+                    "2.847 clientes com satisfação de 92%",
+                    "Operações em 12 locais de warehouse distribuídos geograficamente"
+                ]
+            }
+            state['recommendations'] = [
+                "Manter investimento em diversificação de fornecedores",
+                "Expandir presença em mercados secundários baseado em crescimento",
+                "Implementar automação em warehouse para melhorar eficiência",
+                "Aprofundar análise de satisfação de clientes"
+            ]
         
         state['insights'] = state['analysis_results']['top_insights']
-        
-        # Gerar recomendações baseadas em análise
-        state['recommendations'] = [
-            "Considerar redistribuição de estoque para Itália e Espanha para melhorar cobertura local",
-            "Taxa de turnover de 8.6x é saudável - manter estratégia atual de reabastecimento",
-            "Aproveitar 22% de capacidade livre para planejar crescimento de 15-20%",
-            "Implementar sistema de previsão para Electronics - categoria mais crítica"
-        ]
         
         await asyncio.sleep(0.6)
         
@@ -425,7 +608,7 @@ class AIReportAgent:
         }
 
 
-async def process_ai_request(user_request: str, user_id: str, session_id: str, config=None):
+async def process_ai_request(user_request: str, user_id: str, session_id: str, agent_config=None):
     """
     Função principal para processar uma requisição de relatório IA
     
@@ -433,12 +616,12 @@ async def process_ai_request(user_request: str, user_id: str, session_id: str, c
         user_request: Texto da requisição do usuário
         user_id: ID do usuário
         session_id: ID da sessão de chat
-        config: Configuração do agente
+        agent_config: Configuração do agente (AIAgentConfig model instance)
         
     Returns:
         Estado final com relatório gerado
     """
-    agent = AIReportAgent(config)
+    agent = AIReportAgent(agent_config)
     
     initial_state = AIReportState(
         user_request=user_request,

@@ -32,6 +32,8 @@ ALLOWED_HOSTS = ['*', 'testserver', '127.0.0.1', 'localhost']
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',  # ASGI server for Channels
+    'channels',  # WebSocket support
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -139,4 +141,29 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
+
+# ============================================
+# Channels & WebSocket Configuration
+# ============================================
+
+ASGI_APPLICATION = 'supply_unlimited.asgi.application'
+
+# Channel Layers (using Redis for in-memory message broker)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('redis', 6379)],  # Redis service in Docker
+            'capacity': 1500,
+            'expiry': 10,
+        },
+    },
+}
+
+# Alternatively, for in-memory testing (without Redis):
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels.layers.InMemoryChannelLayer'
+#     }
+# }
 

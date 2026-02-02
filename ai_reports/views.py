@@ -22,6 +22,9 @@ from .serializers import (
 from .agent import process_ai_request, ProcessingStage
 from datetime import datetime
 
+# Import RBAC utilities
+from users.rbac_utils import user_has_permission, log_audit
+
 
 class ChatSessionViewSet(viewsets.ModelViewSet):
     """
@@ -82,7 +85,7 @@ class ChatMessageViewSet(viewsets.ModelViewSet):
         return ChatMessage.objects.filter(session__user=self.request.user)
     
     @action(detail=False, methods=['post'], url_path='send')
-    async def send_message(self, request):
+    def send_message(self, request):
         """
         POST /api/ai-reports/messages/send/
         Envia uma mensagem e processa com IA
@@ -92,18 +95,69 @@ class ChatMessageViewSet(viewsets.ModelViewSet):
             "message": "Analyze inventory by country",
             "session_id": 1
         }
+        
+        Requer permissões:
+        - create_ai_reports: para criar novos relatórios
+        - use_ai_agents: para usar agentes IA
         """
+        # Verificar permissões RBAC
+        if not user_has_permission(request.user, 'create_ai_reports'):
+            log_audit(
+                request.user,
+                'permission_denied',
+                'ChatMessage',
+                description='Tentativa de criar relatório sem permissão'
+            )
+            return Response(
+                {'error': 'You do not have permission to create AI reports'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        if not user_has_permission(request.user, 'use_ai_agents'):
+            log_audit(
+                request.user,
+                'permission_denied',
+                'ChatMessage',
+                description='Tentativa de usar agentes sem permissão'
+            )
+            return Response(
+                {'error': 'You do not have permission to use AI agents'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
         serializer = AIReportRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
         message = serializer.validated_data['message']
         session_id = serializer.validated_data.get('session_id')
+        agent_id = serializer.validated_data.get('agent_id')
         
         # Criar ou buscar sessão
         if session_id:
             session = get_object_or_404(ChatSession, id=session_id, user=request.user)
         else:
             session = ChatSession.objects.create(user=request.user)
+        
+        # Buscar agente configurado
+        if agent_id:
+            agent = get_object_or_404(AIAgentConfig, id=agent_id, is_active=True)
+        else:
+            # Usar agente padrão (primeiro ativo)
+            agent = AIAgentConfig.objects.filter(is_active=True).first()
+            if not agent:
+                return Response(
+                    {'error': 'Nenhum agente ativo configurado'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        
+        # Log de auditoria - criação de sessão/mensagem
+        log_audit(
+            request.user,
+            'create',
+            'ChatMessage',
+            object_id=str(session.id),
+            description=f'Criou mensagem com agente {agent.name}: {message[:100]}'
+        )
         
         # Salvar mensagem do usuário
         user_message = ChatMessage.objects.create(
@@ -112,20 +166,22 @@ class ChatMessageViewSet(viewsets.ModelViewSet):
             content=message
         )
         
-        # Processar com IA
+        # Processar com IA (usar asyncio.run para executar coroutine)
         try:
-            state = await process_ai_request(
+            state = asyncio.run(process_ai_request(
                 user_request=message,
                 user_id=str(request.user.id),
-                session_id=str(session.id)
-            )
+                session_id=str(session.id),
+                agent_config=agent  # Passar a configuração do agente
+            ))
             
-            # Salvar resposta da IA
+            # Salvar resposta da IA com informação do agente
             ai_message = ChatMessage.objects.create(
                 session=session,
                 message_type='ai',
                 content=state['report_title'],
-                status='complete'
+                status='complete',
+                agent=agent  # Salvar qual agente gerou a resposta
             )
             
             # Salvar relatório gerado
@@ -386,3 +442,14 @@ class AIAgentConfigViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff:
             return AIAgentConfig.objects.all()
         return AIAgentConfig.objects.filter(is_active=True)
+    
+    @action(detail=False, methods=['get'], url_path='active-agents')
+    def active_agents(self, request):
+        """
+        GET /api/ai-reports/agent-config/active-agents/
+        Lista todos os agentes ativos disponíveis para o usuário
+        """
+        agents = AIAgentConfig.objects.filter(is_active=True)
+        serializer = self.get_serializer(agents, many=True)
+        return Response(serializer.data)
+

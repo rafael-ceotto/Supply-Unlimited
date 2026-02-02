@@ -8,7 +8,12 @@
 
     <!-- Bootstrap css for styling -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Toastr notification library -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <!-- Modern Theme & Animations -->
+    <link rel="stylesheet" href="{% static 'css/theme.css' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
 
     <!-- Auth css for login and registration pages -->
     {% block auth_css %}
@@ -21,7 +26,33 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
     {% if user.is_authenticated %}
-     <div class="ms-auto">
+     <div class="ms-auto d-flex align-items-center gap-3">
+       <!-- Notification Bell -->
+       <div class="notification-bell-wrapper">
+         <button class="btn btn-link text-white position-relative" id="notificationBell" title="Notificações">
+           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+           </svg>
+           <span class="notification-badge" id="notificationCount" style="display: none;">0</span>
+         </button>
+         
+         <!-- Notification Dropdown Panel -->
+         <div class="notification-panel" id="notificationPanel">
+           <div class="notification-header">
+             <h6>Notificações</h6>
+             <button class="btn btn-sm btn-link text-secondary" id="markAllRead" title="Marcar todas como lida">
+               Marcar todas como lida
+             </button>
+           </div>
+           <div class="notification-list" id="notificationList">
+             <div class="notification-empty">
+               <p>Você não tem notificações</p>
+             </div>
+           </div>
+         </div>
+       </div>
+
        <span class="text-white me-3">{{ user.first_name }}</span>
        <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
      </div>
@@ -29,12 +60,17 @@
 </div>
 </nav>
 
-
-
 <!-- Conteúdo principal full screen -->
 {% block content %}{% endblock %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Toastr notification library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<!-- Theme Manager for Dark Mode -->
+<script src="{% static 'js/theme.js' %}"></script>
 <script src="{% static 'js/auth.js' %}"></script>
+{% if user.is_authenticated %}
+  <script src="{% static 'js/notifications.js' %}"></script>
+{% endif %}
 </body>
 </html>

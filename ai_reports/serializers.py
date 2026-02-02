@@ -7,9 +7,12 @@ from .models import ChatSession, ChatMessage, GeneratedReport, AIAgentConfig
 
 
 class ChatMessageSerializer(serializers.ModelSerializer):
+    agent_name = serializers.CharField(source='agent.name', read_only=True, allow_null=True)
+    agent_model = serializers.CharField(source='agent.model_name', read_only=True, allow_null=True)
+    
     class Meta:
         model = ChatMessage
-        fields = ['id', 'message_type', 'content', 'status', 'created_at', 'processing_time_ms']
+        fields = ['id', 'message_type', 'content', 'status', 'created_at', 'processing_time_ms', 'agent', 'agent_name', 'agent_model']
         read_only_fields = ['id', 'created_at']
 
 
@@ -50,6 +53,7 @@ class AIReportRequestSerializer(serializers.Serializer):
     """Serializer para requisições de relatório IA"""
     message = serializers.CharField(max_length=5000, help_text="Descrição do relatório desejado")
     session_id = serializers.IntegerField(required=False, help_text="ID da sessão (opcional, cria nova se não informado)")
+    agent_id = serializers.IntegerField(required=False, help_text="ID do agente a usar (opcional, usa o padrão se não informado)")
     
     def validate_message(self, value):
         if len(value.strip()) < 5:

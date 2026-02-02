@@ -2,6 +2,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
@@ -529,3 +530,229 @@ def sales_page(request):
         'user': request.user,
     }
     return render(request, 'sales.html', context)
+
+# ============================================
+# RBAC API ViewSets
+# ============================================
+
+from rest_framework import viewsets, status, permissions
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from .serializers import (
+    PermissionSerializer, RoleSerializer, UserRoleSerializer,
+    UserDetailSerializer, AuditLogSerializer, NotificationSerializer
+)
+from .models import Permission, Role, UserRole, AuditLog, Notification
+from .rbac_utils import require_permission, user_has_permission, log_audit
+
+
+class PermissionViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet para visualizar permissions (read-only)"""
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class RoleViewSet(viewsets.ModelViewSet):
+    """ViewSet para gerenciar Roles"""
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def list(self, request, *args, **kwargs):
+        """List all roles - anyone can see roles"""
+        return super().list(request, *args, **kwargs)
+    
+    def retrieve(self, request, *args, **kwargs):
+        """Retrieve a specific role"""
+        return super().retrieve(request, *args, **kwargs)
+    
+    def create(self, request, *args, **kwargs):
+        """Create a new role - requires manage_roles permission"""
+        if not user_has_permission(request.user, 'manage_roles'):
+            return Response(
+                {'error': 'You do not have permission to create roles'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().create(request, *args, **kwargs)
+    
+    def update(self, request, *args, **kwargs):
+        """Update a role - requires manage_roles permission"""
+        if not user_has_permission(request.user, 'manage_roles'):
+            return Response(
+                {'error': 'You do not have permission to edit roles'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().update(request, *args, **kwargs)
+    
+    def destroy(self, request, *args, **kwargs):
+        """Delete a role - requires manage_roles permission"""
+        if not user_has_permission(request.user, 'manage_roles'):
+            return Response(
+                {'error': 'You do not have permission to delete roles'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().destroy(request, *args, **kwargs)
+
+
+class UserRoleViewSet(viewsets.ModelViewSet):
+    """ViewSet para gerenciar User Roles (atribuição de roles a usuários)"""
+    queryset = UserRole.objects.all()
+    serializer_class = UserRoleSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def list(self, request):
+        """List all user roles - requires manage_users permission"""
+        if not user_has_permission(request.user, 'manage_users'):
+            return Response(
+                {'error': 'You do not have permission to view user roles'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().list(request)
+    
+    def create(self, request):
+        """Assign a role to a user - requires manage_users permission"""
+        if not user_has_permission(request.user, 'manage_users'):
+            return Response(
+                {'error': 'You do not have permission to assign roles'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Log the action
+        log_audit(
+            request.user,
+            'permission_change',
+            'UserRole',
+            description=f'Assigned role to user {request.data.get("user")}'
+        )
+        
+        return super().create(request)
+    
+    def update(self, request, *args, **kwargs):
+        """Update a user's role - requires manage_users permission"""
+        if not user_has_permission(request.user, 'manage_users'):
+            return Response(
+                {'error': 'You do not have permission to modify roles'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().update(request, *args, **kwargs)
+    
+    @action(detail=False, methods=['get'])
+    def my_role(self, request):
+        """Get current user's role"""
+        try:
+            user_role = request.user.user_role
+            serializer = self.get_serializer(user_role)
+            return Response(serializer.data)
+        except UserRole.DoesNotExist:
+            return Response(
+                {'error': 'User does not have a role assigned'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+
+class UserDetailViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet para visualizar detalhes de usuários"""
+    queryset = User.objects.all()
+    serializer_class = UserDetailSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def list(self, request):
+        """List users - requires manage_users permission"""
+        if not user_has_permission(request.user, 'manage_users'):
+            return Response(
+                {'error': 'You do not have permission to view users'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().list(request)
+    
+    @action(detail=False, methods=['get'])
+    def me(self, request):
+        """Get current user details"""
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
+
+
+class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet para visualizar Audit Logs"""
+    queryset = AuditLog.objects.all()
+    serializer_class = AuditLogSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def list(self, request):
+        """List audit logs - requires view_audit_log permission"""
+        if not user_has_permission(request.user, 'view_audit_log'):
+            return Response(
+                {'error': 'You do not have permission to view audit logs'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().list(request)
+    
+    @action(detail=False, methods=['get'])
+    def my_logs(self, request):
+        """Get current user's audit logs"""
+        logs = AuditLog.objects.filter(user=request.user)
+        serializer = self.get_serializer(logs, many=True)
+        return Response(serializer.data)
+
+
+# ============================================
+# Notifications ViewSet
+# ============================================
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    """ViewSet para gerenciar notificações do usuário"""
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        """Retornar apenas notificações do usuário autenticado"""
+        return Notification.objects.filter(user=self.request.user)
+    
+    @action(detail=True, methods=['post'])
+    def mark_as_read(self, request, pk=None):
+        """Marcar notificação como lida"""
+        notification = self.get_object()
+        notification.mark_as_read()
+        serializer = self.get_serializer(notification)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['post'])
+    def mark_all_read(self, request):
+        """Marcar todas as notificações como lidas"""
+        count = Notification.objects.filter(
+            user=request.user,
+            is_read=False
+        ).update(is_read=True)
+        return Response({'marked_as_read': count})
+    
+    @action(detail=False, methods=['get'])
+    def unread_count(self, request):
+        """Obter contagem de notificações não lidas"""
+        count = Notification.objects.filter(
+            user=request.user,
+            is_read=False
+        ).count()
+        return Response({'unread_count': count})
+    
+    @action(detail=False, methods=['get'])
+    def unread(self, request):
+        """Obter todas as notificações não lidas"""
+        notifications = Notification.objects.filter(
+            user=request.user,
+            is_read=False
+        )
+        serializer = self.get_serializer(notifications, many=True)
+        return Response(serializer.data)
+
+
+class CurrentUserViewSet(viewsets.ViewSet):
+    """ViewSet para obter informações do usuário atual"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    @action(detail=False, methods=['get'])
+    def current(self, request):
+        """Obter informações do usuário autenticado atual"""
+        user = request.user
+        serializer = UserDetailSerializer(user)
+        return Response(serializer.data)

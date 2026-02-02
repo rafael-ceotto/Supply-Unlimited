@@ -40,6 +40,7 @@ class ChatMessage(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     processing_time_ms = models.IntegerField(null=True, blank=True)
+    agent = models.ForeignKey('AIAgentConfig', on_delete=models.SET_NULL, null=True, blank=True, related_name='messages')
     
     class Meta:
         ordering = ['created_at']

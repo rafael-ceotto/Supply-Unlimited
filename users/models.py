@@ -164,3 +164,198 @@ class DashboardMetrics(models.Model):
     
     def __str__(self):
         return f"Metrics for {self.metric_date}"
+
+
+# ============================================
+# RBAC (Role-Based Access Control) Models
+# ============================================
+
+class Permission(models.Model):
+    """Modelo para permissões granulares"""
+    PERMISSION_CHOICES = [
+        ('view_dashboard', 'View Dashboard'),
+        ('view_companies', 'View Companies'),
+        ('edit_companies', 'Edit Companies'),
+        ('delete_companies', 'Delete Companies'),
+        ('view_inventory', 'View Inventory'),
+        ('edit_inventory', 'Edit Inventory'),
+        ('delete_inventory', 'Delete Inventory'),
+        ('view_sales', 'View Sales'),
+        ('edit_sales', 'Edit Sales'),
+        ('delete_sales', 'Delete Sales'),
+        ('view_ai_reports', 'View AI Reports'),
+        ('create_ai_reports', 'Create AI Reports'),
+        ('use_ai_agents', 'Use AI Agents'),
+        ('export_reports', 'Export Reports'),
+        ('view_audit_log', 'View Audit Log'),
+        ('manage_users', 'Manage Users'),
+        ('manage_roles', 'Manage Roles'),
+    ]
+    
+    code = models.CharField(max_length=50, unique=True, primary_key=True, choices=PERMISSION_CHOICES)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['code']
+    
+    def __str__(self):
+        return f"{self.get_code_display()}"
+
+
+class Role(models.Model):
+    """Modelo para roles/papéis de usuário"""
+    ROLE_TYPE_CHOICES = [
+        ('admin', 'Administrator'),
+        ('manager', 'Manager'),
+        ('analyst', 'Analyst'),
+        ('viewer', 'Viewer'),
+        ('custom', 'Custom Role'),
+    ]
+    
+    role_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
+    role_type = models.CharField(max_length=20, choices=ROLE_TYPE_CHOICES, default='custom')
+    description = models.TextField(blank=True)
+    permissions = models.ManyToManyField(Permission, blank=True, related_name='roles')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['name']
+    
+    def __str__(self):
+        return f"{self.name}"
+    
+    def has_permission(self, permission_code):
+        """Verifica se a role tem uma permissão específica"""
+        return self.permissions.filter(code=permission_code).exists()
+
+
+class UserRole(models.Model):
+    """Modelo para vincular usuários a roles (many-to-many com histórico)"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user_role')
+    role = models.ForeignKey(Role, on_delete=models.PROTECT, related_name='users')
+    assigned_at = models.DateTimeField(auto_now_add=True)
+    assigned_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_roles'
+    )
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        ordering = ['-assigned_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.role.name}"
+    
+    def has_permission(self, permission_code):
+        """Verifica se o usuário (através da role) tem uma permissão"""
+        if not self.is_active:
+            return False
+        return self.role.has_permission(permission_code)
+
+
+class Notification(models.Model):
+    """Modelo para notificações de usuários"""
+    NOTIFICATION_TYPE_CHOICES = [
+        ('info', 'Information'),
+        ('success', 'Success'),
+        ('warning', 'Warning'),
+        ('error', 'Error'),
+        ('report_ready', 'Report Ready'),
+        ('report_error', 'Report Error'),
+        ('role_changed', 'Role Changed'),
+        ('permission_denied', 'Permission Denied'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPE_CHOICES, default='info')
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    # Referência para objeto relacionado (opcional)
+    related_object_type = models.CharField(max_length=100, blank=True)  # Ex: 'ChatSession', 'Company'
+    related_object_id = models.CharField(max_length=100, blank=True)
+    
+    # URL opcional para redirecionar ao clicar
+    redirect_url = models.URLField(blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['user', 'is_read']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.title}"
+    
+    def mark_as_read(self):
+        """Marca notificação como lida"""
+        self.is_read = True
+        self.save()
+    
+    @classmethod
+    def create_notification(cls, user, title, message, notification_type='info', 
+                          related_object_type='', related_object_id='', redirect_url=''):
+        """
+        Helper method para criar notificação
+        
+        Args:
+            user: User instance
+            title: Título da notificação
+            message: Mensagem detalhada
+            notification_type: Tipo de notificação
+            related_object_type: Tipo de objeto relacionado
+            related_object_id: ID do objeto relacionado
+            redirect_url: URL para redirecionar ao clicar
+        """
+        return cls.objects.create(
+            user=user,
+            title=title,
+            message=message,
+            notification_type=notification_type,
+            related_object_type=related_object_type,
+            related_object_id=related_object_id,
+            redirect_url=redirect_url
+        )
+
+
+class AuditLog(models.Model):
+    """Modelo para rastreamento de ações (audit trail)"""
+    ACTION_CHOICES = [
+        ('create', 'Create'),
+        ('read', 'Read'),
+        ('update', 'Update'),
+        ('delete', 'Delete'),
+        ('export', 'Export'),
+        ('login', 'Login'),
+        ('logout', 'Logout'),
+        ('permission_change', 'Permission Change'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='audit_logs')
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    object_type = models.CharField(max_length=100)  # Ex: 'ChatSession', 'Company', 'Product'
+    object_id = models.CharField(max_length=100, blank=True)
+    description = models.TextField(blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['user', '-timestamp']),
+            models.Index(fields=['action', '-timestamp']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.action} on {self.object_type}"
