@@ -6,6 +6,13 @@
 
 {% block auth_css %}
 <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+<script>
+// Clear all localStorage/sessionStorage when on login page to prevent showing cached user data
+(function() {
+    localStorage.clear();
+    sessionStorage.clear();
+})();
+</script>
 {% endblock %}
 
 {% block content %}

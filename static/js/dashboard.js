@@ -3,10 +3,52 @@ let allInventoryData = [];
 let allCompaniesData = [];
 let chartInstances = {};
 
+// Clear localStorage on logout to prevent cached data from showing
+function clearStorageOnLogout() {
+    // Remover todos os dados de localStorage
+    localStorage.clear();
+    // Remover todos os dados de sessionStorage
+    sessionStorage.clear();
+    // Limpar qualquer Service Worker cache
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            for (let registration of registrations) {
+                registration.unregister();
+            }
+        });
+    }
+}
+
+// Update hero date with current date/time
+function updateHeroDate() {
+    const heroDate = document.getElementById('heroDate');
+    if (heroDate) {
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        const now = new Date().toLocaleDateString('en-US', options);
+        heroDate.textContent = now;
+    }
+}
+
 // Initialize Lucide icons
 document.addEventListener('DOMContentLoaded', function() {
     lucide.createIcons();
+    updateHeroDate();
     initializeCharts();
+    
+    // Ensure all modals are closed on page load
+    document.getElementById('companyModal')?.classList.remove('active');
+    document.getElementById('mergeModal')?.classList.remove('active');
+    document.getElementById('warehouseModal')?.classList.remove('active');
+    
+    // Update time every minute
+    setInterval(updateHeroDate, 60000);
 });
 
 // Navigation
@@ -518,50 +560,6 @@ async function exportInventory(format = 'csv') {
         console.error('Error exporting inventory:', error);
         alert('Error exporting data');
     }
-}
-
-// Company management
-function openCompanyModal() {
-    const modal = document.getElementById('companyModal');
-    if (modal) {
-        modal.classList.add('active');
-    }
-}
-
-function closeCompanyModal() {
-    const modal = document.getElementById('companyModal');
-    if (modal) {
-        modal.classList.remove('active');
-    }
-}
-
-function viewCompany(companyId) {
-    alert(`Viewing details for company ${companyId}`);
-}
-
-function deleteCompany(companyId) {
-    if (confirm('Are you sure you want to delete this company?')) {
-        fetch(`/api/company/${companyId}/delete/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Company deleted successfully');
-                loadCompanies();
-            }
-        })
-        .catch(error => console.error('Error deleting company:', error));
-    }
-}
-
-// View warehouse location
-function viewWarehouseLocation(sku, store) {
-    alert(`Viewing warehouse location for ${sku} at ${store}\n\nAisle > Shelf > Box location`);
 }
 
 // Utility: Get CSRF token

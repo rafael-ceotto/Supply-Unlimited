@@ -2,10 +2,18 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% if not user.is_authenticated %}
+  {% comment %} Se não estiver autenticado, redirecionar para login {% endcomment %}
+  <script>
+    window.location.href = "{% url 'login' %}";
+  </script>
+{% endif %}
+
 {% block title %}Dashboard - Supply Unlimited{% endblock %}
 
 {% block auth_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard-redesign.css' %}">
 <link rel="stylesheet" href="{% static 'sales/css/sales.css' %}">
 <link rel="stylesheet" href="{% static 'css/ai-reports.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/lucide.min.css">
@@ -37,9 +45,11 @@
     </div>
     <div class="user-section">
         <div class="user-info">
-            <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+            {% if user.is_authenticated %}
+                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+            {% endif %}
         </div>
-        <a href="{% url 'logout' %}" style="color: #dc2626; text-decoration: none; font-size: 20px; display: flex; align-items: center; justify-content: center;">
+        <a href="{% url 'logout' %}" onclick="clearStorageOnLogout()" style="color: #dc2626; text-decoration: none; font-size: 20px; display: flex; align-items: center; justify-content: center;">
             <i data-lucide="log-out" style="width: 20px; height: 20px;"></i>
         </a>
     </div>
@@ -90,92 +100,133 @@
     <div class="content">
         <!-- Dashboard Section -->
         <div id="dashboard-section" class="content-section active">
-            <div class="page-header">
-                <h1>Dashboard</h1>
-                <p>Supply Unlimited - European Operations</p>
+            <!-- Dashboard Hero Section -->
+            <div class="dashboard-hero">
+                <h1>📊 Welcome back, {{ user.get_full_name|default:user.username }}!</h1>
+                <p>Here's what's happening with your supply chain today</p>
+                <div class="dashboard-hero-date" id="heroDate"></div>
             </div>
 
-            <!-- Metrics Cards -->
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <div>
-                            <div class="metric-value">€{{ metrics.total_revenue|floatformat:2 }}</div>
-                            <div class="metric-label">Total Revenue</div>
-                            <div class="metric-change">↑ 12.5% from last month</div>
-                        </div>
-                        <div class="metric-icon green">
-                            <i data-lucide="euro"></i>
-                        </div>
-                    </div>
+            <!-- Section: Key Metrics -->
+            <div class="metrics-section">
+                <div class="section-header">
+                    <h2 class="section-title">Key Metrics</h2>
+                    <p class="section-subtitle">Last 30 Days</p>
                 </div>
 
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <div>
-                            <div class="metric-value">{{ metrics.total_orders }}</div>
-                            <div class="metric-label">Total Orders</div>
-                            <div class="metric-change">↑ 8.2% from last month</div>
+                <!-- Metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="metric-card green">
+                        <div class="metric-header">
+                            <div class="metric-info">
+                                <div class="metric-label">Total Revenue</div>
+                                <div class="metric-value">€{{ metrics.total_revenue|floatformat:2 }}</div>
+                            </div>
+                            <div class="metric-icon green">
+                                <i data-lucide="euro"></i>
+                            </div>
                         </div>
-                        <div class="metric-icon blue">
-                            <i data-lucide="shopping-cart"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <div>
-                            <div class="metric-value">{{ metrics.total_products }}</div>
-                            <div class="metric-label">Products in Stock</div>
-                            <div class="metric-change">↑ 3.1% from last month</div>
-                        </div>
-                        <div class="metric-icon orange">
-                            <i data-lucide="package"></i>
+                        <div class="metric-footer">
+                            <div class="metric-change">↑ 12.5%</div>
+                            <div class="metric-trend">from last month</div>
                         </div>
                     </div>
-                </div>
 
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <div>
-                            <div class="metric-value">{{ metrics.active_customers }}</div>
-                            <div class="metric-label">Active Customers</div>
-                            <div class="metric-change">↑ 5.7% from last month</div>
+                    <div class="metric-card blue">
+                        <div class="metric-header">
+                            <div class="metric-info">
+                                <div class="metric-label">Total Orders</div>
+                                <div class="metric-value">{{ metrics.total_orders }}</div>
+                            </div>
+                            <div class="metric-icon blue">
+                                <i data-lucide="shopping-cart"></i>
+                            </div>
                         </div>
-                        <div class="metric-icon purple">
-                            <i data-lucide="users"></i>
+                        <div class="metric-footer">
+                            <div class="metric-change">↑ 8.2%</div>
+                            <div class="metric-trend">from last month</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card orange">
+                        <div class="metric-header">
+                            <div class="metric-info">
+                                <div class="metric-label">Products in Stock</div>
+                                <div class="metric-value">{{ metrics.total_products }}</div>
+                            </div>
+                            <div class="metric-icon orange">
+                                <i data-lucide="package"></i>
+                            </div>
+                        </div>
+                        <div class="metric-footer">
+                            <div class="metric-change">↑ 3.1%</div>
+                            <div class="metric-trend">from last month</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card purple">
+                        <div class="metric-header">
+                            <div class="metric-info">
+                                <div class="metric-label">Active Customers</div>
+                                <div class="metric-value">{{ metrics.active_customers }}</div>
+                            </div>
+                            <div class="metric-icon purple">
+                                <i data-lucide="users"></i>
+                            </div>
+                        </div>
+                        <div class="metric-footer">
+                            <div class="metric-change">↑ 5.7%</div>
+                            <div class="metric-trend">from last month</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Charts Section -->
-            <div class="charts-grid">
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <h3>Sales by Country</h3>
-                        <p>Monthly revenue distribution</p>
-                    </div>
-                    <canvas id="salesChart"></canvas>
+            <!-- Section: Quick Actions -->
+            <div class="quick-actions">
+                <span class="quick-action-label">Quick Actions</span>
+                <button class="quick-action-btn" onclick="showSection('companies')">
+                    <i data-lucide="building-2" style="width: 16px; height: 16px;"></i>
+                    View Companies
+                </button>
+                <button class="quick-action-btn" onclick="showSection('inventory')">
+                    <i data-lucide="package" style="width: 16px; height: 16px;"></i>
+                    Manage Inventory
+                </button>
+                <button class="quick-action-btn" onclick="showSection('ai-reports')">
+                    <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
+                    Generate Report
+                </button>
+            </div>
+
+            <!-- Section: Charts & Analytics -->
+            <div class="charts-section">
+                <div class="section-header">
+                    <h2 class="section-title">Analytics & Insights</h2>
+                    <p class="section-subtitle">Monthly Trends</p>
                 </div>
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <h3>Stock Distribution</h3>
-                        <p>Product status overview</p>
+
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3>Sales by Country</h3>
+                            <p>Monthly revenue distribution</p>
+                        </div>
+                        <canvas id="salesChart"></canvas>
                     </div>
-                    <canvas id="stockChart"></canvas>
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3>Stock Distribution</h3>
+                            <p>Product status overview</p>
+                        </div>
+                        <canvas id="stockChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Companies Section -->
         <div id="companies-section" class="content-section">
-            <div class="page-header">
-                <h1>Company Management</h1>
-                <p>Manage companies and their relationships</p>
-            </div>
-            
             <div class="companies-controls">
                 <div class="search-box">
                     <i data-lucide="search"></i>
@@ -196,11 +247,6 @@
 
         <!-- Other Sections (Placeholder) -->
         <div id="inventory-section" class="content-section">
-            <div class="page-header">
-                <h1>Inventory Management</h1>
-                <p>Manage product inventory across all stores</p>
-            </div>
-
             <!-- Search & Filters -->
             <div class="filters-container">
                 <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 600; color: #1f2937;">Search Inventory</h3>
@@ -263,11 +309,6 @@
         </div>
 
         <div id="reports-section" class="content-section">
-            <div class="page-header">
-                <h1>Analytics Management</h1>
-                <p>Generate and export analysis</p>
-            </div>
-
             <!-- Sub-tabs for Reports -->
             <div style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid #e5e7eb; padding-bottom: 0; overflow: hidden;">
                 <button class="tab-button active" onclick="showSubsection('reports', 'analytics'); return false;" style="padding: 12px 16px; border: none; background: none; font-size: 13px; font-weight: 600; color: #111827; cursor: pointer; border-bottom: 3px solid #2563eb; margin-bottom: -2px; white-space: nowrap; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
@@ -773,104 +814,179 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- AI Reports Section -->
-<div id="ai-reports-section" class="content-section">
-    <div class="page-header">
-        <div class="flex items-center gap-3 mb-2">
-            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                <i data-lucide="sparkles" style="width: 20px; height: 20px; color: white;"></i>
+        <!-- AI Reports Section -->
+        <div id="ai-reports-section" class="content-section">
+    <!-- Main Layout: Sessions (left) | Chat (right) -->
+    <div class="ai-reports-layout">
+        
+        <!-- Left Sidebar: Sessions History -->
+        <div class="ai-sessions-panel">
+            <div class="ai-sessions-header">
+                <h3>Sessions</h3>
+                <button class="ai-new-session-btn" id="ai-new-session-btn" title="New Session">
+                    <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+                </button>
             </div>
-            <div>
-                <h1>AI Reports</h1>
-                <p>Create personalized supply chain reports with AI assistance</p>
+
+            <!-- Search Sessions -->
+            <div class="ai-sessions-search">
+                <input type="text" id="ai-sessions-search" class="ai-sessions-search-input" placeholder="Search sessions...">
+            </div>
+
+            <!-- Sessions List -->
+            <div id="ai-sessions-list" class="ai-sessions-list">
+                <div class="ai-empty-sessions">
+                    <i data-lucide="message-circle" style="width: 24px; height: 24px; color: #d1d5db;"></i>
+                    <p>No sessions yet</p>
+                </div>
+            </div>
+
+            <!-- Sessions Footer -->
+            <div class="ai-sessions-footer">
+                <button class="ai-footer-btn" id="ai-clear-sessions-btn">
+                    <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                    Clear All
+                </button>
             </div>
         </div>
-    </div>
 
-    <!-- Main Layout: Chat + Preview -->
-    <div class="ai-reports-container">
-        <!-- Left Column: AI Copilot Chat -->
+        <!-- Middle Column: Chat -->
         <div class="ai-chat-panel">
-            <!-- Chat Header -->
-            <div class="ai-chat-header">
-                <div class="ai-chat-header-icon">
-                    <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
-                </div>
-                <div>
-                    <h3>AI Copilot</h3>
-                    <p>Supply Chain Analyst</p>
+            <!-- Chat Messages -->
+            <div id="ai-chat-messages" class="ai-chat-messages">
+                <div class="ai-chat-greeting" style="text-align: center;">
+                    <h4>Welcome to AI Reports</h4>
+                    <p>I'm your supply chain analyst. Describe what you need and I'll create a personalized report for you.</p>
+                    
+                    <!-- Quick Prompts -->
+                    <div class="ai-quick-prompts">
+                        <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Analyze inventory turnover by country for the last 90 days')">
+                            <i data-lucide="package" style="width: 16px; height: 16px;"></i>
+                            <span>Inventory Analysis</span>
+                        </button>
+                        <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Show supply chain risks and exceptions')">
+                            <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
+                            <span>Risk Analysis</span>
+                        </button>
+                        <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Compare supplier performance metrics')">
+                            <i data-lucide="trending-up" style="width: 16px; height: 16px;"></i>
+                            <span>Supplier Report</span>
+                        </button>
+                        <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Analyze OTIF performance by customer')">
+                            <i data-lucide="target" style="width: 16px; height: 16px;"></i>
+                            <span>OTIF Report</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-
-            <!-- Chat Messages -->
-            <div id="ai-chat-messages" class="ai-chat-messages"></div>
 
             <!-- Chat Input -->
             <div class="ai-chat-input-area">
-                <!-- Quick Prompts -->
-                <div id="ai-quick-prompts" class="ai-quick-prompts">
-                    <p style="font-size: 12px; color: #6b7280; margin: 0 0 8px 0;">Sugestões de prompts:</p>
-                    <button class="ai-quick-prompt-btn" style="background: #dbeafe; color: #0284c7;" onclick="setQuickPrompt('Analyze inventory turnover by country for the last 90 days')">Inventory Analysis</button>
-                    <button class="ai-quick-prompt-btn" style="background: #ede9fe; color: #7c3aed;" onclick="setQuickPrompt('Show supply chain risks in Southern Europe')">Risk Analysis</button>
-                    <button class="ai-quick-prompt-btn" style="background: #dcfce7; color: #10b981;" onclick="setQuickPrompt('Compare stock levels vs sales performance by DC')">Performance Report</button>
-                </div>
-                
                 <div class="ai-input-row">
-                    <input type="text" id="ai-chat-input" class="ai-chat-input" placeholder="Descreva o relatório que você deseja criar..." autocomplete="off">
-                    <button type="button" id="ai-send-button" class="ai-send-button">
+                    <textarea id="ai-chat-input" class="ai-chat-input" placeholder="Describe the report you want to create..." rows="1"></textarea>
+                    <button type="button" id="ai-send-button" class="ai-send-button" disabled>
                         <i data-lucide="send" style="width: 16px; height: 16px;"></i>
                     </button>
+                </div>
+                
+                <!-- Agent Selector - Visual Cards -->
+                <div class="ai-agents-container">
+                    <p style="font-size: 11px; color: #6b7280; margin: 12px 0 8px 0; font-weight: 500;">Select Agent:</p>
+                    <div id="ai-agents-list" class="ai-agents-list">
+                        <div class="ai-agent-loading">Loading agents...</div>
+                    </div>
+                </div>
+                
+                <div class="ai-input-footer">
+                    <p style="font-size: 11px; color: #9ca3af; margin: 0;">Shift+Enter for new line</p>
                 </div>
             </div>
         </div>
 
         <!-- Right Column: Report Preview & Insights -->
-        <div class="ai-right-panel">
-            <!-- Report Preview / Builder -->
-            <div class="ai-report-section">
-                <div class="ai-section-header">
-                    <div class="ai-section-title">
-                        <i data-lucide="bar-chart-3" style="width: 20px; height: 20px; color: #10b981;"></i>
-                        <h3>Report Preview</h3>
-                    </div>
-                    <div id="ai-report-actions" class="ai-section-actions" style="display: none;">
-                        <button class="ai-action-button">
-                            <i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i>
-                            Refine
+        <div class="ai-preview-panel">
+            <!-- Tabs -->
+            <div class="ai-preview-tabs">
+                <button class="ai-preview-tab active" data-tab="report">
+                    <i data-lucide="bar-chart-3" style="width: 16px; height: 16px;"></i>
+                    <span>Report</span>
+                </button>
+                <button class="ai-preview-tab" data-tab="insights">
+                    <i data-lucide="lightbulb" style="width: 16px; height: 16px;"></i>
+                    <span>Insights</span>
+                </button>
+                <button class="ai-preview-tab" data-tab="details">
+                    <i data-lucide="info" style="width: 16px; height: 16px;"></i>
+                    <span>Details</span>
+                </button>
+            </div>
+
+            <!-- Tab Content: Report -->
+            <div id="ai-report-tab" class="ai-tab-content active">
+                <div class="ai-report-header">
+                    <h3 id="ai-report-title">Report Preview</h3>
+                    <div id="ai-report-actions" class="ai-report-actions" style="display: none;">
+                        <button class="ai-action-button" title="Refine report">
+                            <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
                         </button>
-                        <button class="ai-action-button">
-                            <i data-lucide="save" style="width: 14px; height: 14px;"></i>
-                            Save
+                        <button class="ai-action-button" title="Save report">
+                            <i data-lucide="save" style="width: 16px; height: 16px;"></i>
                         </button>
-                        <button class="ai-action-button primary">
-                            <i data-lucide="download" style="width: 14px; height: 14px;"></i>
-                            Export PDF
+                        <button class="ai-action-button primary" title="Export as PDF">
+                            <i data-lucide="download" style="width: 16px; height: 16px;"></i>
                         </button>
                     </div>
                 </div>
 
-                <div class="ai-section-content">
-                    <div id="ai-report-preview" class="ai-empty-state">
-                        <div class="ai-empty-state-icon">
-                            <i data-lucide="bar-chart-3" style="width: 24px; height: 24px;"></i>
+                <div id="ai-report-content" class="ai-report-content">
+                    <div class="ai-empty-report">
+                        <div style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                            <i data-lucide="bar-chart-3" style="width: 32px; height: 32px; color: #10b981;"></i>
                         </div>
                         <h4>No Report Yet</h4>
-                        <p>Start a conversation with the AI Copilot to create your custom supply chain report</p>
+                        <p>Start chatting to generate your first report</p>
                     </div>
                 </div>
             </div>
 
-            <!-- AI Insights Panel -->
-            <div id="ai-insights" class="ai-insights-container" style="display: none;">
-                <div class="ai-insights-title">
-                    <i data-lucide="lightbulb" style="width: 20px; height: 20px; color: #10b981;"></i>
-                    <h3>AI Insights</h3>
+            <!-- Tab Content: Insights -->
+            <div id="ai-insights-tab" class="ai-tab-content">
+                <div class="ai-report-header">
+                    <h3>Key Insights</h3>
+                </div>
+                <div id="ai-insights-content" class="ai-insights-content">
+                    <div class="ai-empty-insights">
+                        <i data-lucide="lightbulb" style="width: 32px; height: 32px; color: #d1d5db;"></i>
+                        <p>Insights will appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Details -->
+            <div id="ai-details-tab" class="ai-tab-content">
+                <div class="ai-report-header">
+                    <h3>Report Details</h3>
+                </div>
+                <div id="ai-details-content" class="ai-details-content">
+                    <div class="ai-empty-details">
+                        <i data-lucide="info" style="width: 32px; height: 32px; color: #d1d5db;"></i>
+                        <p>Details will appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Processing Status -->
+            <div id="ai-processing-status" class="ai-processing-status" style="display: none;">
+                <div class="ai-status-header">
+                    <h4>Processing</h4>
+                </div>
+                <div id="ai-status-stages" class="ai-status-stages">
+                    <!-- Stages populated dynamically -->
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </div>
 
@@ -964,5 +1080,5 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="{% static 'js/dashboard.js' %}"></script>
-<script src="{% static 'js/ai-reports.js' %}"></script>
+<script src="{% static 'js/ai-reports-new.js' %}"></script>
 {% endblock %}
