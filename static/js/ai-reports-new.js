@@ -219,6 +219,9 @@ async function handleSendMessage() {
         // Show report preview
         displayReportPreview(data);
         
+        // Reload sessions to sync data
+        await loadSessions();
+        
     } catch (error) {
         console.error('[AI Reports] Error:', error);
         addMessageToChat('ai', `Error: ${error.message}`);
@@ -226,6 +229,9 @@ async function handleSendMessage() {
         isProcessing = false;
         document.getElementById('ai-send-button').disabled = false;
         hideProcessingStatus();
+        
+        // Show quick prompts again
+        showQuickPrompts();
     }
 }
 
@@ -529,14 +535,34 @@ async function loadSession(sessionId) {
         const chatContainer = document.getElementById('ai-chat-messages');
         chatContainer.innerHTML = '';
         
+        // If no messages, show greeting with quick prompts
+        if (!messages || messages.length === 0) {
+            showQuickPrompts();
+            renderSessionsList();
+            return;
+        }
+        
         for (const msg of messages) {
+            // Check if message has report_data (AI response with report)
+            let content = msg.content;
+            let isHtml = false;
+            
+            if (msg.message_type === 'ai' && msg.report_data) {
+                // Rebuild report HTML if stored in report_data
+                content = buildReportHtml(msg.report_data, msg);
+                isHtml = true;
+            }
+            
             // Pass agent info for AI messages
             const agentInfo = msg.message_type === 'ai' && msg.agent_name ? {
                 name: msg.agent_name,
                 model: msg.agent_model
             } : null;
-            addMessageToChat(msg.message_type, msg.content, false, agentInfo);
+            addMessageToChat(msg.message_type, content, isHtml, agentInfo);
         }
+        
+        // Show quick prompts at the end
+        showQuickPrompts();
         
         // Reload sessions to update active state
         renderSessionsList();
@@ -598,6 +624,53 @@ function switchTab(tabName) {
 }
 
 /**
+ * Show quick prompts section
+ */
+function showQuickPrompts() {
+    const chatContainer = document.getElementById('ai-chat-messages');
+    
+    // Check if quick prompts already exist
+    if (chatContainer.querySelector('.ai-quick-prompts')) {
+        return; // Already showing
+    }
+    
+    // Create quick prompts container
+    const promptsDiv = document.createElement('div');
+    promptsDiv.className = 'ai-chat-greeting';
+    promptsDiv.style.marginTop = '20px';
+    promptsDiv.innerHTML = `
+        <div class="ai-greeting-icon">
+            <i data-lucide="sparkles" style="width: 24px; height: 24px;"></i>
+        </div>
+        <h4>What would you like to analyze?</h4>
+        <div class="ai-quick-prompts">
+            <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Analyze inventory turnover by country for the last 90 days')">
+                <i data-lucide="package" style="width: 16px; height: 16px;"></i>
+                <span>Inventory Analysis</span>
+            </button>
+            <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Show supply chain risks and exceptions')">
+                <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
+                <span>Risk Analysis</span>
+            </button>
+            <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Compare supplier performance metrics')">
+                <i data-lucide="trending-up" style="width: 16px; height: 16px;"></i>
+                <span>Supplier Report</span>
+            </button>
+            <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Analyze OTIF performance by customer')">
+                <i data-lucide="target" style="width: 16px; height: 16px;"></i>
+                <span>OTIF Report</span>
+            </button>
+        </div>
+    `;
+    chatContainer.appendChild(promptsDiv);
+    
+    // Reinitialize Lucide icons
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+}
+
+/**
  * Set quick prompt
  */
 function setQuickPrompt(prompt) {
@@ -605,6 +678,41 @@ function setQuickPrompt(prompt) {
     input.value = prompt;
     input.focus();
     input.dispatchEvent(new Event('input'));
+}
+
+/**
+ * Build report HTML from stored report_data
+ */
+function buildReportHtml(reportData, messageObj) {
+    let html = `<div class="ai-report-preview" style="max-width: 100%; font-size: 13px;">`;
+    
+    if (messageObj.report_title) {
+        html += `<h3 style="font-size: 16px; color: #111827; margin: 0 0 12px 0; font-weight: 600;">📊 ${escapeHtml(messageObj.report_title)}</h3>`;
+    }
+    
+    if (reportData) {
+        const data = typeof reportData === 'string' ? JSON.parse(reportData) : reportData;
+        
+        if (data.executive_summary) {
+            html += `<div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 10px; border-radius: 4px; margin-bottom: 12px;">
+                <p style="margin: 0; font-size: 12px; color: #065f46;"><strong>Summary:</strong> ${escapeHtml(data.executive_summary.overview || '')}</p>
+            </div>`;
+        }
+        
+        if (data.kpis && Object.keys(data.kpis).length > 0) {
+            html += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">`;
+            for (const [key, value] of Object.entries(data.kpis)) {
+                html += `<div style="background: #f3f4f6; padding: 8px; border-radius: 4px; border-left: 3px solid #3b82f6;">
+                    <div style="font-size: 11px; color: #6b7280;">${escapeHtml(key)}</div>
+                    <div style="font-size: 14px; font-weight: 600; color: #1f2937;">${escapeHtml(String(value))}</div>
+                </div>`;
+            }
+            html += `</div>`;
+        }
+    }
+    
+    html += `</div>`;
+    return html;
 }
 
 /**

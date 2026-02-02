@@ -42,6 +42,12 @@ class ChatMessage(models.Model):
     processing_time_ms = models.IntegerField(null=True, blank=True)
     agent = models.ForeignKey('AIAgentConfig', on_delete=models.SET_NULL, null=True, blank=True, related_name='messages')
     
+    # Report fields for AI responses
+    report_title = models.CharField(max_length=255, blank=True, default='')
+    report_data = models.JSONField(null=True, blank=True)  # Armazena KPIs, gráficos, tabelas do relatório
+    agent_name = models.CharField(max_length=100, blank=True, default='')
+    agent_model = models.CharField(max_length=100, blank=True, default='')
+    
     class Meta:
         ordering = ['created_at']
     

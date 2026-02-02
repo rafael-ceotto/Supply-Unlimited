@@ -181,7 +181,11 @@ class ChatMessageViewSet(viewsets.ModelViewSet):
                 message_type='ai',
                 content=state['report_title'],
                 status='complete',
-                agent=agent  # Salvar qual agente gerou a resposta
+                agent=agent,  # Salvar qual agente gerou a resposta
+                report_title=state['report_title'],
+                report_data=state.get('report_data'),
+                agent_name=agent.name,
+                agent_model=agent.model_name
             )
             
             # Salvar relatório gerado
