@@ -64,6 +64,7 @@ MIGRATION_SUMMARY.md
 GITIGNORE_GUIDE.md
 mailmap.txt
 *.md.local
+md_docs/
 
 # Project Specific
 Vertical Split Page Design/
