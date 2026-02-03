@@ -1,5 +1,5 @@
 body.bg-light {
-    background-color: #f8f9faed;
+    background-color: var(--bg-primary);
 }
 
 .card {
@@ -37,7 +37,7 @@ body.bg-light {
 /* checkbox */
 .form-check-input {
     margin: 0;
-    border: 2px solid black;
+    border: 2px solid var(--text-primary);
 }
 
 /* remember me button*/

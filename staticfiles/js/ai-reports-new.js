@@ -184,10 +184,13 @@ async function handleSendMessage() {
     showProcessingStatus();
     
     try {
-        // Update session title if it's the first message
-        const sessionTitle = document.querySelector('.ai-session-item.active .ai-session-item-title');
-        if (sessionTitle && (sessionTitle.textContent === 'Untitled' || !sessionTitle.textContent)) {
-            await updateSessionTitle(currentSessionId, message.substring(0, 50));
+        // Update session title if it's the first message (for both quick prompts and manual text)
+        const session = chatSessions.find(s => s.id === currentSessionId);
+        if (session && (!session.title || session.title === 'Untitled' || session.title.trim() === '')) {
+            const titleText = message.substring(0, 60).trim();
+            if (titleText) {
+                await updateSessionTitle(currentSessionId, titleText);
+            }
         }
         
         // Send to API

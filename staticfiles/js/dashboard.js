@@ -227,7 +227,26 @@ function initializeCharts() {
                 plugins: {
                     legend: {
                         display: true,
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 14,
+                                weight: '600'
+                            },
+                            padding: 20,
+                            color: 'var(--text-primary)',
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        padding: 12
                     }
                 }
             }
