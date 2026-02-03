@@ -7,7 +7,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #f9fafb;
+    background: var(--bg-secondary);
 }
 
 /* SVG Animations for Logo */
@@ -39,8 +39,8 @@ body {
 /* Top Bar */
 .top-bar {
     height: 64px;
-    background: white;
-    border-bottom: 1px solid #e5e7eb;
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -89,13 +89,13 @@ body {
 
 .user-name {
     font-weight: 600;
-    color: #1f2937;
+    color: var(--text-primary);
     font-size: 14px;
 }
 
 .user-role {
     font-size: 12px;
-    color: #6b7280;
+    color: var(--text-secondary);
 }
 
 .btn {
@@ -120,11 +120,11 @@ body {
 .btn-outline {
     background: #52926d;
     color: #fff;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--border-color);
 }
 
 .btn-outline:hover {
-    background: #f9fafb;
+    background: var(--bg-secondary);
 }
 
 /* Main Layout */
@@ -138,7 +138,7 @@ body {
 .sidebar {
     width: 256px;
     background: linear-gradient(to bottom right, #dcfce7, #f5f5f5, #f0fdf4);
-    border-right: 1px solid #e5e7eb;
+    border-right: 1px solid var(--border-color);
     overflow-y: auto;
     margin-top: 15px;
 }
@@ -166,7 +166,7 @@ body {
     padding: 12px 16px;
     margin-bottom: 4px;
     border-radius: 8px;
-    color: #374151;
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s;
     text-decoration: none;
@@ -199,13 +199,13 @@ body {
 
 .page-header h1 {
     font-size: 28px;
-    color: #1f2937;
+    color: var(--text-primary);
     margin-bottom: 4px;
     margin-top: 35px;
 }
 
 .page-header p {
-    color: #6b7280;
+    color: var(--text-secondary);
 }
 
 /* Dashboard Cards */
@@ -223,11 +223,11 @@ body {
 }
 
 .metric-card {
-    background: white;
+    background: var(--bg-primary);
     padding: 24px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-color);
     transition: box-shadow 0.3s ease;
 }
 
@@ -286,12 +286,12 @@ body {
 .metric-value {
     font-size: 32px;
     font-weight: bold;
-    color: #1f2937;
+    color: var(--text-primary);
     margin-bottom: 4px;
 }
 
 .metric-label {
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: 14px;
 }
 
@@ -302,7 +302,7 @@ body {
 
 /* Table */
 .table-container {
-    background: white;
+    background: var(--bg-primary);
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
@@ -311,18 +311,18 @@ body {
 
 .table-header {
     padding: 20px 24px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .table-header h3 {
     font-size: 18px;
-    color: #1f2937;
+    color: var(--text-primary);
     margin-bottom: 4px;
 }
 
 .table-header p {
     font-size: 14px;
-    color: #6b7280;
+    color: var(--text-secondary);
 }
 
 table {
@@ -331,25 +331,25 @@ table {
 }
 
 thead th {
-    background: #f9fafb;
+    background: var(--bg-secondary);
     padding: 12px 24px;
     text-align: left;
     font-size: 12px;
     font-weight: 600;
-    color: #6b7280;
+    color: var(--text-secondary);
     text-transform: uppercase;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border-color);
 }
 
 tbody td {
     padding: 16px 24px;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--border-color);
     font-size: 14px;
-    color: #374151;
+    color: var(--text-secondary);
 }
 
 tbody tr:hover {
-    background: #f9fafb;
+    background: var(--bg-secondary);
 }
 
 .status-badge {
@@ -394,7 +394,7 @@ tbody tr:hover {
 .loading {
     text-align: center;
     padding: 40px;
-    color: #6b7280;
+    color: var(--text-secondary);
 }
 
 /* Hidden by default */
@@ -409,12 +409,12 @@ tbody tr:hover {
 
 /* Filters & Search */
 .filters-container {
-    background: white;
+    background: var(--bg-primary);
     padding: 16px 20px;
     border-radius: 12px;
     margin-bottom: 24px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-color);
 }
 
 .filters-row {
@@ -431,9 +431,9 @@ tbody tr:hover {
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    background: white;
+    background: var(--bg-primary);
 }
 
 .search-box input {
@@ -444,7 +444,7 @@ tbody tr:hover {
 }
 
 .search-box i {
-    color: #9ca3af;
+    color: var(--text-secondary);
     width: 16px;
     height: 16px;
 }
@@ -452,7 +452,7 @@ tbody tr:hover {
 .filter-divider {
     width: 1px;
     height: 24px;
-    background: #e5e7eb;
+    background: var(--border-color);
 }
 
 .filter-group {
@@ -464,16 +464,16 @@ tbody tr:hover {
 
 .filter-select {
     padding: 8px 12px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--border-color);
     border-radius: 6px;
-    background: white;
+    background: var(--bg-primary);
     font-size: 13px;
     cursor: pointer;
     min-width: 120px;
 }
 
 .filter-select:hover {
-    border-color: #9ca3af;
+    border-color: var(--text-secondary);
 }
 
 .filter-select:focus {
@@ -491,11 +491,11 @@ tbody tr:hover {
 }
 
 .chart-container {
-    background: white;
+    background: var(--bg-primary);
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-color);
 }
 
 .chart-header {
@@ -504,14 +504,14 @@ tbody tr:hover {
 
 .chart-header h3 {
     font-size: 16px;
-    color: #1f2937;
+    color: var(--text-primary);
     margin-bottom: 4px;
     font-weight: 600;
 }
 
 .chart-header p {
     font-size: 12px;
-    color: #6b7280;
+    color: var(--text-secondary);
 }
 
 .chart-container canvas {
@@ -524,18 +524,18 @@ tbody tr:hover {
     align-items: center;
     justify-content: space-between;
     padding: 20px 24px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .table-title-section h3 {
     font-size: 18px;
-    color: #1f2937;
+    color: var(--text-primary);
     margin-bottom: 4px;
 }
 
 .table-title-section p {
     font-size: 14px;
-    color: #6b7280;
+    color: var(--text-secondary);
 }
 
 .table-actions {
@@ -592,7 +592,7 @@ tbody tr:hover {
 }
 
 .modal-content {
-    background-color: white;
+    background-color: var(--bg-primary);
     padding: 32px;
     border-radius: 12px;
     max-width: 500px;
@@ -609,7 +609,7 @@ tbody tr:hover {
 
 .modal-header h2 {
     font-size: 24px;
-    color: #1f2937;
+    color: var(--text-primary);
 }
 
 .modal-close {
@@ -617,7 +617,7 @@ tbody tr:hover {
     border: none;
     font-size: 24px;
     cursor: pointer;
-    color: #6b7280;
+    color: var(--text-secondary);
 }
 
 .form-group {
@@ -629,7 +629,7 @@ tbody tr:hover {
     margin-bottom: 8px;
     font-size: 14px;
     font-weight: 600;
-    color: #374151;
+    color: var(--text-secondary);
 }
 
 .form-group input,
@@ -637,7 +637,7 @@ tbody tr:hover {
 .form-group textarea {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 14px;
 }
@@ -710,7 +710,7 @@ tbody tr:hover {
     .sidebar {
         width: 100%;
         border-right: none;
-        border-bottom: 1px solid #e5e7eb;
+        border-bottom: 1px solid var(--border-color);
     }
 
     .sidebar-menu {

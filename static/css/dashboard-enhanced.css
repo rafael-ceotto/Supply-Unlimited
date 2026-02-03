@@ -365,7 +365,7 @@
 
 .btn-primary {
   background-color: var(--primary-color);
-  color: white;
+  color: var(--bg-primary);
   box-shadow: var(--shadow-sm);
 }
 
@@ -394,7 +394,7 @@
 
 .btn-outline-light {
   border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
+  color: var(--bg-primary);
 }
 
 .btn-outline-light:hover {
@@ -485,7 +485,7 @@
 
 .status-inactive {
   background-color: rgba(156, 163, 175, 0.15);
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .status-warning {
