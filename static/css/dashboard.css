@@ -124,7 +124,9 @@ body {
 }
 
 .btn-outline:hover {
-    background: var(--bg-secondary);
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
 }
 
 /* Main Layout */
