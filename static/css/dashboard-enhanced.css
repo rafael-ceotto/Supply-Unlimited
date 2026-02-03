@@ -618,8 +618,7 @@
 @media print {
   .sidebar,
   .filter-bar,
-  .btn,
-  .theme-toggle {
+  .btn {
     display: none;
   }
 
