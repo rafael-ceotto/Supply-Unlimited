@@ -132,7 +132,7 @@ def inventory_data(request):
     
     # Preparar dados para resposta
     data = []
-    for item in inventory_items[:100]:  # Limitar a 100 itens
+    for item in inventory_items[:500]:  # Aumentar limite para 500 para incluir todos os países
         # Determinar status
         if item.quantity >= 200:
             status = 'High'

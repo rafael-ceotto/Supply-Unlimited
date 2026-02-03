@@ -926,6 +926,38 @@
 }
 
 /* ============================================
+   Dark Mode Specific Styles
+   ============================================ */
+
+html[data-theme="dark"] .metric-card {
+  background: linear-gradient(135deg, var(--bg-section) 0%, #1a1f2e 100%);
+  border-color: #374151;
+}
+
+html[data-theme="dark"] .chart-container {
+  background: var(--bg-section);
+  border-color: #374151;
+}
+
+html[data-theme="dark"] .metrics-section {
+  background: rgba(15, 20, 25, 0.3);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+}
+
+html[data-theme="dark"] .charts-section {
+  background: rgba(15, 20, 25, 0.3);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+}
+
+html[data-theme="dark"] .section-header {
+  border-bottom-color: #374151;
+}
+
+/* ============================================
    Print Styles
    ============================================ */
 
