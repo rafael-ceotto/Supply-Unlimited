@@ -278,7 +278,18 @@ async function loadInventory() {
         }
         
         const result = await response.json();
-        allInventoryData = result.data;
+        // Map API response format to frontend format
+        const rawData = result.results || result.data || [];
+        allInventoryData = rawData.map(item => ({
+            id: item.id || null,
+            sku: item.product_sku || 'N/A',
+            name: item.product_name || 'N/A',
+            category: item.category || 'General',
+            store: item.store_name || 'N/A',
+            stock: item.quantity || 0,
+            price: item.price || 0,
+            status: item.stock_status || 'in-stock'
+        }));
         renderInventoryTable(allInventoryData);
         populateFilters();
     } catch (error) {
@@ -315,7 +326,6 @@ function filterInventory() {
     renderInventoryTable(filtered);
 }
 
-// Render inventory table
 function renderInventoryTable(data) {
     let html = '<table><thead><tr>';
     html += '<th>SKU</th><th>Product Name</th><th>Category</th>';
@@ -325,8 +335,14 @@ function renderInventoryTable(data) {
     if (data.length === 0) {
         html += '<tr><td colspan="8" style="text-align: center; padding: 40px; color: #6b7280;">No products found</td></tr>';
     } else {
-        data.forEach(item => {
-            html += `<tr>
+        data.forEach((item, index) => {
+            const inventoryId = item.id || null;
+            const skuSafe = (item.sku || 'N/A').replace(/'/g, "\\'");
+            const nameSafe = (item.name || 'N/A').replace(/'/g, "\\'");
+            
+            console.log(`Rendering inventory item ${index}:`, { id: inventoryId, sku: item.sku, name: item.name });
+            
+            html += `<tr data-inventory-id="${inventoryId}">
                 <td style="font-family: monospace; font-size: 12px;">${item.sku}</td>
                 <td style="font-weight: 500;">${item.name}</td>
                 <td>${item.category}</td>
@@ -334,13 +350,34 @@ function renderInventoryTable(data) {
                 <td style="font-weight: 600;">${item.stock}</td>
                 <td>€${item.price.toFixed(2)}</td>
                 <td><span class="status-badge ${item.status}">${item.status.replace('-', ' ')}</span></td>
-                <td><button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="openWarehouseModal('${item.sku}', '${item.name}')">View</button></td>
+                <td><button class="btn btn-primary inventory-view-btn" data-inventory-id="${inventoryId}" data-inventory-sku="${skuSafe}" data-inventory-name="${nameSafe}" style="padding: 6px 12px; font-size: 12px;">View</button></td>
             </tr>`;
         });
     }
     
     html += '</tbody></table>';
     document.getElementById('inventory-table').innerHTML = html;
+    
+    // Attach event listeners to inventory view buttons
+    setTimeout(() => {
+        attachInventoryViewListeners();
+    }, 100);
+}
+
+// Attach event listeners to inventory view buttons
+function attachInventoryViewListeners() {
+    console.log('Attaching inventory view button listeners...');
+    document.querySelectorAll('.inventory-view-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const inventoryId = this.getAttribute('data-inventory-id');
+            const sku = this.getAttribute('data-inventory-sku');
+            const name = this.getAttribute('data-inventory-name');
+            console.log('Inventory View button clicked:', { inventoryId, sku, name });
+            openWarehouseModal(inventoryId, sku, name);
+        });
+    });
 }
 
 // Populate filter options
@@ -381,16 +418,24 @@ async function loadCompanies() {
         }
         
         const result = await response.json();
-        console.log('Companies data received:', result);
+        console.log('Companies data received (full):', result);
+        console.log('Result type:', typeof result);
+        console.log('Is array:', Array.isArray(result));
         
-        allCompaniesData = Array.isArray(result) ? result : result.companies || [];
+        allCompaniesData = Array.isArray(result) ? result : (result.results || result.companies || []);
         console.log('Companies data processed, total:', allCompaniesData.length);
+        console.log('First company:', allCompaniesData[0]);
         
         if (allCompaniesData.length === 0) {
             console.warn('No companies data available');
         }
         
         renderCompaniesTable(allCompaniesData);
+        
+        // Attach event listeners to View buttons
+        setTimeout(() => {
+            attachCompanyViewListeners();
+        }, 100);
     } catch (error) {
         console.error('Error loading companies:', error);
         console.error('Error stack:', error.stack);
@@ -415,23 +460,51 @@ function renderCompaniesTable(data) {
     html += '<th>Location</th><th>Ownership %</th><th>Status</th><th>Actions</th>';
     html += '</tr></thead><tbody>';
     
-    data.forEach(company => {
+    data.forEach((company, index) => {
         html += `<tr>
-            <td style="font-family: monospace; font-size: 12px;">${company.id}</td>
+            <td style="font-family: monospace; font-size: 12px;">${company.company_id || 'N/A'}</td>
             <td style="font-weight: 600;">${company.name}</td>
             <td>${company.parent_name || '<em style="color: #9ca3af;">Main Company</em>'}</td>
-            <td>${company.city}, ${company.country}</td>
-            <td>${company.ownership}%</td>
-            <td><span class="status-badge ${company.status}">${company.status}</span></td>
+            <td>${company.city || 'N/A'}, ${company.country || 'N/A'}</td>
+            <td>${company.ownership_percentage || 'N/A'}%</td>
+            <td><span class="status-badge ${company.status}">${company.status || 'N/A'}</span></td>
             <td style="display: flex; gap: 8px;">
-                <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="viewCompany('${company.id}')">View</button>
-                <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="deleteCompany('${company.id}')">Delete</button>
+                <button class="btn btn-primary company-view-btn" data-company-id="${company.company_id}" data-company-index="${index}" style="padding: 6px 12px; font-size: 12px;">View</button>
+                <button class="btn btn-outline company-delete-btn" data-company-id="${company.company_id}" data-company-index="${index}" style="padding: 6px 12px; font-size: 12px;">Delete</button>
             </td>
         </tr>`;
     });
     
     html += '</tbody></table></div>';
     document.getElementById('companies-content').innerHTML = html;
+}
+
+// Attach event listeners to company buttons
+function attachCompanyViewListeners() {
+    console.log('Attaching company button listeners...');
+    
+    // View button listeners
+    document.querySelectorAll('.company-view-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const companyId = this.getAttribute('data-company-id');
+            const companyIndex = this.getAttribute('data-company-index');
+            console.log('View button clicked:', { companyId, companyIndex });
+            viewCompany(companyId);
+        });
+    });
+    
+    // Delete button listeners
+    document.querySelectorAll('.company-delete-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const companyId = this.getAttribute('data-company-id');
+            console.log('Delete button clicked:', { companyId });
+            deleteCompany(companyId);
+        });
+    });
 }
 
 // Load sales data
@@ -543,48 +616,71 @@ function renderTopProducts(products) {
     document.getElementById('sales-products-list').innerHTML = html;
 }
 
-// Export inventory
+// Export inventory - NEW VERSION WITH ACTUAL DATA
 async function exportInventory(format = 'csv') {
     try {
-        // Obter filtros atuais para aplicar na exportação
-        const search = document.getElementById('searchInput')?.value || '';
-        const store = document.getElementById('storeFilter')?.value || 'all';
-        const category = document.getElementById('categoryFilter')?.value || 'all';
-        const stock = document.getElementById('stockFilter')?.value || 'all';
-        const city = document.getElementById('cityFilter')?.value || 'all';
-        const company = document.getElementById('companyFilter')?.value || 'all';
+        console.log(`Starting export in ${format} format...`);
         
-        let url = `/export/inventory/?format=${format}`;
-        if (search && search !== 'all') url += `&search=${encodeURIComponent(search)}`;
-        if (store && store !== 'all') url += `&store=${encodeURIComponent(store)}`;
-        if (category && category !== 'all') url += `&category=${encodeURIComponent(category)}`;
-        if (stock && stock !== 'all') url += `&stock=${encodeURIComponent(stock)}`;
-        if (city && city !== 'all') url += `&city=${encodeURIComponent(city)}`;
-        if (company && company !== 'all') url += `&company=${encodeURIComponent(company)}`;
-        
-        const response = await fetch(url);
+        // Chamar o novo endpoint de exportação
+        const response = await fetch(`/api/inventory/export/${format}/`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
         
         if (!response.ok) {
-            const error = await response.json();
-            alert('Error: ' + error.error);
+            const errorText = await response.text();
+            console.error('Export error:', errorText);
+            alert('Erro na exportação');
             return;
         }
         
-        const blob = await response.blob();
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = downloadUrl;
+        // Processar resposta baseado no formato
+        const contentType = response.headers.get('content-type');
         
-        // Define o nome do arquivo com data
-        const date = new Date().toISOString().split('T')[0];
-        a.download = `inventory_${date}.${format}`;
+        if (format === 'csv') {
+            // CSV retorna text/csv direto
+            const csvText = await response.text();
+            const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+            downloadFile(blob, `inventory_${new Date().toISOString().split('T')[0]}.csv`);
+        } else if (format === 'json') {
+            // JSON retorna text direto
+            const jsonText = await response.text();
+            const blob = new Blob([jsonText], { type: 'application/json' });
+            downloadFile(blob, `inventory_${new Date().toISOString().split('T')[0]}.json`);
+        } else if (format === 'parquet') {
+            // Parquet retorna JSON com base64
+            const data = await response.json();
+            if (data.parquet_file) {
+                const binaryString = atob(data.parquet_file);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                const blob = new Blob([bytes], { type: 'application/octet-stream' });
+                downloadFile(blob, `inventory_${new Date().toISOString().split('T')[0]}.parquet`);
+            } else {
+                alert('Erro: arquivo parquet não encontrado na resposta');
+            }
+        }
         
-        a.click();
-        window.URL.revokeObjectURL(downloadUrl);
+        console.log(`Export em ${format} completado!`);
     } catch (error) {
-        console.error('Error exporting inventory:', error);
-        alert('Error exporting data');
+        console.error('Erro ao exportar inventário:', error);
+        alert('Erro ao exportar dados');
     }
+}
+
+// Helper function to download file
+function downloadFile(blob, filename) {
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(downloadUrl);
 }
 
 // Utility: Get CSRF token
@@ -683,15 +779,16 @@ function loadCompaniesForMerge() {
             sourceSelect.innerHTML = '<option value="">Select a company...</option>';
             targetSelect.innerHTML = '<option value="">Select a company...</option>';
             
-            data.forEach(company => {
+            const companies = data.results || data;
+            companies.forEach(company => {
                 const option1 = document.createElement('option');
-                option1.value = company.id;
-                option1.textContent = company.name + ' (' + company.country + ')';
+                option1.value = company.company_id;
+                option1.textContent = company.name + ' (' + (company.country || 'N/A') + ')';
                 sourceSelect.appendChild(option1);
                 
                 const option2 = document.createElement('option');
-                option2.value = company.id;
-                option2.textContent = company.name + ' (' + company.country + ')';
+                option2.value = company.company_id;
+                option2.textContent = company.name + ' (' + (company.country || 'N/A') + ')';
                 targetSelect.appendChild(option2);
             });
         })
@@ -744,15 +841,20 @@ function mergeCompanies(event) {
 }
 
 // Warehouse Location Modal Functions
-function openWarehouseModal(sku, productName) {
+function openWarehouseModal(inventoryId, sku, productName) {
+    console.log('openWarehouseModal called with:', { inventoryId, sku, productName });
     const modal = document.getElementById('warehouseModal');
     if (modal) {
         modal.classList.add('active');
         document.getElementById('warehouseTitle').textContent = productName;
         document.getElementById('warehouseSKU').textContent = `SKU: ${sku}`;
         
-        // Carregar dados do warehouse
-        loadWarehouseData(sku);
+        if (inventoryId) {
+            loadWarehouseData(inventoryId);
+        } else {
+            console.error('Inventory ID is missing:', inventoryId);
+            document.getElementById('warehouseContent').innerHTML = '<div style="padding: 40px; text-align: center; color: #ef4444;">Erro: ID do produto não encontrado</div>';
+        }
     }
 }
 
@@ -763,78 +865,135 @@ function closeWarehouseModal() {
     }
 }
 
-function loadWarehouseData(sku) {
+function loadWarehouseData(inventoryId) {
     const content = document.getElementById('warehouseContent');
     
-    fetch(`/api/warehouse/${sku}/`)
-        .then(response => response.json())
+    // Mostrar loading
+    content.innerHTML = '<div style="padding: 40px; text-align: center;"><p style="color: #6b7280;">Carregando...</p></div>';
+    
+    console.log('Loading warehouse data for inventory ID:', inventoryId);
+    
+    fetch(`/api/inventory/${inventoryId}/warehouse/`)
+        .then(response => {
+            console.log('Warehouse API response status:', response.status, response.statusText);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
-            if (data.warehouseData && data.warehouseData.length > 0) {
+            console.log('Warehouse data received:', data);
+            
+            // Check if we have locations
+            if (!data.locations) {
+                console.warn('No locations key in response:', data);
+                content.innerHTML = '<div style="padding: 40px; text-align: center; color: #ef4444;">Erro: Dados de localização não disponíveis</div>';
+                return;
+            }
+            
+            if (data.locations && data.locations.length > 0) {
                 let html = '<div style="padding: 20px;">';
                 
-                // Agrupar por aisle
-                const groupedByAisle = {};
-                data.warehouseData.forEach(item => {
-                    if (!groupedByAisle[item.aisle]) {
-                        groupedByAisle[item.aisle] = {};
+                // Check if locations contains error message
+                if (data.locations[0].message) {
+                    console.log('No warehouse locations found');
+                    html += '<div style="padding: 40px; text-align: center; color: #6b7280;">Nenhuma localização encontrada para este produto</div>';
+                    content.innerHTML = html;
+                    return;
+                }
+                
+                // Agrupar por warehouse, aisle, shelf
+                const groupedData = {};
+                data.locations.forEach(loc => {
+                    if (!groupedData[loc.warehouse_name]) {
+                        groupedData[loc.warehouse_name] = {};
                     }
-                    if (!groupedByAisle[item.aisle][item.shelf]) {
-                        groupedByAisle[item.aisle][item.shelf] = [];
+                    if (!groupedData[loc.warehouse_name][loc.aisle]) {
+                        groupedData[loc.warehouse_name][loc.aisle] = {};
                     }
-                    groupedByAisle[item.aisle][item.shelf].push(item);
+                    if (!groupedData[loc.warehouse_name][loc.aisle][loc.shelf]) {
+                        groupedData[loc.warehouse_name][loc.aisle][loc.shelf] = [];
+                    }
+                    groupedData[loc.warehouse_name][loc.aisle][loc.shelf].push(loc);
                 });
                 
                 // Calcular total
-                const totalQty = data.warehouseData.reduce((sum, item) => sum + item.quantity, 0);
+                const totalQty = data.locations.reduce((sum, item) => sum + (item.quantity || 0), 0);
                 
                 html += `<div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <p style="font-size: 14px; opacity: 0.9;">Total Stock</p>
                             <p style="font-size: 28px; font-weight: bold;">${totalQty}</p>
-                            <p style="font-size: 12px; opacity: 0.9;">units</p>
+                            <p style="font-size: 12px; opacity: 0.9;">unidades</p>
                         </div>
                         <div style="text-align: right;">
-                            <p style="font-size: 14px; opacity: 0.9;">Store: ${data.storeName}</p>
-                            <p style="font-size: 12px; opacity: 0.9;">Updated: ${new Date().toLocaleTimeString()}</p>
+                            <p style="font-size: 12px; opacity: 0.9;">Atualizado: ${new Date().toLocaleTimeString('pt-BR')}</p>
                         </div>
                     </div>
                 </div>`;
                 
-                // Renderizar aisles
-                Object.entries(groupedByAisle).forEach(([aisle, shelves]) => {
-                    const aisleTotal = Object.values(shelves).flat().reduce((sum, item) => sum + item.quantity, 0);
+                // Renderizar warehouses
+                Object.entries(groupedData).forEach(([warehouse, aisles]) => {
+                    // Calcular total do warehouse corretamente
+                    let warehouseTotal = 0;
+                    Object.values(aisles).forEach(shelves => {
+                        Object.values(shelves).forEach(items => {
+                            items.forEach(item => {
+                                warehouseTotal += item.quantity;
+                            });
+                        });
+                    });
                     
                     html += `<div style="border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 16px; overflow: hidden;">`;
                     html += `<div style="background: #f3f4f6; padding: 12px; border-bottom: 1px solid #e5e7eb;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <p style="font-weight: 600; color: #1f2937;">Aisle ${aisle}</p>
+                                <p style="font-weight: 600; color: #1f2937;">🏭 ${warehouse}</p>
                             </div>
-                            <p style="font-size: 13px; color: #6b7280;">${aisleTotal} units</p>
+                            <p style="font-size: 13px; color: #6b7280; font-weight: 600;">${warehouseTotal} unidades</p>
                         </div>
                     </div>`;
                     
-                    // Renderizar shelves
-                    Object.entries(shelves).forEach(([shelf, items]) => {
-                        const shelfTotal = items.reduce((sum, item) => sum + item.quantity, 0);
+                    // Renderizar aisles
+                    Object.entries(aisles).forEach(([aisle, shelves]) => {
+                        // Calcular total do aisle corretamente
+                        let aisleTotal = 0;
+                        Object.values(shelves).forEach(items => {
+                            items.forEach(item => {
+                                aisleTotal += item.quantity;
+                            });
+                        });
                         
-                        html += `<div style="padding: 12px; border-bottom: 1px solid #f3f4f6;">`;
+                        html += `<div style="padding: 12px; border-bottom: 1px solid #f3f4f6; background: #fafafa;">`;
                         html += `<div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <p style="font-size: 13px; font-weight: 500; color: #374151;">Shelf ${shelf}</p>
-                            <p style="font-size: 13px; color: #6b7280;">${shelfTotal} units</p>
+                            <p style="font-size: 13px; font-weight: 500; color: #374151;">📍 Aisle ${aisle}</p>
+                            <p style="font-size: 13px; color: #6b7280;">${aisleTotal} unidades</p>
                         </div>`;
                         
-                        // Renderizar boxes
-                        html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px;">`;
-                        items.forEach(item => {
-                            html += `<div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px;">
-                                <p style="font-size: 12px; font-weight: 500; color: #1f2937;">Box ${item.box}</p>
-                                <p style="font-size: 18px; font-weight: bold; color: #10b981;">${item.quantity}</p>
-                                <p style="font-size: 11px; color: #6b7280;">units</p>
+                        // Renderizar shelves
+                        Object.entries(shelves).forEach(([shelf, items]) => {
+                            const shelfTotal = items.reduce((sum, item) => sum + item.quantity, 0);
+                            
+                            html += `<div style="padding: 8px 0; margin-left: 16px;">`;
+                            html += `<div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <p style="font-size: 12px; font-weight: 500; color: #555;">Shelf ${shelf}</p>
+                                <p style="font-size: 12px; color: #999;">${shelfTotal} unidades</p>
                             </div>`;
+                            
+                            // Renderizar boxes
+                            html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 6px;">`;
+                            items.forEach(item => {
+                                html += `<div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 6px; padding: 8px; color: white; text-align: center;">
+                                    <p style="font-size: 11px; opacity: 0.9;">Box ${item.box}</p>
+                                    <p style="font-size: 16px; font-weight: bold;">${item.quantity}</p>
+                                    <p style="font-size: 10px; opacity: 0.8;">units</p>
+                                </div>`;
+                            });
+                            html += `</div></div>`;
                         });
-                        html += `</div></div>`;
+                        
+                        html += `</div>`;
                     });
                     
                     html += `</div>`;
@@ -843,12 +1002,12 @@ function loadWarehouseData(sku) {
                 html += '</div>';
                 content.innerHTML = html;
             } else {
-                content.innerHTML = '<div style="padding: 40px; text-align: center; color: #6b7280;">Nenhuma localização encontrada</div>';
+                content.innerHTML = '<div style="padding: 40px; text-align: center; color: #6b7280;">Nenhuma localização encontrada para este produto</div>';
             }
         })
         .catch(error => {
             console.error('Erro ao carregar warehouse data:', error);
-            content.innerHTML = '<div style="padding: 40px; text-align: center; color: #ef4444;">Erro ao carregar dados</div>';
+            content.innerHTML = '<div style="padding: 40px; text-align: center; color: #ef4444;">Erro ao carregar dados: ' + error.message + '</div>';
         });
 }
 
@@ -867,6 +1026,149 @@ window.onclick = function(event) {
     if (event.target === warehouseModal) {
         closeWarehouseModal();
     }
+}
+
+// Company View Function
+function viewCompany(companyId) {
+    console.log('=== viewCompany called ===');
+    console.log('Company ID:', companyId);
+    console.log('All Companies Data:', allCompaniesData);
+    
+    const company = allCompaniesData.find(c => c.company_id === companyId);
+    
+    if (!company) {
+        console.error('Company not found with ID:', companyId);
+        console.error('Available company IDs:', allCompaniesData.map(c => c.company_id));
+        alert('Empresa não encontrada');
+        return;
+    }
+    
+    console.log('Found company:', company);
+    
+    // Criar modal de visualização
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.id = 'companyViewModal';
+    modal.style.cssText = `
+        display: flex !important;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.6);
+        align-items: center;
+        justify-content: center;
+        visibility: visible;
+        opacity: 1;
+    `;
+    
+    const content = document.createElement('div');
+    content.style.cssText = `
+        background-color: white;
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        z-index: 10000;
+        position: relative;
+    `;
+    
+    const parentInfo = company.parent_name ? 
+        `<p style="margin: 12px 0;"><strong>Empresa Mãe:</strong> ${company.parent_name}</p>` : 
+        '';
+    
+    content.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #1f2937;">Detalhes da Empresa</h2>
+            <button style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280; padding: 0; width: 30px; height: 30px;">×</button>
+        </div>
+        <div style="border-top: 1px solid #e5e7eb; padding-top: 20px;">
+            <p style="margin: 12px 0;"><strong>ID da Empresa:</strong> ${company.company_id}</p>
+            <p style="margin: 12px 0;"><strong>Nome:</strong> ${company.name}</p>
+            <p style="margin: 12px 0;"><strong>Localização:</strong> ${company.city || 'N/A'}, ${company.country || 'N/A'}</p>
+            <p style="margin: 12px 0;"><strong>Propriedade:</strong> ${company.ownership_percentage || 'N/A'}%</p>
+            ${parentInfo}
+            <p style="margin: 12px 0;"><strong>Status:</strong> <span class="status-badge ${company.status}">${company.status || 'N/A'}</span></p>
+        </div>
+    `;
+    
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    console.log('Modal created and appended');
+    
+    // Adicionar event listener ao botão de fechar
+    const closeBtn = content.querySelector('button');
+    closeBtn.onclick = function(e) {
+        e.stopPropagation();
+        console.log('Close button clicked');
+        modal.remove();
+    };
+    
+    // Fechar ao clicar fora
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            console.log('Background clicked, closing modal');
+            modal.remove();
+        }
+    };
+}
+
+// Company Delete Function
+function deleteCompany(companyId) {
+    const company = allCompaniesData.find(c => c.company_id === companyId);
+    if (!company) {
+        alert('Empresa não encontrada');
+        return;
+    }
+    
+    // Confirmação
+    if (!confirm(`Tem certeza que deseja deletar a empresa "${company.name}"? Esta ação não pode ser desfeita.`)) {
+        return;
+    }
+    
+    // Fazer requisição DELETE
+    fetch(`/api/companies/${companyId}/delete/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        if (response.status === 404) {
+            alert('Empresa não encontrada');
+            return Promise.reject('not-found');
+        }
+        if (response.status === 405) {
+            alert('Método não permitido');
+            return Promise.reject('method-not-allowed');
+        }
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.error || 'Erro desconhecido');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            alert(`Empresa "${company.name}" deletada com sucesso!`);
+            // Remover da lista
+            allCompaniesData = allCompaniesData.filter(c => c.company_id !== companyId);
+            renderCompaniesTable(allCompaniesData);
+        } else {
+            alert('Erro ao deletar: ' + (data.error || 'Erro desconhecido'));
+        }
+    })
+    .catch(error => {
+        if (error !== 'not-found' && error !== 'method-not-allowed') {
+            console.error('Erro ao deletar empresa:', error);
+            alert('Erro ao deletar empresa: ' + error);
+        }
+    });
 }
 
 // ===== REPORTS CHARTS & DATA =====

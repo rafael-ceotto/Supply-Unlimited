@@ -645,23 +645,23 @@ function showQuickPrompts() {
         <div class="ai-greeting-icon">
             <i data-lucide="sparkles" style="width: 24px; height: 24px;"></i>
         </div>
-        <h4>What would you like to analyze?</h4>
+        <h4>O que você gostaria de analisar?</h4>
         <div class="ai-quick-prompts">
-            <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Analyze inventory turnover by country for the last 90 days')">
+            <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Qual é o estado atual do inventário por categoria?')">
                 <i data-lucide="package" style="width: 16px; height: 16px;"></i>
-                <span>Inventory Analysis</span>
+                <span>Inventário</span>
             </button>
-            <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Show supply chain risks and exceptions')">
-                <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
-                <span>Risk Analysis</span>
+            <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Analise o desempenho das empresas e suas subsidiárias')">
+                <i data-lucide="building" style="width: 16px; height: 16px;"></i>
+                <span>Empresas</span>
             </button>
-            <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Compare supplier performance metrics')">
+            <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Quais são os produtos com melhor desempenho?')">
                 <i data-lucide="trending-up" style="width: 16px; height: 16px;"></i>
-                <span>Supplier Report</span>
+                <span>Produtos Top</span>
             </button>
-            <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Analyze OTIF performance by customer')">
-                <i data-lucide="target" style="width: 16px; height: 16px;"></i>
-                <span>OTIF Report</span>
+            <button class="ai-quick-prompt-btn" onclick="setQuickPrompt('Identifique oportunidades de otimização de custos')">
+                <i data-lucide="zap" style="width: 16px; height: 16px;"></i>
+                <span>Otimizações</span>
             </button>
         </div>
     `;

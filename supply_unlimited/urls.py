@@ -22,6 +22,10 @@ from users.views import (
     inventory_page, companies_page, reports_page, sales_page,
     settings_view, update_profile_view, change_password_view
 )
+from supply_unlimited.sales.views import (
+    api_companies, api_inventory, api_sales, api_company_delete,
+    api_warehouse_location, api_inventory_export
+)
 
 def redirect_to_login(request):
     return redirect('login')
@@ -38,6 +42,12 @@ urlpatterns = [
     path('settings/', settings_view, name='settings'),
     path('update-profile/', update_profile_view, name='update_profile'),
     path('change-password/', change_password_view, name='change_password'),
+    path('api/companies/', api_companies, name='api_companies'),
+    path('api/companies/<str:company_id>/delete/', api_company_delete, name='api_company_delete'),
+    path('api/inventory/', api_inventory, name='api_inventory'),
+    path('api/inventory/<int:inventory_id>/warehouse/', api_warehouse_location, name='api_warehouse_location'),
+    path('api/inventory/export/<str:format_type>/', api_inventory_export, name='api_inventory_export'),
+    path('api/sales/', api_sales, name='api_sales'),
     path('', login_view, name='home'),  # Página inicial redirecionando para login
     path('', include('users.urls')),
     path('sales/', include('supply_unlimited.sales.urls')),

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'users', #app created for user management
     'supply_unlimited.sales', # sales page and API (package inside project)
+    'supply_unlimited.sales.django_supply', # inventory management models
     'ai_reports', # AI Reports and LangGraph integration
 ]
 
