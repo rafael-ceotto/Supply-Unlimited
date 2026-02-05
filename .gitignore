@@ -71,6 +71,7 @@ Vertical Split Page Design/
 venv/
 Sales/
 Reports/
+Settings/
 
 # Database
 *.sql

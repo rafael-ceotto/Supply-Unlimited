@@ -1,0 +1,512 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Settings - Supply Unlimited{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/settings.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <!-- Header -->
+    <div class="settings-header">
+        <div class="settings-header-content">
+            <h1 class="settings-title">Settings</h1>
+            <p class="settings-subtitle">Manage your account settings and preferences</p>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="settings-main">
+        <!-- Sidebar Navigation -->
+        <aside class="settings-sidebar">
+            <nav class="settings-nav">
+                <button class="nav-item active" data-section="profile">
+                    <i data-lucide="user" class="nav-icon"></i>
+                    <span>Profile</span>
+                </button>
+                <button class="nav-item" data-section="security">
+                    <i data-lucide="shield" class="nav-icon"></i>
+                    <span>Security</span>
+                </button>
+                <button class="nav-item" data-section="notifications">
+                    <i data-lucide="bell" class="nav-icon"></i>
+                    <span>Notifications</span>
+                </button>
+                <button class="nav-item" data-section="preferences">
+                    <i data-lucide="palette" class="nav-icon"></i>
+                    <span>Preferences</span>
+                </button>
+                
+                {% if user.is_staff %}
+                <div class="nav-divider"></div>
+                <button class="nav-item" data-section="users">
+                    <i data-lucide="users" class="nav-icon"></i>
+                    <span>User Management</span>
+                </button>
+                <button class="nav-item" data-section="activity">
+                    <i data-lucide="activity" class="nav-icon"></i>
+                    <span>Activity Log</span>
+                </button>
+                {% endif %}
+            </nav>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="settings-content">
+
+            <!-- Profile Section -->
+            <section class="settings-section" id="profile-section">
+                <div class="section-header">
+                    <h2 class="section-title">Profile Information</h2>
+                    <p class="section-subtitle">Update your personal information and profile details</p>
+                </div>
+
+                <!-- Avatar Section -->
+                <div class="card">
+                    <div class="avatar-section">
+                        <div class="avatar-container">
+                            <div class="avatar">
+                                {{ user.first_name|first }}{{ user.last_name|first }}
+                            </div>
+                            <button class="avatar-upload-btn" title="Upload avatar">
+                                <i data-lucide="camera"></i>
+                            </button>
+                        </div>
+                        <div class="avatar-info">
+                            <h3 class="avatar-name">{{ user.first_name }} {{ user.last_name }}</h3>
+                            <p class="avatar-email">{{ user.email }}</p>
+                            {% if user.is_staff %}
+                            <span class="role-badge admin">Admin</span>
+                            {% else %}
+                            <span class="role-badge">User</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Information Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Personal Information</h3>
+                        <p>Update your personal details</p>
+                    </div>
+
+                    <form id="profile-form" class="form-grid">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="firstName">First Name <span class="required">*</span></label>
+                            <input type="text" id="firstName" name="first_name" value="{{ user.first_name }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastName">Last Name <span class="required">*</span></label>
+                            <input type="text" id="lastName" name="last_name" value="{{ user.last_name }}" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="email">Email Address <span class="required">*</span></label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                            <small>We'll send important updates to this email</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" placeholder="+49 30 1234 5678">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="department">Department</label>
+                            <select id="department" name="department">
+                                <option value="">Select Department</option>
+                                <option value="Supply Chain">Supply Chain</option>
+                                <option value="Operations">Operations</option>
+                                <option value="Sales">Sales</option>
+                                <option value="Finance">Finance</option>
+                                <option value="IT">IT</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="jobTitle">Job Title</label>
+                            <input type="text" id="jobTitle" name="job_title" placeholder="e.g. Supply Chain Manager">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="bio">Bio</label>
+                            <textarea id="bio" name="bio" placeholder="Tell us about yourself..." rows="4"></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i data-lucide="save" class="btn-icon"></i>
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Security Section -->
+            <section class="settings-section hidden" id="security-section">
+                <div class="section-header">
+                    <h2 class="section-title">Security Settings</h2>
+                    <p class="section-subtitle">Manage your password and security preferences</p>
+                </div>
+
+                <!-- Change Password -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Change Password</h3>
+                        <p>Update your password to keep your account secure</p>
+                    </div>
+
+                    <form id="password-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password <span class="required">*</span></label>
+                            <div class="password-input-group">
+                                <input type="password" id="currentPassword" name="current_password" required>
+                                <button type="button" class="toggle-password" data-target="currentPassword">
+                                    <i data-lucide="eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newPassword">New Password <span class="required">*</span></label>
+                            <div class="password-input-group">
+                                <input type="password" id="newPassword" name="new_password" required>
+                                <button type="button" class="toggle-password" data-target="newPassword">
+                                    <i data-lucide="eye"></i>
+                                </button>
+                            </div>
+                            <small>Minimum 8 characters with uppercase, lowercase, and numbers</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
+                            <div class="password-input-group">
+                                <input type="password" id="confirmPassword" name="confirm_password" required>
+                                <button type="button" class="toggle-password" data-target="confirmPassword">
+                                    <i data-lucide="eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i data-lucide="lock" class="btn-icon"></i>
+                                Update Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Two-Factor Authentication -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Two-Factor Authentication</h3>
+                        <p>Add an extra layer of security to your account</p>
+                    </div>
+
+                    <div class="security-item">
+                        <div class="security-info">
+                            <h4>Authenticator App</h4>
+                            <p>Use Google Authenticator or similar apps for added security</p>
+                        </div>
+                        <button class="btn btn-outline">Enable</button>
+                    </div>
+
+                    <div class="security-item">
+                        <div class="security-info">
+                            <h4>SMS Authentication</h4>
+                            <p>Receive codes via text message for extra verification</p>
+                        </div>
+                        <button class="btn btn-outline">Enable</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Notifications Section -->
+            <section class="settings-section hidden" id="notifications-section">
+                <div class="section-header">
+                    <h2 class="section-title">Notification Preferences</h2>
+                    <p class="section-subtitle">Manage how and when you receive notifications</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Email Notifications</h3>
+                    </div>
+
+                    <div class="toggle-item">
+                        <div>
+                            <h4>Order Updates</h4>
+                            <p>Receive notifications when orders are updated</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="orderUpdates" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-item">
+                        <div>
+                            <h4>Inventory Alerts</h4>
+                            <p>Get alerted when inventory levels are low</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="inventoryAlerts" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-item">
+                        <div>
+                            <h4>Weekly Reports</h4>
+                            <p>Receive weekly summary reports</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="weeklyReports" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-item">
+                        <div>
+                            <h4>Marketing Emails</h4>
+                            <p>Receive updates about new features and promotions</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="marketing">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Desktop Notifications</h3>
+                    </div>
+
+                    <div class="toggle-item">
+                        <div>
+                            <h4>Browser Notifications</h4>
+                            <p>Show desktop notifications for important events</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="desktopNotifications" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-item">
+                        <div>
+                            <h4>Sound Alerts</h4>
+                            <p>Play sound when receiving important notifications</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="soundAlerts">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Preferences Section -->
+            <section class="settings-section hidden" id="preferences-section">
+                <div class="section-header">
+                    <h2 class="section-title">Preferences</h2>
+                    <p class="section-subtitle">Customize your experience</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Display Settings</h3>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="language">Language</label>
+                        <select id="language" name="language">
+                            <option value="en">English</option>
+                            <option value="pt">Português</option>
+                            <option value="es">Español</option>
+                            <option value="de">Deutsch</option>
+                            <option value="fr">Français</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="timezone">Timezone</label>
+                        <select id="timezone" name="timezone">
+                            <option value="UTC">UTC</option>
+                            <option value="Europe/Berlin">Europe/Berlin (CET)</option>
+                            <option value="Europe/London">Europe/London (GMT)</option>
+                            <option value="America/New_York">America/New_York (EST)</option>
+                            <option value="America/Los_Angeles">America/Los_Angeles (PST)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dateFormat">Date Format</label>
+                        <select id="dateFormat" name="date_format">
+                            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                        </select>
+                    </div>
+
+                    <div class="toggle-item">
+                        <div>
+                            <h4>Compact View</h4>
+                            <p>Use a more compact layout for tables and lists</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="compactView">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline">Cancel</button>
+                        <button type="button" class="btn btn-primary">Save Preferences</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- User Management Section (Admin Only) -->
+            {% if user.is_staff %}
+            <section class="settings-section hidden" id="users-section">
+                <div class="section-header">
+                    <h2 class="section-title">User Management</h2>
+                    <p class="section-subtitle">Manage application users and permissions</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Active Users</h3>
+                        <button class="btn btn-primary btn-sm" id="addUserBtn">
+                            <i data-lucide="user-plus" class="btn-icon"></i>
+                            Add User
+                        </button>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Join Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Activity Log Section (Admin Only) -->
+            <section class="settings-section hidden" id="activity-section">
+                <div class="section-header">
+                    <h2 class="section-title">Activity Log</h2>
+                    <p class="section-subtitle">View your account activity and login history</p>
+                </div>
+
+                <div class="card">
+                    <div class="activity-log">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i data-lucide="log-in"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h4>Logged in</h4>
+                                <p>Successful login from Chrome on Windows</p>
+                            </div>
+                            <div class="activity-time">2 hours ago</div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i data-lucide="file-text"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h4>Profile Updated</h4>
+                                <p>Changed email address</p>
+                            </div>
+                            <div class="activity-time">1 day ago</div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i data-lucide="lock"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h4>Password Changed</h4>
+                                <p>Successfully updated password</p>
+                            </div>
+                            <div class="activity-time">2 days ago</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+
+        </main>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal hidden" id="addUserModal">
+    <div class="modal-overlay" onclick="closeModal('addUserModal')"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add New User</h3>
+            <button class="modal-close" onclick="closeModal('addUserModal')">×</button>
+        </div>
+        <form id="addUserForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="newUserEmail">Email Address</label>
+                <input type="email" id="newUserEmail" name="email" placeholder="user@supply.com" required>
+            </div>
+            <div class="form-group">
+                <label for="newUserName">Full Name</label>
+                <input type="text" id="newUserName" name="full_name" placeholder="John Doe" required>
+            </div>
+            <div class="form-group">
+                <label for="newUserRole">Role</label>
+                <select id="newUserRole" name="role">
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeModal('addUserModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add User</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast hidden" id="toast">
+    <div class="toast-content">
+        <i class="toast-icon" data-lucide="check-circle"></i>
+        <span id="toastMessage"></span>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/settings.js' %}"></script>
+{% endblock %}

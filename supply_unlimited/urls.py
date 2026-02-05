@@ -19,7 +19,8 @@ from django.urls import path, include
 from django.shortcuts import redirect
 from users.views import (
     login_view, logout_view, dashboard_view, register_view, 
-    inventory_page, companies_page, reports_page, sales_page
+    inventory_page, companies_page, reports_page, sales_page,
+    settings_view, update_profile_view, change_password_view
 )
 
 def redirect_to_login(request):
@@ -34,6 +35,9 @@ urlpatterns = [
     path('companies/', companies_page, name='companies'),
     path('reports/', reports_page, name='reports'),
     path('sales/', sales_page, name='sales'),
+    path('settings/', settings_view, name='settings'),
+    path('update-profile/', update_profile_view, name='update_profile'),
+    path('change-password/', change_password_view, name='change_password'),
     path('', login_view, name='home'),  # Página inicial redirecionando para login
     path('', include('users.urls')),
     path('sales/', include('supply_unlimited.sales.urls')),

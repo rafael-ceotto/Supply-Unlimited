@@ -756,3 +756,63 @@ class CurrentUserViewSet(viewsets.ViewSet):
         user = request.user
         serializer = UserDetailSerializer(user)
         return Response(serializer.data)
+
+
+@login_required
+def settings_view(request):
+    """Settings page - manage user profile, security, notifications, and user management"""
+    user = request.user
+    
+    # Get all users for admin users
+    all_users = []
+    if user.is_staff or user.is_superuser:
+        all_users = User.objects.all().values('id', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'date_joined')
+    
+    context = {
+        'current_user': user,
+        'all_users': list(all_users),
+        'page_title': 'Settings',
+    }
+    
+    return render(request, 'settings.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def update_profile_view(request):
+    """Update user profile information"""
+    user = request.user
+    
+    try:
+        data = json.loads(request.body)
+        
+        user.first_name = data.get('first_name', user.first_name)
+        user.last_name = data.get('last_name', user.last_name)
+        user.email = data.get('email', user.email)
+        user.save()
+        
+        return JsonResponse({'success': True, 'message': 'Profile updated successfully'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required
+@require_http_methods(["POST"])
+def change_password_view(request):
+    """Change user password"""
+    user = request.user
+    
+    try:
+        data = json.loads(request.body)
+        current_password = data.get('current_password')
+        new_password = data.get('new_password')
+        
+        if not user.check_password(current_password):
+            return JsonResponse({'success': False, 'message': 'Current password is incorrect'}, status=400)
+        
+        user.set_password(new_password)
+        user.save()
+        
+        return JsonResponse({'success': True, 'message': 'Password changed successfully'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)

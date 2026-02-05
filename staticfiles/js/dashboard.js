@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     lucide.createIcons();
     updateHeroDate();
     initializeCharts();
+    setupMobileMenu();
     
     // Ensure all modals are closed on page load
     document.getElementById('companyModal')?.classList.remove('active');
@@ -95,6 +96,11 @@ function showSection(sectionName) {
         loadInventory();
     } else if (sectionName === 'reports') {
         showSubsection('reports', 'analytics');
+    } else if (sectionName === 'settings') {
+        // Initialize settings when section is shown
+        if (typeof initializeSettings === 'function') {
+            setTimeout(() => initializeSettings(), 100);
+        }
     }
 }
 
@@ -1458,3 +1464,28 @@ function updateInventoryData() {
     }, 100);
 }
 
+// ============================================
+// Mobile Menu Setup
+// ============================================
+
+function setupMobileMenu() {
+    const hamburger = document.getElementById('hamburgerMenu');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (!hamburger || !sidebar) return;
+    
+    hamburger.addEventListener('click', function() {
+        sidebar.classList.toggle('mobile-open');
+    });
+    
+    // Close menu when clicking on a menu item
+    const menuItems = document.querySelectorAll('.menu-item');
+    menuItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Close sidebar on mobile after selecting menu item
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('mobile-open');
+            }
+        });
+    });
+}
