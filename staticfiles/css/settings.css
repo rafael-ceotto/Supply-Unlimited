@@ -8,6 +8,8 @@
     display: grid;
     grid-template-columns: 280px 1fr;
     gap: 0;
+    margin-left: -24px;
+    margin-bottom: 0;
 }
 
 /* Header */
@@ -107,7 +109,6 @@
 /* Content Area */
 .settings-content {
     padding: 32px;
-    padding-left: 24px;
     background: var(--bg-secondary);
 }
 
@@ -1059,6 +1060,8 @@
         grid-template-columns: 1fr;
         gap: 0;
         padding: 0;
+        margin-left: -24px;
+        margin-bottom: 0;
     }
 
     .settings-sidebar {
