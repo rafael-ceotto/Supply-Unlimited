@@ -5,9 +5,8 @@
 .settings-container {
     min-height: auto;
     background: transparent;
-    display: grid;
-    grid-template-columns: 280px auto;
-    gap: 0;
+    display: flex;
+    gap: 12px;
     margin-left: -24px;
     margin-bottom: 0;
 }
@@ -51,10 +50,11 @@
     background: transparent;
     border-right: none;
     padding: 0;
-    padding-right: 12px;
     position: relative;
     height: auto;
     overflow-y: visible;
+    width: 280px;
+    flex-shrink: 0;
 }
 
 .settings-nav {
@@ -112,10 +112,12 @@
     padding-top: 32px;
     padding-right: 32px;
     padding-bottom: 32px;
-    padding-left: 0;
+    padding-left: 32px;
     background: var(--bg-secondary);
     max-width: 1000px;
     overflow-x: hidden;
+    flex: 1;
+    min-width: 0;
 }
 
 /* Section Header */
@@ -1063,8 +1065,8 @@
 /* Responsive Design */
 @media (max-width: 768px) {
     .settings-container {
-        grid-template-columns: auto;
-        gap: 0;
+        flex-direction: column;
+        gap: 12px;
         padding: 0;
         margin-left: -24px;
         margin-bottom: 0;
@@ -1080,6 +1082,7 @@
         transition: max-height 0.3s ease;
         width: 100%;
         position: static;
+        flex-shrink: 1;
     }
 
     .settings-sidebar.mobile-open {
@@ -1110,6 +1113,8 @@
     .settings-content {
         padding: 20px 16px;
         width: 100%;
+        flex: 1;
+        min-width: 0;
     }
 
     .form-grid {
