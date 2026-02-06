@@ -7,7 +7,7 @@
     background: transparent;
     display: grid;
     grid-template-columns: 280px 1fr;
-    gap: 24px;
+    gap: 12px;
 }
 
 /* Header */
@@ -97,6 +97,11 @@
     height: 1px;
     background: var(--border-color);
     margin: 12px 0;
+}
+
+/* Hide settings sidebar title */
+.settings-sidebar-title {
+    display: none;
 }
 
 /* Content Area */
