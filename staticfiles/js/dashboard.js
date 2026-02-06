@@ -474,7 +474,7 @@ function renderCompaniesTable(data) {
             <td style="font-weight: 600;">${company.name}</td>
             <td>${company.parent_name || '<em style="color: #9ca3af;">Main Company</em>'}</td>
             <td>${company.city || 'N/A'}, ${company.country || 'N/A'}</td>
-            <td>${company.ownership_percentage || 'N/A'}%</td>
+            <td class="no-wrap">${company.ownership_percentage || 'N/A'}%</td>
             <td><span class="status-badge ${company.status}">${company.status || 'N/A'}</span></td>
             <td style="display: flex; gap: 8px;">
                 <button class="btn btn-primary company-view-btn" data-company-id="${company.company_id}" data-company-index="${index}" style="padding: 6px 12px; font-size: 12px;">View</button>
