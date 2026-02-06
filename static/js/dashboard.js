@@ -306,7 +306,6 @@ function refreshInventory() {
 // Filter inventory
 function filterInventory() {
     const searchQuery = document.getElementById('searchInput')?.value || '';
-    const country = document.getElementById('storeFilter')?.value || 'all';
     const category = document.getElementById('categoryFilter')?.value || 'all';
     const stock = document.getElementById('stockFilter')?.value || 'all';
     const priceRange = document.getElementById('priceFilter')?.value || 'all';
@@ -317,7 +316,6 @@ function filterInventory() {
             item.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.category.toLowerCase().includes(searchQuery.toLowerCase());
         
-        const matchCountry = country === 'all' || item.store === country;
         const matchCategory = category === 'all' || item.category === category;
         const matchStock = stock === 'all' || item.status === stock;
         
@@ -330,7 +328,7 @@ function filterInventory() {
             else if (priceRange === '1000+') matchPrice = price > 1000;
         }
 
-        return matchSearch && matchCountry && matchCategory && matchStock && matchPrice;
+        return matchSearch && matchCategory && matchStock && matchPrice;
     });
 
     renderInventoryTable(filtered);
@@ -339,7 +337,7 @@ function filterInventory() {
 function renderInventoryTable(data) {
     let html = '<table><thead><tr>';
     html += '<th>SKU</th><th>Product Name</th><th>Category</th>';
-    html += '<th>Store</th><th>Stock</th><th>Price (€)</th><th>Status</th>';
+    html += '<th>Store</th><th>Stock</th><th>Price</th><th>Status</th>';
     html += '<th>Action</th></tr></thead><tbody>';
     
     if (data.length === 0) {
@@ -358,7 +356,7 @@ function renderInventoryTable(data) {
                 <td>${item.category}</td>
                 <td>${item.store}</td>
                 <td style="font-weight: 600;">${item.stock}</td>
-                <td>€${item.price.toFixed(2)}</td>
+                <td style="white-space: nowrap;">€${item.price.toFixed(2)}</td>
                 <td><span class="status-badge ${item.status}">${item.status.replace('-', ' ')}</span></td>
                 <td><button class="btn btn-primary inventory-view-btn" data-inventory-id="${inventoryId}" data-inventory-sku="${skuSafe}" data-inventory-name="${nameSafe}" style="padding: 6px 12px; font-size: 12px;">View</button></td>
             </tr>`;
