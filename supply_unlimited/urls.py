@@ -24,7 +24,7 @@ from users.views import (
 )
 from supply_unlimited.sales.views import (
     api_companies, api_inventory, api_sales, api_company_delete,
-    api_warehouse_location, api_inventory_export
+    api_warehouse_location, api_inventory_export, api_company_update
 )
 
 def redirect_to_login(request):
@@ -44,6 +44,7 @@ urlpatterns = [
     path('change-password/', change_password_view, name='change_password'),
     path('api/companies/', api_companies, name='api_companies'),
     path('api/companies/<str:company_id>/delete/', api_company_delete, name='api_company_delete'),
+    path('api/companies/<str:company_id>/update/', api_company_update, name='api_company_update'),
     path('api/inventory/', api_inventory, name='api_inventory'),
     path('api/inventory/<int:inventory_id>/warehouse/', api_warehouse_location, name='api_warehouse_location'),
     path('api/inventory/export/<str:format_type>/', api_inventory_export, name='api_inventory_export'),

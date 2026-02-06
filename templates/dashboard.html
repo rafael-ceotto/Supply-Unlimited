@@ -277,6 +277,13 @@
                             <option value="Medium">Medium Stock</option>
                             <option value="High">High Stock</option>
                         </select>
+                        <select id="priceFilter" onchange="filterInventory()" class="filter-select">
+                            <option value="all">All Prices</option>
+                            <option value="0-100">€0 - €100</option>
+                            <option value="100-500">€100 - €500</option>
+                            <option value="500-1000">€500 - €1000</option>
+                            <option value="1000+">€1000+</option>
+                        </select>
                     </div>
                     
                 </div>
@@ -298,9 +305,6 @@
                         </button>
                         <button class="btn btn-outline" onclick="exportInventory('parquet')" title="Export as Parquet">
                             <i data-lucide="database" style="width: 16px; height: 16px;"></i> Parquet
-                        </button>
-                        <button class="btn btn-outline" onclick="refreshInventory()">
-                            <i data-lucide="refresh-cw"></i> Refresh
                         </button>
                     </div>
                 </div>

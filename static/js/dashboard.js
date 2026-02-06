@@ -309,6 +309,7 @@ function filterInventory() {
     const country = document.getElementById('storeFilter')?.value || 'all';
     const category = document.getElementById('categoryFilter')?.value || 'all';
     const stock = document.getElementById('stockFilter')?.value || 'all';
+    const priceRange = document.getElementById('priceFilter')?.value || 'all';
 
     let filtered = allInventoryData.filter(item => {
         const matchSearch = !searchQuery || 
@@ -319,8 +320,17 @@ function filterInventory() {
         const matchCountry = country === 'all' || item.store === country;
         const matchCategory = category === 'all' || item.category === category;
         const matchStock = stock === 'all' || item.status === stock;
+        
+        let matchPrice = true;
+        if (priceRange !== 'all') {
+            const price = item.price || 0;
+            if (priceRange === '0-100') matchPrice = price >= 0 && price <= 100;
+            else if (priceRange === '100-500') matchPrice = price > 100 && price <= 500;
+            else if (priceRange === '500-1000') matchPrice = price > 500 && price <= 1000;
+            else if (priceRange === '1000+') matchPrice = price > 1000;
+        }
 
-        return matchSearch && matchCountry && matchCategory && matchStock;
+        return matchSearch && matchCountry && matchCategory && matchStock && matchPrice;
     });
 
     renderInventoryTable(filtered);
@@ -470,6 +480,7 @@ function renderCompaniesTable(data) {
             <td><span class="status-badge ${company.status}">${company.status || 'N/A'}</span></td>
             <td style="display: flex; gap: 8px;">
                 <button class="btn btn-primary company-view-btn" data-company-id="${company.company_id}" data-company-index="${index}" style="padding: 6px 12px; font-size: 12px;">View</button>
+                <button class="btn btn-outline company-edit-btn" data-company-id="${company.company_id}" data-company-index="${index}" style="padding: 6px 12px; font-size: 12px;">Edit</button>
                 <button class="btn btn-outline company-delete-btn" data-company-id="${company.company_id}" data-company-index="${index}" style="padding: 6px 12px; font-size: 12px;">Delete</button>
             </td>
         </tr>`;
@@ -492,6 +503,18 @@ function attachCompanyViewListeners() {
             const companyIndex = this.getAttribute('data-company-index');
             console.log('View button clicked:', { companyId, companyIndex });
             viewCompany(companyId);
+        });
+    });
+    
+    // Edit button listeners
+    document.querySelectorAll('.company-edit-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const companyId = this.getAttribute('data-company-id');
+            const companyIndex = this.getAttribute('data-company-index');
+            console.log('Edit button clicked:', { companyId, companyIndex });
+            editCompany(companyId);
         });
     });
     
@@ -924,7 +947,7 @@ function loadWarehouseData(inventoryId) {
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <p style="font-size: 14px; opacity: 0.9;">Total Stock</p>
-                            <p style="font-size: 28px; font-weight: bold;">${totalQty}</p>
+                            <p style="font-size: 28px; font-weight: bold;">${parseInt(totalQty) || 0}</p>
                             <p style="font-size: 12px; opacity: 0.9;">unidades</p>
                         </div>
                         <div style="text-align: right;">
@@ -940,7 +963,7 @@ function loadWarehouseData(inventoryId) {
                     Object.values(aisles).forEach(shelves => {
                         Object.values(shelves).forEach(items => {
                             items.forEach(item => {
-                                warehouseTotal += item.quantity;
+                                warehouseTotal += parseInt(item.quantity) || 0;
                             });
                         });
                     });
@@ -951,7 +974,7 @@ function loadWarehouseData(inventoryId) {
                             <div>
                                 <p style="font-weight: 600; color: #1f2937;">🏭 ${warehouse}</p>
                             </div>
-                            <p style="font-size: 13px; color: #6b7280; font-weight: 600;">${warehouseTotal} unidades</p>
+                            <p style="font-size: 13px; color: #6b7280; font-weight: 600;">${parseInt(warehouseTotal) || 0} unidades</p>
                         </div>
                     </div>`;
                     
@@ -961,32 +984,33 @@ function loadWarehouseData(inventoryId) {
                         let aisleTotal = 0;
                         Object.values(shelves).forEach(items => {
                             items.forEach(item => {
-                                aisleTotal += item.quantity;
+                                aisleTotal += parseInt(item.quantity) || 0;
                             });
                         });
                         
                         html += `<div style="padding: 12px; border-bottom: 1px solid #f3f4f6; background: #fafafa;">`;
                         html += `<div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                             <p style="font-size: 13px; font-weight: 500; color: #374151;">📍 Aisle ${aisle}</p>
-                            <p style="font-size: 13px; color: #6b7280;">${aisleTotal} unidades</p>
+                            <p style="font-size: 13px; color: #6b7280;">${parseInt(aisleTotal) || 0} unidades</p>
                         </div>`;
                         
                         // Renderizar shelves
                         Object.entries(shelves).forEach(([shelf, items]) => {
-                            const shelfTotal = items.reduce((sum, item) => sum + item.quantity, 0);
+                            const shelfTotal = items.reduce((sum, item) => sum + (parseInt(item.quantity) || 0), 0);
                             
                             html += `<div style="padding: 8px 0; margin-left: 16px;">`;
                             html += `<div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                 <p style="font-size: 12px; font-weight: 500; color: #555;">Shelf ${shelf}</p>
-                                <p style="font-size: 12px; color: #999;">${shelfTotal} unidades</p>
+                                <p style="font-size: 12px; color: #999;">${parseInt(shelfTotal) || 0} unidades</p>
                             </div>`;
                             
                             // Renderizar boxes
                             html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 6px;">`;
                             items.forEach(item => {
+                                const qty = parseInt(item.quantity) || 0;
                                 html += `<div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 6px; padding: 8px; color: white; text-align: center;">
                                     <p style="font-size: 11px; opacity: 0.9;">Box ${item.box}</p>
-                                    <p style="font-size: 16px; font-weight: bold;">${item.quantity}</p>
+                                    <p style="font-size: 16px; font-weight: bold;">${qty}</p>
                                     <p style="font-size: 10px; opacity: 0.8;">units</p>
                                 </div>`;
                             });
@@ -1114,6 +1138,163 @@ function viewCompany(companyId) {
             modal.remove();
         }
     };
+}
+
+// Company Edit Function
+function editCompany(companyId) {
+    console.log('=== editCompany called ===');
+    console.log('Company ID:', companyId);
+    
+    const company = allCompaniesData.find(c => c.company_id === companyId);
+    
+    if (!company) {
+        console.error('Company not found with ID:', companyId);
+        alert('Empresa não encontrada');
+        return;
+    }
+    
+    console.log('Found company for edit:', company);
+    
+    // Criar modal de edição
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.id = 'companyEditModal';
+    modal.style.cssText = `
+        display: flex !important;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.6);
+        align-items: center;
+        justify-content: center;
+        visibility: visible;
+        opacity: 1;
+    `;
+    
+    const content = document.createElement('div');
+    content.style.cssText = `
+        background-color: white;
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 600px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        z-index: 10000;
+        position: relative;
+        max-height: 80vh;
+        overflow-y: auto;
+    `;
+    
+    content.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #1f2937;">Editar Empresa</h2>
+            <button class="close-edit-modal" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280; padding: 0; width: 30px; height: 30px;">×</button>
+        </div>
+        <div style="border-top: 1px solid #e5e7eb; padding-top: 20px;">
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 6px;">Nome da Empresa</label>
+                <input type="text" id="editCompanyName" value="${company.name}" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; box-sizing: border-box;">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div>
+                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 6px;">País</label>
+                    <input type="text" id="editCompanyCountry" value="${company.country || ''}" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 6px;">Cidade</label>
+                    <input type="text" id="editCompanyCity" value="${company.city || ''}" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; box-sizing: border-box;">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div>
+                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 6px;">Propriedade (%)</label>
+                    <input type="number" id="editCompanyOwnership" value="${company.ownership_percentage || 100}" min="0" max="100" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 6px;\">Status</label>\n                    <select id="editCompanyStatus" style="width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; box-sizing: border-box;">
+                        <option value="active" ${company.status === 'active' ? 'selected' : ''}>Ativo</option>
+                        <option value="inactive" ${company.status === 'inactive' ? 'selected' : ''}>Inativo</option>
+                        <option value="archived" ${company.status === 'archived' ? 'selected' : ''}>Arquivado</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
+                <button class="close-edit-modal" style="padding: 10px 20px; border: 2px solid #e5e7eb; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #374151;">Cancelar</button>
+                <button id="savEditCompanyBtn" style="padding: 10px 20px; background: #22c55e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Salvar Mudanças</button>
+            </div>
+        </div>
+    `;
+    
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    console.log('Edit modal created and appended');
+    
+    // Adicionar event listeners aos botões de fechar
+    const closeButtons = content.querySelectorAll('.close-edit-modal');
+    closeButtons.forEach(btn => {
+        btn.onclick = function(e) {
+            e.stopPropagation();
+            console.log('Close edit modal button clicked');
+            modal.remove();
+        };
+    });
+    
+    // Fechar ao clicar fora
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            console.log('Edit modal background clicked, closing');
+            modal.remove();
+        }
+    };
+    
+    // Adicionar listener para salvar
+    const savBtn = document.getElementById('savEditCompanyBtn');
+    if (savBtn) {
+        savBtn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const updatedCompany = {
+                name: document.getElementById('editCompanyName').value,
+                country: document.getElementById('editCompanyCountry').value,
+                city: document.getElementById('editCompanyCity').value,
+                ownership_percentage: parseInt(document.getElementById('editCompanyOwnership').value),
+                status: document.getElementById('editCompanyStatus').value
+            };
+            
+            console.log('Saving company with data:', updatedCompany);
+            
+            // Fazer requisição PUT/PATCH (você precisa implementar isso no backend)
+            fetch(`/api/companies/${companyId}/update/`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(updatedCompany)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Company updated successfully:', data);
+                alert('Empresa atualizada com sucesso!');
+                modal.remove();
+                loadCompanies();
+            })
+            .catch(error => {
+                console.error('Error updating company:', error);
+                alert('Erro ao atualizar empresa: ' + error.message);
+            });
+        };
+    }
 }
 
 // Company Delete Function
