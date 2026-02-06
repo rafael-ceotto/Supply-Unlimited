@@ -471,6 +471,17 @@ tbody tr:hover {
     display: block;
 }
 
+/* Settings section specific */
+#settings-section.active {
+    padding-top: 0;
+}
+
+/* Settings icon size */
+.settings-sidebar i {
+    width: 18px;
+    height: 18px;
+}
+
 /* Filters & Search */
 .filters-container {
     background: var(--bg-primary);
