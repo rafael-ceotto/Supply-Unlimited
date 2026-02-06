@@ -78,19 +78,25 @@ body {
 }
 
 .user-section {
-    display: -webkit-inline-box;
+    display: flex;
     align-items: center;
     gap: 16px;
 }
 
 .user-info {
     text-align: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
 }
 
 .user-name {
     font-weight: 600;
     color: var(--text-primary);
     font-size: 14px;
+    margin: 0;
+    line-height: 1.4;
 }
 
 .user-role {
@@ -924,8 +930,8 @@ tbody tr:hover {
 }
 
 /* Logout Link */
-.logout-link {
-    color: #dc2626;
+.user-section .logout-link {
+    color: #dc2626 !important;
     text-decoration: none;
     font-size: 20px;
     display: flex;
@@ -945,8 +951,9 @@ tbody tr:hover {
 .submenu-item {
     display: block;
     padding: 8px 0;
-    color: #6b7280;
+    color: #6b7280 !important;
     font-size: 14px;
+    text-decoration: none !important;
 }
 
 /* Tab Button Styles */
