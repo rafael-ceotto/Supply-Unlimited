@@ -2,17 +2,11 @@
    Settings Page - Modern Design
    ============================================ */
 
-/* Override flex: 1 for Settings section only */
-#settings-section.content-section {
-    flex: 0 0 auto !important;
-    width: auto !important;
-}
-
 .settings-container {
     min-height: auto;
     background: transparent;
     display: grid;
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 280px auto;
     gap: 0;
     margin-left: -24px;
     margin-bottom: 0;
@@ -120,6 +114,8 @@
     padding-bottom: 32px;
     padding-left: 0;
     background: var(--bg-secondary);
+    max-width: 1000px;
+    overflow-x: hidden;
 }
 
 /* Section Header */
@@ -1067,7 +1063,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
     .settings-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: auto;
         gap: 0;
         padding: 0;
         margin-left: -24px;

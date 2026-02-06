@@ -201,11 +201,6 @@ body {
     padding: 0px 24px 24px 24px;
 }
 
-/* Settings section - don't stretch */
-.content #settings-section {
-    flex: none;
-}
-
 .page-header {
     margin-bottom: 24px;
 }
