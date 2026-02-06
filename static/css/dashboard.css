@@ -196,9 +196,9 @@ body {
 
 /* Content Area */
 .content {
-    flex: 1;
+    /* flex: 1; */
     overflow-y: auto;
-    padding: 0px 24px 24px 24px;
+    padding: 10px 20px
 }
 
 .page-header {
