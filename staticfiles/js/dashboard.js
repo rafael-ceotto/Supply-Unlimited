@@ -920,7 +920,14 @@ function loadWarehouseData(inventoryId) {
                 // Check if locations contains error message
                 if (data.locations[0].message) {
                     console.log('No warehouse locations found');
-                    html += '<div style="padding: 40px; text-align: center; color: #6b7280;">Nenhuma localização encontrada para este produto</div>';
+                    html += `<div style="padding: 40px 20px; text-align: center;">
+                        <div style="width: 80px; height: 80px; background: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                            <span style="font-size: 40px;">📦</span>
+                        </div>
+                        <h3 style="margin: 0 0 12px 0; color: #1f2937; font-size: 18px;">Sem Dados de Localização</h3>
+                        <p style="margin: 0 0 20px 0; color: #6b7280; font-size: 14px;">Este produto ainda não possui informações de localização em nenhum warehouse.</p>
+                        <p style="margin: 0; color: #9ca3af; font-size: 12px;">Os dados de warehouse serão exibidos assim que forem cadastrados no sistema.</p>
+                    </div>`;
                     content.innerHTML = html;
                     return;
                 }
@@ -1297,7 +1304,7 @@ function editCompany(companyId) {
     }
 }
 
-// Company Delete Function
+// Company Delete Function with Custom Modal
 function deleteCompany(companyId) {
     const company = allCompaniesData.find(c => c.company_id === companyId);
     if (!company) {
@@ -1305,50 +1312,154 @@ function deleteCompany(companyId) {
         return;
     }
     
-    // Confirmação
-    if (!confirm(`Tem certeza que deseja deletar a empresa "${company.name}"? Esta ação não pode ser desfeita.`)) {
-        return;
+    // Criar modal de confirmação customizada
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.id = 'deleteConfirmModal';
+    modal.style.cssText = `
+        display: flex !important;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.6);
+        align-items: center;
+        justify-content: center;
+        visibility: visible;
+        opacity: 1;
+    `;
+    
+    const content = document.createElement('div');
+    content.style.cssText = `
+        background-color: white;
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 450px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        z-index: 10000;
+        position: relative;
+    `;
+    
+    content.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <div style="width: 40px; height: 40px; background: #fee2e2; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="trash-2" style="width: 24px; height: 24px; color: #dc2626;"></i>
+            </div>
+            <h2 style="margin: 0; color: #1f2937; font-size: 20px;">Deletar Empresa</h2>
+        </div>
+        <div style="background: #fef2f2; border-left: 4px solid #dc2626; padding: 12px; border-radius: 4px; margin-bottom: 20px;">
+            <p style="margin: 0; color: #991b1b; font-weight: 500;">Aviso</p>
+            <p style="margin: 8px 0 0 0; color: #7f1d1d; font-size: 14px;">Tem certeza que deseja deletar a empresa "${company.name}"? Esta ação não pode ser desfeita.</p>
+        </div>
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button id="cancelDeleteBtn" style="padding: 10px 20px; border: 2px solid #e5e7eb; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #374151;">
+                Cancelar
+            </button>
+            <button id="confirmDeleteBtn" style="padding: 10px 20px; background: #dc2626; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                Sim, Deletar
+            </button>
+        </div>
+    `;
+    
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    
+    // Re-initialize Lucide icons para a nova modal
+    if (window.lucide) {
+        lucide.createIcons();
     }
     
-    // Fazer requisição DELETE
-    fetch(`/api/companies/${companyId}/delete/`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'X-Requested-With': 'XMLHttpRequest'
+    // Event listeners
+    const cancelBtn = document.getElementById('cancelDeleteBtn');
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    
+    cancelBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        modal.remove();
+    });
+    
+    // Fechar ao clicar fora
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.remove();
         }
-    })
-    .then(response => {
-        if (response.status === 404) {
-            alert('Empresa não encontrada');
-            return Promise.reject('not-found');
-        }
-        if (response.status === 405) {
-            alert('Método não permitido');
-            return Promise.reject('method-not-allowed');
-        }
-        if (!response.ok) {
-            return response.json().then(err => {
-                throw new Error(err.error || 'Erro desconhecido');
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            alert(`Empresa "${company.name}" deletada com sucesso!`);
-            // Remover da lista
-            allCompaniesData = allCompaniesData.filter(c => c.company_id !== companyId);
-            renderCompaniesTable(allCompaniesData);
-        } else {
-            alert('Erro ao deletar: ' + (data.error || 'Erro desconhecido'));
-        }
-    })
-    .catch(error => {
-        if (error !== 'not-found' && error !== 'method-not-allowed') {
-            console.error('Erro ao deletar empresa:', error);
-            alert('Erro ao deletar empresa: ' + error);
-        }
+    });
+    
+    confirmBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Deletando...';
+        
+        // Fazer requisição DELETE
+        fetch(`/api/companies/${companyId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.status === 404) {
+                alert('Empresa não encontrada');
+                return Promise.reject('not-found');
+            }
+            if (response.status === 405) {
+                alert('Método não permitido');
+                return Promise.reject('method-not-allowed');
+            }
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.error || 'Erro desconhecido');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                modal.remove();
+                // Mostrar sucesso
+                const successModal = document.createElement('div');
+                successModal.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #10b981;
+                    color: white;
+                    padding: 16px 24px;
+                    border-radius: 8px;
+                    z-index: 99999;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    max-width: 400px;
+                `;
+                successModal.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-weight: 600;">&#10003;</span>
+                        <span>Empresa "${company.name}" deletada com sucesso!</span>
+                    </div>
+                `;
+                document.body.appendChild(successModal);
+                setTimeout(() => successModal.remove(), 3000);
+                
+                // Remover da lista
+                allCompaniesData = allCompaniesData.filter(c => c.company_id !== companyId);
+                renderCompaniesTable(allCompaniesData);
+            } else {
+                alert('Erro ao deletar: ' + (data.error || 'Erro desconhecido'));
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Sim, Deletar';
+            }
+        })
+        .catch(error => {
+            if (error !== 'not-found' && error !== 'method-not-allowed') {
+                console.error('Erro ao deletar empresa:', error);
+                alert('Erro ao deletar empresa: ' + error);
+            }
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Sim, Deletar';
+        });
     });
 }
 
