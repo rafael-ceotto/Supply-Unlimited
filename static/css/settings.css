@@ -7,7 +7,7 @@
     background: transparent;
     display: grid;
     grid-template-columns: 280px 1fr;
-    gap: 12px;
+    gap: 0;
 }
 
 /* Header */
@@ -107,6 +107,7 @@
 /* Content Area */
 .settings-content {
     padding: 32px;
+    padding-left: 24px;
     background: var(--bg-secondary);
 }
 
