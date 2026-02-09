@@ -248,6 +248,18 @@ def populate_database():
         except Exception as e:
             print(f'  ⚠ {name} - {str(e)[:50]}')
     
+    # Create admin user
+    print('\nCreating admin user...')
+    from django.contrib.auth.models import User
+    try:
+        admin_user = User.objects.get(username='rafa')
+        admin_user.set_password('rafa123')
+        admin_user.save()
+        print(f'  ✓ Admin user "rafa" updated')
+    except User.DoesNotExist:
+        admin_user = User.objects.create_superuser('rafa', 'rafa@supply.com', 'rafa123')
+        print(f'  ✓ Admin user "rafa" created')
+    
     print('\n✅ Sample data loaded successfully!')
     print(f'\nCreated:')
     print(f'  • {len(companies)} Companies')
@@ -257,6 +269,9 @@ def populate_database():
     print(f'  • {sale_count} Sample Sales')
     print(f'  • Multiple AI Agents')
     print(f'\nYour dashboard is ready with data!')
+    print(f'\n🔐 Login credentials:')
+    print(f'  Username: rafa')
+    print(f'  Password: rafa123')
 
 if __name__ == '__main__':
     populate_database()

@@ -251,3 +251,28 @@ body, html {
         width: 100%;
     }
 }
+
+/* Error messages */
+.error-box {
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.error-message {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.field-errors {
+    margin-top: 0.5rem;
+}
+
+.error-text {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin: 0.25rem 0;
+}

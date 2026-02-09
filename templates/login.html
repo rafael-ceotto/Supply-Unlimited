@@ -50,15 +50,22 @@
     <div class="form-section">
         <div class="form-container">
             <h2 class="form-title">Sign in to your account</h2>
+            {% if form.non_field_errors %}
+                <div class="error-box">
+                    {% for error in form.non_field_errors %}
+                        <p class="error-message">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
             <form method="POST" action="{% url 'login' %}">
                 {% csrf_token %}
                 <div class="form-group">
                     <label class="form-label">Username</label>
-                    {{ form.username|add_class:"form-input" }}
+                    <input type="text" name="username" class="form-input" placeholder="Enter your username" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Password</label>
-                    {{ form.password|add_class:"form-input" }}
+                    <input type="password" name="password" class="form-input" placeholder="Enter your password" required>
                 </div>
                 <div class="form-check">
                     <input type="checkbox" id="remember" name="remember">
