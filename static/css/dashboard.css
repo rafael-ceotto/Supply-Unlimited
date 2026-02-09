@@ -202,6 +202,11 @@ body {
     box-sizing: border-box;
 }
 
+#settings-section {
+    padding: 0;
+    margin: 0;
+}
+
 .page-header {
     margin-bottom: 24px;
 }
@@ -473,6 +478,11 @@ tbody tr:hover {
 }
 
 /* Settings section specific */
+#settings-section {
+    padding: 0;
+    margin: 0;
+}
+
 #settings-section.active {
     padding-top: 0;
 }
