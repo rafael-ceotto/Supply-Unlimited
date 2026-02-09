@@ -60,13 +60,13 @@ docker exec supply_unlimited_web python manage.py migrate
 ### 4. ⚠️ Load Sample Data (CRITICAL - Required for Dashboard)
 
 **This step is ESSENTIAL!** Without loading sample data, the dashboard will be empty. This command creates:
-- ✅ 10 Companies
-- ✅ 50 Stores (5 per company)
-- ✅ 50 Products
-- ✅ 750 Inventory Records
-- ✅ 50 Warehouses with 610 Warehouse Locations
-- ✅ AI Permissions & Roles (automatic for new users)
-- ✅ 4 AI Agents (GPT, Claude, Llama, Mistral)
+- 10 Companies
+- 50 Stores (5 per company)
+- 50 Products
+- 750 Inventory Records
+- 50 Warehouses with 610 Warehouse Locations
+- AI Permissions & Roles (automatic for new users)
+- 4 AI Agents (GPT, Claude, Llama, Mistral)
 
 ```bash
 docker exec supply_unlimited_web python populate_data.py
@@ -95,21 +95,21 @@ Open your browser: **http://localhost:8000**
 
 ## Dashboard Tabs
 
-### 📊 Companies
+### Companies
 - View all 10 companies
 - See status (active/pending/inactive), ownership percentage, location
 
-### 📦 Inventory
+### Inventory
 - Browse 750 products across all stores
 - Filter by: company, store, status (In Stock / Low Stock / Out-of-stock)
 - **Click "View Warehouse"** to see exact location: Aisle → Shelf → Box
 
-### 📈 Analytics
+### Analytics
 - Interactive sales charts
 - Data visualized by country, category, and time period
 - Real-time trend analysis
 
-### 🤖 AI Reports
+### AI Reports
 
 Generate intelligent reports by asking questions in natural language. The AI analyzes your supply chain data and provides:
 - Detailed KPIs (Key Performance Indicators)
@@ -191,9 +191,7 @@ docker-compose down
 - **RBAC System**: Automatic role assignment - new users get "Analyst" role with AI access
 - **Dashboard**: Real-time frontend with responsive design
 
-## Support
-
-For issues or questions, please open an issue on GitHub.
+Thanks in advance for your time and feedback!
 
 **Last Updated**: February 2026
 
