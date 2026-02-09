@@ -41,22 +41,27 @@ def populate_database():
     # Create companies
     print('Creating companies...')
     companies = []
-    company_names = [
-        ('COM-001', 'Tech Innovations Inc.', 'United States'),
-        ('COM-002', 'Global Supplies Ltd.', 'United Kingdom'),
-        ('COM-003', 'Digital Solutions', 'Canada'),
-        ('COM-004', 'Enterprise Systems', 'Germany'),
-        ('COM-005', 'Innovation Labs', 'France')
+    company_data = [
+        ('COM-001', 'Tech Innovations Inc.', 'United States', 'New York', 'active', 100),
+        ('COM-002', 'Global Supplies Ltd.', 'United Kingdom', 'London', 'active', 80),
+        ('COM-003', 'Digital Solutions', 'Canada', 'Toronto', 'active', 90),
+        ('COM-004', 'Enterprise Systems', 'Germany', 'Berlin', 'pending', 75),
+        ('COM-005', 'Innovation Labs', 'France', 'Paris', 'inactive', 60),
+        ('COM-006', 'Northern Tech', 'Sweden', 'Stockholm', 'active', 85),
+        ('COM-007', 'Pacific Logistics', 'Australia', 'Sydney', 'active', 95),
+        ('COM-008', 'Iberia Distribution', 'Spain', 'Madrid', 'pending', 70),
+        ('COM-009', 'Nordic Solutions', 'Norway', 'Oslo', 'inactive', 50),
+        ('COM-010', 'Asian Markets', 'Singapore', 'Singapore', 'active', 88),
     ]
     
-    for company_id, name, country in company_names:
+    for company_id, name, country, city, status, ownership in company_data:
         company = Company.objects.create(
             company_id=company_id,
             name=name,
             country=country,
-            city='New York' if 'United States' in country else 'London' if 'Kingdom' in country else 'Toronto' if 'Canada' in country else 'Berlin' if 'Germany' in country else 'Paris',
-            status='active',
-            ownership_percentage=100
+            city=city,
+            status=status,
+            ownership_percentage=ownership
         )
         companies.append(company)
         print(f'  ✓ {name}')
@@ -65,27 +70,25 @@ def populate_database():
     print('\nCreating stores/locations...')
     stores = []
     store_locations = [
-        ('HQ', 'Headquarters'),
-        ('West', 'West Coast'),
-        ('East', 'East Coast'),
-        ('Mid', 'Midwest'),
-        ('South', 'South Region'),
+        ('HQ', 'HeadquartersMain'),
+        ('West', 'West Location'),
+        ('East', 'East Location'),
+        ('Mid', 'Central Location'),
+        ('South', 'South Location'),
     ]
     
-    store_counter = 1
     for company in companies:
         for loc_code, loc_name in store_locations:
             store = Store.objects.create(
                 store_id=f'{company.company_id}-{loc_code}',
                 company=company,
                 name=f'{company.name} - {loc_name}',
-                city='New York' if random.random() > 0.5 else 'Los Angeles',
+                city=company.city,
                 country=company.country,
-                address=f'{random.randint(100, 9999)} {loc_name} Road',
-                is_active=True
+                address=f'{random.randint(100, 9999)} {loc_name} Street',
+                is_active=True if company.status == 'active' else False
             )
             stores.append(store)
-            store_counter += 1
     
     print(f'  ✓ {len(stores)} stores created')
     
@@ -101,7 +104,7 @@ def populate_database():
     for name in category_names:
         category = Category.objects.create(
             name=name,
-            description=f'{name} products and services'
+            description=f'{name} products and solutions'
         )
         categories.append(category)
     
@@ -173,7 +176,7 @@ def populate_database():
     # Create warehouses
     print('\nCreating warehouses...')
     warehouses = []
-    for i, store in enumerate(stores[:5]):  # Create warehouse for first 5 stores
+    for i, store in enumerate(stores[:10]):  # Create warehouse for first 10 stores
         warehouse_id = f'{store.store_id}-WH-{i+1:03d}'
         warehouse = Warehouse.objects.create(
             warehouse_id=warehouse_id,
@@ -184,18 +187,25 @@ def populate_database():
     
     print(f'  ✓ {len(warehouses)} warehouses created')
     
-    # Create warehouse locations
+    # Create warehouse locations (only for in-stock or low-stock products)
     print('\nCreating warehouse locations...')
     location_count = 0
     for warehouse in warehouses:
-        for product in random.sample(products, min(10, len(products))):
+        # Get products with stock in this warehouse's store
+        in_stock_inventory = Inventory.objects.filter(
+            store=warehouse.store,
+            quantity__gt=0
+        ).select_related('product')
+        
+        # Add warehouse locations for in-stock products
+        for inv in in_stock_inventory[:10]:  # Limit to 10 products per warehouse
             location = WarehouseLocation.objects.create(
                 warehouse=warehouse,
-                product=product,
-                aisle=f'A{random.randint(1, 5)}',
+                product=inv.product,
+                aisle=f'A{random.randint(1, 8)}',
                 shelf=f'S{random.randint(1, 10)}',
                 box=f'B{random.randint(1, 20)}',
-                quantity=random.randint(10, 100)
+                quantity=inv.quantity
             )
             location_count += 1
     
@@ -205,11 +215,21 @@ def populate_database():
     print('\nCreating inventory records...')
     inventory_count = 0
     for store in stores:
-        for product in random.sample(products, min(15, len(products))):
+        # Select 15-20 products per store
+        store_products = random.sample(products, min(15, len(products)))
+        for product in store_products:
+            # 20% chance of being out of stock
+            if random.random() < 0.2:
+                quantity = 0
+            elif random.random() < 0.3:
+                quantity = random.randint(1, 20)  # Low stock
+            else:
+                quantity = random.randint(25, 200)  # In stock
+            
             inventory = Inventory.objects.create(
                 store=store,
                 product=product,
-                quantity=random.randint(5, 200)
+                quantity=quantity
             )
             inventory_count += 1
     
