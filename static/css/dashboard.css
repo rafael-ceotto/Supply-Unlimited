@@ -202,11 +202,6 @@ body {
     box-sizing: border-box;
 }
 
-/* Settings section - don't stretch to fill space */
-#settings-section {
-    flex: 0 0 auto;
-}
-
 .page-header {
     margin-bottom: 24px;
 }

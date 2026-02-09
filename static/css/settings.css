@@ -7,8 +7,6 @@
     background: transparent;
     display: flex;
     gap: 12px;
-    margin-left: -24px;
-    margin-bottom: 0;
 }
 
 /* Header */
@@ -116,8 +114,7 @@
     background: var(--bg-secondary);
     max-width: 1000px;
     overflow-x: hidden;
-    flex: 1;
-    min-width: 0;
+}
 }
 
 /* Section Header */
@@ -1068,8 +1065,6 @@
         flex-direction: column;
         gap: 12px;
         padding: 0;
-        margin-left: -24px;
-        margin-bottom: 0;
     }
 
     .settings-sidebar {
@@ -1113,8 +1108,6 @@
     .settings-content {
         padding: 20px 16px;
         width: 100%;
-        flex: 1;
-        min-width: 0;
     }
 
     .form-grid {
