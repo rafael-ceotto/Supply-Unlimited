@@ -136,3 +136,8 @@ out/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Development/Test Scripts (not essential for repository)
+test_*.py
+check_*.py
+setup_ai_permissions.py

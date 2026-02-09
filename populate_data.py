@@ -16,17 +16,73 @@ import random
 
 from users.models import (
     Company, Store, Category, Product, Warehouse,
-    WarehouseLocation, Inventory, Sale, DashboardMetrics
+    WarehouseLocation, Inventory, Sale, DashboardMetrics,
+    Permission, Role, UserRole
 )
 from ai_reports.models import AIAgentConfig
+
+def setup_ai_permissions():
+    """Setup AI Report permissions and roles for new users"""
+    print('\nSetting up AI Report permissions...')
+    
+    # Create AI permissions
+    ai_permissions = [
+        ('view_ai_reports', 'View AI Reports'),
+        ('create_ai_reports', 'Create AI Reports'),
+        ('use_ai_agents', 'Use AI Agents'),
+    ]
+    
+    for code, description in ai_permissions:
+        perm, created = Permission.objects.get_or_create(
+            code=code,
+            defaults={'description': description}
+        )
+        if created:
+            print(f'  ✓ Created permission: {code}')
+    
+    # Create Analyst role with AI permissions
+    analyst_role, created = Role.objects.get_or_create(
+        name='Analyst',
+        defaults={
+            'role_type': 'analyst',
+            'description': 'Data analyst with AI report access'
+        }
+    )
+    
+    if created:
+        print(f'  ✓ Created role: Analyst')
+    
+    # Assign AI permissions to Analyst role
+    analyst_permissions = [
+        'view_dashboard',
+        'view_companies',
+        'view_inventory',
+        'view_sales',
+        'view_ai_reports',
+        'create_ai_reports',
+        'use_ai_agents',
+        'export_reports',
+    ]
+    
+    for perm_code in analyst_permissions:
+        try:
+            perm = Permission.objects.get(code=perm_code)
+            analyst_role.permissions.add(perm)
+        except Permission.DoesNotExist:
+            pass
+    
+    print(f'  ✓ Analyst role configured with AI permissions')
 
 def populate_database():
     """Populate the database with sample data"""
     
     print('Starting database population...')
     
+    # Setup permissions first
+    setup_ai_permissions()
+    
     # Clear existing data
-    print('Cleaning up old data...')
+    print('\nCleaning up old data...')
     DashboardMetrics.objects.all().delete()
     Sale.objects.all().delete()
     Inventory.objects.all().delete()
