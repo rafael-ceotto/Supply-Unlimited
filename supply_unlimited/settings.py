@@ -149,22 +149,22 @@ LOGOUT_REDIRECT_URL = 'login'
 
 ASGI_APPLICATION = 'supply_unlimited.asgi.application'
 
-# Channel Layers (using Redis for in-memory message broker)
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [('redis', 6379)],  # Redis service in Docker
-            'capacity': 1500,
-            'expiry': 10,
-        },
-    },
-}
-
-# Alternatively, for in-memory testing (without Redis):
+# Channel Layers (using in-memory for local development)
 # CHANNEL_LAYERS = {
 #     'default': {
-#         'BACKEND': 'channels.layers.InMemoryChannelLayer'
-#     }
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             'hosts': [('redis', 6379)],  # Redis service in Docker
+#             'capacity': 1500,
+#             'expiry': 10,
+#         },
+#     },
 # }
+
+# For in-memory testing (without Redis):
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}
 
