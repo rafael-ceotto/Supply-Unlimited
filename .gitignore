@@ -94,6 +94,10 @@ setup_supply_unlimited.py
 install_supply_unlimited.py
 ATTRIBUTIONS.md
 
+# Local Development Folders (Not in GitHub)
+documentation/
+development_scripts/
+
 # Project Specific - Development Folders
 Vertical Split Page Design/
 venv/
