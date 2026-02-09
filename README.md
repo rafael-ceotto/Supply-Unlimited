@@ -47,7 +47,31 @@ docker exec -it supply_unlimited_web python manage.py createsuperuser
 # Admin: http://localhost:8000/admin
 ```
 
-## 📖 Installation Without Docker
+## � Loading Sample Data
+
+After initial setup, the database is empty. You have two options:
+
+### Option A: Use Sample Data Script (Recommended)
+```bash
+# Load companies, products, and inventory
+docker exec supply_unlimited_web python -c "
+exec(open('development_scripts/populate_data.py').read())
+"
+```
+
+Or if scripts are available locally:
+```bash
+python development_scripts/populate_data.py
+```
+
+### Option B: Add Data Manually
+1. Go to: http://localhost:8000/admin
+2. Login with your superuser
+3. Add Companies, Stores, Products, and Inventory through the admin interface
+
+**Note**: The database starts empty. Sample data scripts are available in the local `development_scripts/` folder (not in GitHub).
+
+## �📖 Installation Without Docker
 
 ### Prerequisites
 - Python 3.13+
@@ -272,6 +296,27 @@ docker exec supply_unlimited_web python manage.py test
 - `POST /api/ai-reports/chat-sessions/{id}/archive/` - Archive session
 
 ## 🐛 Troubleshooting
+
+### Database is empty (No data appears)
+This is **normal on first setup**. The database starts empty and requires data to be loaded.
+
+**To add sample data:**
+```bash
+# Using development script (if available locally)
+python development_scripts/populate_data.py
+
+# Or add data manually via Django Admin
+# Visit: http://localhost:8000/admin
+# Login with your superuser account
+```
+
+**Data that needs to be added:**
+- Companies
+- Stores/Locations
+- Products
+- Inventory/Stock
+
+See [📥 Loading Sample Data](#-loading-sample-data) section above.
 
 ### Cannot connect to PostgreSQL
 ```bash
