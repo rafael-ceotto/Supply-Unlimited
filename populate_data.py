@@ -187,30 +187,6 @@ def populate_database():
     
     print(f'  ✓ {len(warehouses)} warehouses created')
     
-    # Create warehouse locations (only for in-stock or low-stock products)
-    print('\nCreating warehouse locations...')
-    location_count = 0
-    for warehouse in warehouses:
-        # Get products with stock in this warehouse's store
-        in_stock_inventory = Inventory.objects.filter(
-            store=warehouse.store,
-            quantity__gt=0
-        ).select_related('product')
-        
-        # Add warehouse locations for in-stock products
-        for inv in in_stock_inventory[:10]:  # Limit to 10 products per warehouse
-            location = WarehouseLocation.objects.create(
-                warehouse=warehouse,
-                product=inv.product,
-                aisle=f'A{random.randint(1, 8)}',
-                shelf=f'S{random.randint(1, 10)}',
-                box=f'B{random.randint(1, 20)}',
-                quantity=inv.quantity
-            )
-            location_count += 1
-    
-    print(f'  ✓ {location_count} warehouse locations created')
-    
     # Create inventory
     print('\nCreating inventory records...')
     inventory_count = 0
@@ -234,6 +210,31 @@ def populate_database():
             inventory_count += 1
     
     print(f'  ✓ {inventory_count} inventory records created')
+    
+    # Create warehouse locations (only for in-stock or low-stock products)
+    # MOVED AFTER INVENTORY CREATION so warehouse locations can link to actual inventory
+    print('\nCreating warehouse locations...')
+    location_count = 0
+    for warehouse in warehouses:
+        # Get products with stock in this warehouse's store
+        in_stock_inventory = Inventory.objects.filter(
+            store=warehouse.store,
+            quantity__gt=0
+        ).select_related('product')
+        
+        # Add warehouse locations for in-stock products
+        for inv in in_stock_inventory[:10]:  # Limit to 10 products per warehouse
+            location = WarehouseLocation.objects.create(
+                warehouse=warehouse,
+                product=inv.product,
+                aisle=f'A{random.randint(1, 8)}',
+                shelf=f'S{random.randint(1, 10)}',
+                box=f'B{random.randint(1, 20)}',
+                quantity=inv.quantity
+            )
+            location_count += 1
+    
+    print(f'  ✓ {location_count} warehouse locations created')
     
     # Create sales
     print('\nCreating sales records...')
