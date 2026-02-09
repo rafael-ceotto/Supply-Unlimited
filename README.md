@@ -2,6 +2,8 @@
 
 A complete inventory management, companies, stores, and sales system built with Django and PostgreSQL. Includes interactive dashboard, intelligent AI reports, sales analytics and user control.
 
+> **⚡ Want to see it running right now?** Copy & paste commands from [QUICK_START.md](QUICK_START.md) - takes 5 minutes!
+
 ## 🎯 Key Features
 
 - **Interactive Dashboard**: Real-time visualization of sales metrics, inventory and performance
@@ -23,6 +25,8 @@ A complete inventory management, companies, stores, and sales system built with 
 - **AI**: LangChain + LangGraph + OpenAI (optional)
 
 ## 🚀 Quick Start (With Docker - Recommended)
+
+**⏱️ Takes ~5 minutes. See [QUICK_START.md](QUICK_START.md) for copy-paste ready commands!**
 
 ```bash
 # 1. Clone the repository
