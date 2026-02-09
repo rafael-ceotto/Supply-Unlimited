@@ -38,7 +38,10 @@ cd supply_unlimited
 
 ### 2. Start Docker Containers
 
-The Docker setup automatically configures environment variables with safe defaults.
+The Docker setup automatically:
+- Installs all Python dependencies from `requirements.txt`
+- Configures environment variables with safe defaults
+- Sets up PostgreSQL database
 
 ```bash
 docker-compose up -d
