@@ -92,21 +92,21 @@ Open your browser: **http://localhost:8000**
 
 ## Dashboard Tabs
 
-### 📊 Companies
+### Companies
 - View all 10 companies
 - See status (active/pending/inactive), ownership percentage, location
 
-### 📦 Inventory
+### Inventory
 - Browse 750 products across all stores
 - Filter by: company, store, status (In Stock / Low Stock / Out-of-stock)
 - **Click "View Warehouse"** to see exact location: Aisle → Shelf → Box
 
-### 📈 Analytics
+### Analytics
 - Interactive sales charts
 - Data visualized by country, category, and time period
 - Real-time trend analysis
 
-### 🤖 AI Reports
+### AI Reports
 
 Generate intelligent reports by asking questions in natural language. The AI analyzes your supply chain data and provides:
 - Detailed KPIs (Key Performance Indicators)
