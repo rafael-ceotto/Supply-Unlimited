@@ -1,8 +1,9 @@
 """
-Django signals for automatic notification generation.
+Django signals for automatic notification generation and role assignment.
 
 This module defines signals that automatically create notifications
-when certain events occur in the application (e.g., new AI reports).
+when certain events occur in the application (e.g., new AI reports),
+and assigns default roles to new users.
 """
 
 import logging
@@ -11,12 +12,61 @@ from django.dispatch import receiver
 from django.utils import timezone
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from django.contrib.auth.models import User
 
 logger = logging.getLogger(__name__)
 
 
 # Import models here to avoid circular imports
 # These are imported inside the signal handlers
+
+
+@receiver(post_save, sender=User)
+def assign_default_role_to_new_user(sender, instance, created, **kwargs):
+    """
+    Automatically assign 'Analyst' role to new users on registration.
+    
+    Triggered when a new User is created (via /register or any other method).
+    Ensures every user has at least the 'Analyst' role with AI permissions.
+    
+    Args:
+        sender: The User model class
+        instance: The User instance that was saved
+        created: Boolean indicating if instance was just created
+        **kwargs: Additional signal parameters
+    """
+    if not created:
+        return  # Only process on creation, not updates
+    
+    try:
+        # Import here to avoid circular imports
+        from users.models import UserRole, Role
+        
+        # Check if user already has a role
+        if UserRole.objects.filter(user=instance).exists():
+            logger.info(f"User {instance.username} already has a role assigned")
+            return
+        
+        # Get or create the 'Analyst' role
+        analyst_role, _ = Role.objects.get_or_create(
+            name='Analyst',
+            defaults={
+                'role_type': 'analyst',
+                'description': 'Data analyst with AI report access'
+            }
+        )
+        
+        # Assign 'Analyst' role to the new user
+        UserRole.objects.create(
+            user=instance,
+            role=analyst_role,
+            is_active=True
+        )
+        
+        logger.info(f"Automatically assigned 'Analyst' role to new user: {instance.username}")
+        
+    except Exception as e:
+        logger.error(f"Error assigning default role to user {instance.username}: {e}")
 
 
 @receiver(post_save, sender='ai_reports.ChatMessage')
