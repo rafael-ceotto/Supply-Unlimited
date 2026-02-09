@@ -42,36 +42,46 @@ docker exec supply_unlimited_web python manage.py migrate
 # 5. Create superuser
 docker exec -it supply_unlimited_web python manage.py createsuperuser
 
-# 6. Access the application
+# 6. ⭐ IMPORTANT: Load sample data (Required for dashboard to display data)
+docker exec supply_unlimited_web python populate_data.py
+
+# 7. Access the application
 # Dashboard: http://localhost:8000
 # Admin: http://localhost:8000/admin
 ```
 
-## � Loading Sample Data
+**⚠️ Important**: Step 6 is ESSENTIAL! Without loading sample data, the dashboard will show no companies, products, or inventory. The database starts completely empty after migrations.
 
-After initial setup, the database is empty. You have two options:
+## 📥 Sample Data & Database Population
 
-### Option A: Use Sample Data Script (Recommended)
+The project includes `populate_data.py` script that automatically creates:
+- 5 Companies
+- Multiple Stores/Locations
+- 50+ Products with inventory
+- Stock tracking across locations
+- AI agent configurations
+
+### Load Sample Data
+
+**With Docker (Recommended):**
 ```bash
-# Load companies, products, and inventory
-docker exec supply_unlimited_web python -c "
-exec(open('development_scripts/populate_data.py').read())
-"
+docker exec supply_unlimited_web python populate_data.py
 ```
 
-Or if scripts are available locally:
+**Locally (without Docker):**
 ```bash
-python development_scripts/populate_data.py
+python populate_data.py
 ```
 
-### Option B: Add Data Manually
-1. Go to: http://localhost:8000/admin
-2. Login with your superuser
-3. Add Companies, Stores, Products, and Inventory through the admin interface
+### Alternative: Manual Data Entry
+If you prefer to add data manually:
+1. Visit: http://localhost:8000/admin
+2. Login with your superuser credentials
+3. Add Companies, Stores, Products, and Inventory manually
 
-**Note**: The database starts empty. Sample data scripts are available in the local `development_scripts/` folder (not in GitHub).
+---
 
-## �📖 Installation Without Docker
+## 📖 Installation Without Docker
 
 ### Prerequisites
 - Python 3.13+
@@ -103,6 +113,9 @@ python manage.py migrate
 
 # Create superuser
 python manage.py createsuperuser
+
+# Load sample data
+python populate_data.py
 
 # Start development server
 python manage.py runserver
@@ -184,6 +197,7 @@ supply_unlimited/
 ├── Dockerfile              # Docker image definition
 ├── manage.py               # Django CLI
 ├── requirements.txt        # Python dependencies
+├── populate_data.py        # Sample data loader (run after setup)
 └── .env.example            # Environment variables template
 ```
 
@@ -298,25 +312,23 @@ docker exec supply_unlimited_web python manage.py test
 ## 🐛 Troubleshooting
 
 ### Database is empty (No data appears)
-This is **normal on first setup**. The database starts empty and requires data to be loaded.
+**This is normal on first setup!** The database starts completely empty after migrations.
 
-**To add sample data:**
+**Solution**: Load sample data (see Step 6 above):
 ```bash
-# Using development script (if available locally)
-python development_scripts/populate_data.py
+# With Docker
+docker exec supply_unlimited_web python populate_data.py
 
-# Or add data manually via Django Admin
-# Visit: http://localhost:8000/admin
-# Login with your superuser account
+# Or locally
+python populate_data.py
 ```
 
-**Data that needs to be added:**
+After running this, you'll have:
 - Companies
 - Stores/Locations
 - Products
 - Inventory/Stock
-
-See [📥 Loading Sample Data](#-loading-sample-data) section above.
+- Pre-configured AI agents
 
 ### Cannot connect to PostgreSQL
 ```bash
@@ -353,10 +365,12 @@ docker exec supply_unlimited_web python manage.py collectstatic --noinput
 docker compose down -v
 docker compose up -d
 docker exec supply_unlimited_web python manage.py migrate
+docker exec supply_unlimited_web python populate_data.py
 
 # Without Docker
 python manage.py flush --no-input
 python manage.py migrate
+python populate_data.py
 ```
 
 ### Cache/Cookie Issues
