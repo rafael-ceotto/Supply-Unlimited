@@ -289,8 +289,7 @@ def populate_database():
     print(f'  • {sale_count} Sample Sales')
     print(f'  • Multiple AI Agents')
     print(f'\nYour dashboard is ready with data!')
-    print(f'\nℹ️ Create your admin user by running:')
-    print(f'  python manage.py createsuperuser')
+    print(f'\n👤 To access the dashboard, register a new user at: /register')
 
 if __name__ == '__main__':
     populate_database()
