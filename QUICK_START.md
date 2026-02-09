@@ -1,48 +1,113 @@
 # 🚀 Quick Setup Guide - Get Running in 5 Minutes
 
-Copy and paste these commands to get the project running:
+Copy and paste these commands to get the project running with sample data.
 
 ## 📋 Prerequisites
 - Git installed
 - Docker & Docker Compose installed
-- About 2-3 minutes
+- ~3 minutes setup time
 
 ---
 
-## ✅ Step-by-Step Command
+## ✅ Step-by-Step
 
 ```bash
 # 1️⃣ Clone the repository
 git clone https://github.com/rafael-ceotto/Supply-Unlimited.git
 cd supply_unlimited
 
-# 2️⃣ Set up environment configuration
-cp .env.example .env
+# 2️⃣ Start Docker containers (PostgreSQL + Django)
+docker-compose up -d
 
-# 3️⃣ Start Docker containers (PostgreSQL + Django)
-docker compose up -d
+# ⏳ Wait ~10 seconds for containers to be ready...
 
-# ⏳ Wait ~10 seconds for containers to start...
-
-# 4️⃣ Run database migrations (creates tables)
+# 3️⃣ Run database migrations
 docker exec supply_unlimited_web python manage.py migrate
 
-# 5️⃣ Create admin user (superuser)
-# Note: Run this and follow the prompts (set username, password, email)
-docker exec -it supply_unlimited_web python manage.py createsuperuser
-
-# 6️⃣ ⭐ LOAD SAMPLE DATA (ESSENTIAL!)
-# This creates companies, products, inventory, etc.
+# 4️⃣ ⭐ LOAD SAMPLE DATA (Essential for testing)
+# Creates: 10 companies, 50 stores, 50 products, 750 inventory records, AI roles & permissions
 docker exec supply_unlimited_web python populate_data.py
 
-# ✅ DONE! Your project is ready!
+# ✅ DONE! Your application is ready!
 ```
 
 ---
 
 ## 🌐 Access Your Application
 
-After running the commands above:
+**Dashboard:** http://localhost:8000
+
+### Getting Started:
+
+1. **Click "Register"** to create your account
+   - Username, First Name, Last Name, Email, Password
+2. **Click "Login"** with your new credentials
+3. **Explore these tabs:**
+   - 📊 **Companies** - View all 10 companies with details
+   - 📦 **Inventory** - Browse 750 products, see status, click "View Warehouse" for exact location
+   - 📈 **Analytics** - See interactive sales charts
+   - 🤖 **AI Reports** - Ask questions in natural language to AI agents
+
+### Admin Panel:
+**URL:** http://localhost:8000/admin  
+**User:** Use the superuser credentials you create with `createsuperuser` (optional)
+
+---
+
+## 📝 Sample Data Includes:
+
+✅ 10 Companies (Tech Innovations, Global Supplies, Digital Solutions, etc.)  
+✅ 50 Stores across 5 locations per company  
+✅ 50 Products (cables, keyboards, monitors, etc. - $9.99 to $99.99)  
+✅ 750 Inventory Records (20% out-of-stock, 30% low-stock, 50% in-stock)  
+✅ 50 Warehouses with 610 warehouse locations  
+✅ 4 AI Agents (GPT-4, Claude, Llama, Mistral)  
+✅ RBAC Permissions configured automatically  
+
+---
+
+## 🤖 Try AI Reports Examples
+
+In the AI Reports tab, ask questions like:
+- "Analyze inventory by country"
+- "Show me top selling products"
+- "What's the supply chain risk"
+- "Compare sales by region"
+- "Inventory turnover analysis"
+
+---
+
+## 🛑 Stop the Application
+
+```bash
+docker-compose down
+```
+
+**Note:** Your data persists. Use `docker-compose down -v` only to completely reset (not recommended).
+
+---
+
+## ❓ Troubleshooting
+
+**Error: "Address already in use"**
+```bash
+docker-compose down
+docker-compose up -d
+```
+
+**Blank dashboard:**  
+Clear browser cache (Ctrl+Shift+Delete) and refresh (Ctrl+F5)
+
+**Permission errors when registering:**  
+This is automatically fixed by `populate_data.py` - run it again if needed
+
+---
+
+## 📚 Documentation
+
+- Full setup: [README.md](README.md)
+- Verify installation: [SETUP_VERIFICATION.md](SETUP_VERIFICATION.md)
+- Full API docs: [AI Reports README](ai_reports/README.md)
 
 | URL | Purpose | Login |
 |-----|---------|-------|
