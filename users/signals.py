@@ -40,7 +40,7 @@ def assign_default_role_to_new_user(sender, instance, created, **kwargs):
     
     try:
         # Import here to avoid circular imports
-        from users.models import UserRole, Role
+        from users.models import UserRole, Role, Permission
         
         # Check if user already has a role
         if UserRole.objects.filter(user=instance).exists():
@@ -48,13 +48,34 @@ def assign_default_role_to_new_user(sender, instance, created, **kwargs):
             return
         
         # Get or create the 'Analyst' role
-        analyst_role, _ = Role.objects.get_or_create(
-            name='Analyst',
-            defaults={
-                'role_type': 'analyst',
-                'description': 'Data analyst with AI report access'
-            }
-        )
+        try:
+            analyst_role = Role.objects.get(name='Analyst')
+        except Role.DoesNotExist:
+            # Create Analyst role with AI permissions if it doesn't exist
+            analyst_role = Role.objects.create(
+                name='Analyst',
+                role_type='analyst',
+                description='Data analyst with AI report access'
+            )
+            
+            # Add AI permissions to analyst role
+            ai_perms = [
+                'view_ai_reports',
+                'create_ai_reports',
+                'use_ai_agents',
+                'view_dashboard',
+                'view_inventory',
+                'view_sales',
+            ]
+            
+            for perm_code in ai_perms:
+                try:
+                    perm = Permission.objects.get(code=perm_code)
+                    analyst_role.permissions.add(perm)
+                except Permission.DoesNotExist:
+                    pass  # Permission will be created by migrate
+            
+            logger.info(f"Created new Analyst role with AI permissions")
         
         # Assign 'Analyst' role to the new user
         UserRole.objects.create(
@@ -67,6 +88,8 @@ def assign_default_role_to_new_user(sender, instance, created, **kwargs):
         
     except Exception as e:
         logger.error(f"Error assigning default role to user {instance.username}: {e}")
+        # Don't raise - let the user be created even if role assignment fails
+        pass
 
 
 @receiver(post_save, sender='ai_reports.ChatMessage')
