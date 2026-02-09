@@ -57,13 +57,13 @@ docker exec supply_unlimited_web python manage.py migrate
 ### 4. ⚠️ Load Sample Data (CRITICAL - Required for Dashboard)
 
 **This step is ESSENTIAL!** Without loading sample data, the dashboard will be empty. This command creates:
-- ✅ 10 Companies
-- ✅ 50 Stores (5 per company)
-- ✅ 50 Products
-- ✅ 750 Inventory Records
-- ✅ 50 Warehouses with 610 Warehouse Locations
-- ✅ AI Permissions & Roles (automatic for new users)
-- ✅ 4 AI Agents (GPT, Claude, Llama, Mistral)
+- 10 Companies
+- 50 Stores (5 per company)
+- 50 Products
+- 750 Inventory Records
+- 50 Warehouses with 610 Warehouse Locations
+- AI Permissions & Roles (automatic for new users)
+- 4 AI Agents (GPT, Claude, Llama, Mistral)
 
 ```bash
 docker exec supply_unlimited_web python populate_data.py
