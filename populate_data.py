@@ -111,48 +111,59 @@ def populate_database():
     print('\nCreating products...')
     products = []
     product_data = [
-        ('SKU-0001', 'Server Package', 'Premium server with support'),
-        ('SKU-0002', 'Cloud Suite', 'Cloud infrastructure bundle'),
-        ('SKU-0003', 'Security Edition', 'Advanced security tools'),
-        ('SKU-0004', 'Desktop Pro', 'High-performance workstation'),
-        ('SKU-0005', 'Laptop Elite', 'Professional laptop'),
-        ('SKU-0006', 'Database License', 'Enterprise database software'),
-        ('SKU-0007', 'Support Plan', '24/7 technical support'),
-        ('SKU-0008', 'Backup Solution', 'Automated backup and recovery'),
-        ('SKU-0009', 'Monitoring Tool', 'System monitoring platform'),
-        ('SKU-0010', 'API Gateway', 'API management solution'),
-        ('SKU-0011', 'Network Switch', '48-port managed switch'),
-        ('SKU-0012', 'Router Pro', 'Enterprise router'),
-        ('SKU-0013', 'Storage Array', 'NAS storage solution'),
-        ('SKU-0014', 'Printer Pro', 'Network printer'),
-        ('SKU-0015', 'Scanner Device', 'Document scanner'),
-        ('SKU-0016', 'UPS System', 'Uninterruptible power supply'),
-        ('SKU-0017', 'Rack Cabinet', '42U server rack'),
-        ('SKU-0018', 'Cooling Unit', 'Precision cooling system'),
-        ('SKU-0019', 'Cable Management', 'Structured cabling'),
-        ('SKU-0020', 'Maintenance Kit', 'Annual maintenance package'),
+        ('SKU-0001', 'USB-C Cable 2m', 'High-speed USB-C charging cable', 12.99),
+        ('SKU-0002', 'HDMI Cable 1.5m', '4K HDMI 2.1 cable', 15.49),
+        ('SKU-0003', 'Screen Protector', 'Tempered glass screen protector', 8.99),
+        ('SKU-0004', 'Phone Stand', 'Adjustable aluminum phone stand', 19.99),
+        ('SKU-0005', 'Wireless Mouse', 'Ergonomic 2.4GHz wireless mouse', 24.99),
+        ('SKU-0006', 'Mechanical Keyboard', 'RGB mechanical keyboard', 79.99),
+        ('SKU-0007', 'USB Hub 7-Port', 'USB 3.0 7-port hub with power', 34.99),
+        ('SKU-0008', 'External SSD 1TB', '1TB USB-C external SSD', 99.99),
+        ('SKU-0009', 'Webcam 1080p', 'Full HD USB webcam with mic', 44.99),
+        ('SKU-0010', 'Desk Lamp LED', 'Adjustable LED desk lamp', 39.99),
+        ('SKU-0011', 'Laptop Stand', 'Aluminum laptop cooling stand', 29.99),
+        ('SKU-0012', 'USB Power Strip', '4 outlets + 2 USB charging', 27.99),
+        ('SKU-0013', 'Cable Organizer Kit', 'Cable clips and organizers', 14.99),
+        ('SKU-0014', 'Microphone USB', 'Studio-quality USB microphone', 89.99),
+        ('SKU-0015', 'Monitor Arm', 'Adjustable single monitor arm', 59.99),
+        ('SKU-0016', 'Desk Mat', 'Large leather desk mouse pad', 34.99),
+        ('SKU-0017', 'Monitor Light Bar', 'USB monitor light bar', 69.99),
+        ('SKU-0018', 'Cooling Pad Laptop', 'Laptop cooling pad with fans', 32.99),
+        ('SKU-0019', 'Surge Protector', '6 outlet surge protector', 21.99),
+        ('SKU-0020', 'Phone Charger 65W', 'Fast charger 65W USB-C', 49.99),
     ]
     
-    for sku, name, description in product_data:
+    for sku, name, description, price in product_data:
         product = Product.objects.create(
             sku=sku,
             name=name,
             description=description,
             category=random.choice(categories),
-            price=Decimal(str(random.randint(100, 10000))),
+            price=Decimal(str(price)),
             status='in-stock'
         )
         products.append(product)
     
     # Add more products to reach 50+
-    for i in range(30):
-        sku = f'SKU-{1000+i+20:04d}'
+    additional_products = [
+        'USB-A Cable 3m', 'Type-C Adapter', 'HDMI Splitter', 'DisplayPort Cable',
+        'DVI Cable 2m', 'Network Cable Cat6', 'Audio Jack Splitter', 'VGA Cable',
+        'Thunderbolt Cable', 'Mini HDMI Cable', 'MicroUSB Cable', 'Lightning Cable',
+        'USB HUB 4-Port', 'Card Reader', 'Docking Station', 'USB Switch',
+        'Wireless Charger', 'Portable Battery', 'Power Bank 20000mAh', 'Solar Charger',
+        'Screen Cleaner', 'Keyboard Cleaner', 'Cable Sleeve', 'Monitor Riser',
+        'Bluetooth Speaker', 'USB Fan', 'LED Ring Light', 'Pop Socket',
+        'Phone Case Stand', 'Wireless Charger Pad'
+    ]
+    
+    for i, name in enumerate(additional_products):
+        sku = f'SKU-{1020+i:04d}'
         product = Product.objects.create(
             sku=sku,
-            name=f'Product {len(products)+1}',
-            description=f'Premium product from {random.choice(categories).name}',
+            name=name,
+            description=f'Quality {name.lower()} with premium build',
             category=random.choice(categories),
-            price=Decimal(str(random.randint(100, 5000))),
+            price=Decimal(str(round(random.uniform(9.99, 99.99), 2))),
             status='in-stock'
         )
         products.append(product)
@@ -229,20 +240,20 @@ def populate_database():
     # Create AI agent configurations
     print('\nConfiguring AI agents...')
     ai_agents = [
-        ('Sales Analyst', 'Analyzes sales trends and patterns'),
-        ('Inventory Manager', 'Manages inventory levels and alerts'),
-        ('Report Generator', 'Generates comprehensive reports'),
-        ('Trend Predictor', 'Predicts future trends'),
+        ('gpt', 'GPT-4 Agent', 'Analyzes sales trends and patterns using GPT-4'),
+        ('claude', 'Claude Agent', 'Manages inventory levels and alerts using Claude'),
+        ('llama', 'Llama Agent', 'Generates comprehensive reports using Llama'),
+        ('mistral', 'Mistral Agent', 'Predicts future trends using Mistral'),
     ]
     
-    for name, description in ai_agents:
+    for agent_key, name, description in ai_agents:
         try:
             agent = AIAgentConfig.objects.create(
                 name=name,
-                model_name='gpt-4',
+                model_name=agent_key,
                 temperature=0.7,
                 max_tokens=2000,
-                system_prompt=f'You are an AI assistant for {name}. {description}'
+                system_prompt=f'You are an AI assistant powered by {agent_key}. {description}. Always respond in the same language as the user input.'
             )
             print(f'  ✓ {name}')
         except Exception as e:
