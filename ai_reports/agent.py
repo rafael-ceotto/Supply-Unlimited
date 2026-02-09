@@ -1,50 +1,50 @@
 """
-LangGraph AI Agent para Supply Chain Reports
-Orquestra o fluxo de processamento de requisições de relatórios usando LangGraph
+LangGraph AI Agent for Supply Chain Reports
+Orchestrates the flow of report requests processing using LangGraph
 
-🔥 PROMPT DE CONTEXTO PARA DESENVOLVIMENTO
+🔥 DEVELOPMENT CONTEXT PROMPT
 ============================================
 
-Este módulo implementa um agente de IA que atua como analista sênior de supply chain.
+This module implements an AI agent that acts as a senior supply chain analyst.
 
-PRINCÍPIOS FUNDAMENTAIS:
+FUNDAMENTAL PRINCIPLES:
 ------------------------
-1. O agente NÃO executa lógica pesada dentro do LLM
-   - LLM apenas: planeja, decide, orquestra
-   - Python executa: ETL, queries, cálculos, validação
+1. The agent does NOT execute heavy logic inside the LLM
+   - LLM only: plans, decides, orchestrates
+   - Python executes: ETL, queries, calculations, validation
 
-2. Código deve ser: legível, modular, auditável
-   - Funções pequenas e bem definidas
-   - Type hints sempre
-   - Docstrings objetivas
+2. Code must be: readable, modular, auditable
+   - Small and well-defined functions
+   - Type hints always
+   - Objective docstrings
 
-3. SQL: apenas SELECT, usar ORM Django quando possível
+3. SQL: SELECT only, use Django ORM when possible
 
-4. Sempre considerar: cache e execução assíncrona (Celery/asyncio)
+4. Always consider: caching and asynchronous execution (Celery/asyncio)
 
-ESTÁGIOS DO AGENT (LangGraph):
+AGENT STAGES (LangGraph):
 ------------------------------
-1. INTERPRETING  → Entender pedido em linguagem natural
-2. PLANNING      → Detectar KPIs necessários
-3. DATA_COLLECTION → Checagem de dados disponíveis
-4. ANALYSIS      → Planejamento e execução de ETL, validação
-5. GENERATING    → Geração de insights e relatório final
+1. INTERPRETING  → Understand request in natural language
+2. PLANNING      → Detect required KPIs
+3. DATA_COLLECTION → Check available data
+4. ANALYSIS      → Planning and execution of ETL, validation
+5. GENERATING    → Generation of insights and final report
 
-KPIs ESPERADOS:
+EXPECTED KPIs:
 ---------------
-- Estoque: nível, rotação, envelhecimento, obsolescência
-- Transporte: custo, lead time, OTIF (On Time In Full)
-- Fornecedores: performance, confiabilidade, entrega
-- Demanda: previsão, variabilidade, sazonalidade
-- Rupturas: frequência, impacto, causas
-- Receita: por produto, região, canal, cliente
+- Inventory: level, rotation, aging, obsolescence
+- Transportation: cost, lead time, OTIF (On Time In Full)
+- Suppliers: performance, reliability, delivery
+- Demand: forecast, variability, seasonality
+- Stockouts: frequency, impact, causes
+- Revenue: by product, region, channel, customer
 
-ESTRUTURA DE CÓDIGO:
+CODE STRUCTURE:
 -------------------
-✅ DO: pequenas funções, tipagem clara, async quando possível
-❌ DON'T: monolitos, lógica "mágica", queries hardcoded
+✅ DO: small functions, clear typing, async when possible
+❌ DON'T: monoliths, "magic" logic, hardcoded queries
 
-Refer ao ai_reports/README.md para documentação completa.
+Refer to ai_reports/README.md for complete documentation.
 """
 
 from typing import TypedDict, List, Optional, Dict, Any
@@ -55,7 +55,7 @@ from enum import Enum
 
 
 class ProcessingStage(str, Enum):
-    """Estágios de processamento do agente IA"""
+    """Processing stages of the AI agent"""
     INTERPRETING = "interpreting"
     PLANNING = "planning"
     DATA_COLLECTION = "data_collection"
@@ -65,30 +65,30 @@ class ProcessingStage(str, Enum):
 
 
 class AIReportState(TypedDict):
-    """Estado da requisição de relatório ao longo do pipeline"""
-    # Entrada
+    """State of the report request throughout the pipeline"""
+    # Input
     user_request: str
     user_id: str
     session_id: str
     
-    # Estágios de processamento
+    # Processing stages
     current_stage: ProcessingStage
     stage_progress: List[Dict[str, Any]]
     
-    # Interpretação
+    # Interpretation
     report_type: Optional[str]
     required_kpis: List[str]
     data_filters: Dict[str, Any]
     
-    # Coleta de dados
+    # Data collection
     raw_data: Optional[Dict[str, Any]]
     data_summary: Optional[Dict[str, Any]]
     
-    # Análise
+    # Analysis
     analysis_results: Optional[Dict[str, Any]]
     insights: List[str]
     
-    # Relatório final
+    # Final report
     report_title: str
     report_data: Dict[str, Any]
     recommendations: List[str]
@@ -100,19 +100,19 @@ class AIReportState(TypedDict):
 
 class AIReportAgent:
     """
-    Agente principal de AI Reports usando padrão LangGraph
-    Coordena os estágios de processamento de relatórios
+    Main AI Reports agent using LangGraph pattern
+    Coordinates the stages of report processing
     """
     
     def __init__(self, config=None):
         """
-        Inicializa o agente com configuração opcional
+        Initializes the agent with optional configuration
         
         Args:
-            config: Configuração do agente (AIAgentConfig model ou dict com model, temperatura, etc.)
+            config: Agent configuration (AIAgentConfig model or dict with model, temperature, etc.)
         """
         if config and hasattr(config, 'model_name'):
-            # É uma instância do modelo AIAgentConfig
+            # Is an instance of the AIAgentConfig model
             self.config = {
                 'model': config.model_name,
                 'temperature': config.temperature,
@@ -121,7 +121,7 @@ class AIReportAgent:
                 'name': config.name
             }
         else:
-            # É um dict ou None
+            # Is a dict or None
             self.config = config or {
                 'model': 'gpt-4',
                 'temperature': 0.7,
@@ -137,17 +137,17 @@ class AIReportAgent:
     
     async def process_request(self, state: AIReportState) -> AIReportState:
         """
-        Processa uma requisição de relatório através de todos os estágios
+        Processes a report request through all stages
         
         Args:
-            state: Estado inicial da requisição
+            state: Initial state of the request
             
         Returns:
-            Estado final com relatório gerado
+            Final state with generated report
         """
-        print(f"[AI Agent] Iniciando processamento de requisição: {state['user_request'][:50]}...")
+        print(f"[AI Agent] Starting request processing: {state['user_request'][:50]}...")
         
-        # Definir estágios iniciais
+        # Set initial stages
         state['stage_progress'] = []
         state['processing_times'] = {}
         state['errors'] = []

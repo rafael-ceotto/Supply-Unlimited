@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 
 class Company(models.Model):
-    """Modelo para empresas e suas filiais"""
+    """Model for companies and their branches"""
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('inactive', 'Inactive'),
@@ -34,12 +34,12 @@ class Company(models.Model):
         return f"{self.name} ({self.company_id})"
     
     def get_linked_companies(self):
-        """Retorna todas as empresas vinculadas (subsidiárias)"""
+        """Returns all linked companies (subsidiaries)"""
         return self.subsidiaries.all()
 
 
 class Store(models.Model):
-    """Modelo para lojas físicas"""
+    """Model for physical stores"""
     store_id = models.CharField(max_length=20, unique=True, primary_key=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='stores')
     name = models.CharField(max_length=200)
@@ -53,7 +53,7 @@ class Store(models.Model):
 
 
 class Category(models.Model):
-    """Modelo para categorias de produtos"""
+    """Model for product categories"""
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
     
@@ -65,7 +65,7 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-    """Modelo para produtos"""
+    """Model for products"""
     STATUS_CHOICES = [
         ('in-stock', 'In Stock'),
         ('low-stock', 'Low Stock'),
@@ -86,7 +86,7 @@ class Product(models.Model):
 
 
 class Warehouse(models.Model):
-    """Modelo para warehouse/armazém"""
+    """Model for warehouse/storage facility"""
     warehouse_id = models.CharField(max_length=20, unique=True, primary_key=True)
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name='warehouses')
     name = models.CharField(max_length=200)
@@ -96,7 +96,7 @@ class Warehouse(models.Model):
 
 
 class WarehouseLocation(models.Model):
-    """Modelo para localização específica no warehouse (Aisle -> Shelf -> Box)"""
+    """Model for specific warehouse location (Aisle -> Shelf -> Box)"""
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name='locations')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     aisle = models.CharField(max_length=10)
@@ -114,7 +114,7 @@ class WarehouseLocation(models.Model):
 
 
 class Inventory(models.Model):
-    """Modelo para estoque de produtos nas lojas"""
+    """Model for product stock in stores"""
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
@@ -129,21 +129,21 @@ class Inventory(models.Model):
 
 
 class Sale(models.Model):
-    """Modelo para vendas"""
+    """Model for sales"""
     sale_id = models.AutoField(primary_key=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
     quantity = models.IntegerField()
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     sale_date = models.DateTimeField(auto_now_add=True)
-    month = models.CharField(max_length=20)  # Ex: "Jan", "Feb"
+    month = models.CharField(max_length=20)  # E.g.: "Jan", "Feb"
     year = models.IntegerField()
     
     def __str__(self):
         return f"Sale #{self.sale_id} - {self.product.name}"
     
     def save(self, *args, **kwargs):
-        # Atualizar mês e ano automaticamente
+        # Auto-update month and year
         if not self.month:
             self.month = self.sale_date.strftime('%b')
         if not self.year:
@@ -152,7 +152,7 @@ class Sale(models.Model):
 
 
 class DashboardMetrics(models.Model):
-    """Modelo para métricas do dashboard"""
+    """Model for dashboard metrics"""
     metric_date = models.DateField(unique=True)
     total_revenue = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total_orders = models.IntegerField(default=0)
@@ -171,7 +171,7 @@ class DashboardMetrics(models.Model):
 # ============================================
 
 class Permission(models.Model):
-    """Modelo para permissões granulares"""
+    """Model for granular permissions"""
     PERMISSION_CHOICES = [
         ('view_dashboard', 'View Dashboard'),
         ('view_companies', 'View Companies'),
@@ -204,7 +204,7 @@ class Permission(models.Model):
 
 
 class Role(models.Model):
-    """Modelo para roles/papéis de usuário"""
+    """Model for user roles"""
     ROLE_TYPE_CHOICES = [
         ('admin', 'Administrator'),
         ('manager', 'Manager'),
@@ -229,12 +229,12 @@ class Role(models.Model):
         return f"{self.name}"
     
     def has_permission(self, permission_code):
-        """Verifica se a role tem uma permissão específica"""
+        """Checks if the role has a specific permission"""
         return self.permissions.filter(code=permission_code).exists()
 
 
 class UserRole(models.Model):
-    """Modelo para vincular usuários a roles (many-to-many com histórico)"""
+    """Model to link users to roles (many-to-many with history)"""
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user_role')
     role = models.ForeignKey(Role, on_delete=models.PROTECT, related_name='users')
     assigned_at = models.DateTimeField(auto_now_add=True)
@@ -254,14 +254,14 @@ class UserRole(models.Model):
         return f"{self.user.username} - {self.role.name}"
     
     def has_permission(self, permission_code):
-        """Verifica se o usuário (através da role) tem uma permissão"""
+        """Checks if the user (through the role) has a permission"""
         if not self.is_active:
             return False
         return self.role.has_permission(permission_code)
 
 
 class Notification(models.Model):
-    """Modelo para notificações de usuários"""
+    """Model for user notifications"""
     NOTIFICATION_TYPE_CHOICES = [
         ('info', 'Information'),
         ('success', 'Success'),
@@ -299,7 +299,7 @@ class Notification(models.Model):
         return f"{self.user.username} - {self.title}"
     
     def mark_as_read(self):
-        """Marca notificação como lida"""
+        """Marks notification as read"""
         self.is_read = True
         self.save()
     
@@ -307,16 +307,16 @@ class Notification(models.Model):
     def create_notification(cls, user, title, message, notification_type='info', 
                           related_object_type='', related_object_id='', redirect_url=''):
         """
-        Helper method para criar notificação
+        Helper method to create notification
         
         Args:
             user: User instance
-            title: Título da notificação
-            message: Mensagem detalhada
-            notification_type: Tipo de notificação
-            related_object_type: Tipo de objeto relacionado
-            related_object_id: ID do objeto relacionado
-            redirect_url: URL para redirecionar ao clicar
+            title: Notification title
+            message: Detailed message
+            notification_type: Type of notification
+            related_object_type: Type of related object
+            related_object_id: ID of related object
+            redirect_url: URL to redirect when clicked
         """
         return cls.objects.create(
             user=user,
@@ -330,7 +330,7 @@ class Notification(models.Model):
 
 
 class AuditLog(models.Model):
-    """Modelo para rastreamento de ações (audit trail)"""
+    """Model for action tracking (audit trail)"""
     ACTION_CHOICES = [
         ('create', 'Create'),
         ('read', 'Read'),

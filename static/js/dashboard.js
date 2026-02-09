@@ -5,11 +5,11 @@ let chartInstances = {};
 
 // Clear localStorage on logout to prevent cached data from showing
 function clearStorageOnLogout() {
-    // Remover todos os dados de localStorage
+    // Remove all localStorage data
     localStorage.clear();
-    // Remover todos os dados de sessionStorage
+    // Remove all sessionStorage data
     sessionStorage.clear();
-    // Limpar qualquer Service Worker cache
+    // Clear any Service Worker cache
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(registrations => {
             for (let registration of registrations) {

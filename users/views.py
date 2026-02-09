@@ -29,13 +29,13 @@ def login_view(request):
             login(request, user)
             
             if request.POST.get('remember'):                
-                request.session.set_expiry(1209600)  # 2 semanas
+                request.session.set_expiry(1209600)  # 2 weeks
             else:                
                 request.session.set_expiry(0)
 
             return redirect('dashboard')
         else:
-            messages.error(request, "Usuário ou senha inválidos.")
+            messages.error(request, "Invalid username or password.")
     else:
         form = AuthenticationForm()
     
@@ -43,13 +43,13 @@ def login_view(request):
 
 
 def logout_view(request):
-    logout(request)  # Função do Django para fazer logout
+    logout(request)  # Django logout function
     return HttpResponseRedirect('/login/')
 
 @login_required
 def dashboard_view(request):
-    """View principal do dashboard"""
-    # Obter métricas do dia atual
+    """Main dashboard view"""
+    # Get metrics for today
     today = date.today()
     try:
         metrics = DashboardMetrics.objects.get(metric_date=today)
@@ -73,10 +73,10 @@ def register_view(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Conta criada com sucesso! Você já pode fazer login.')
+            messages.success(request, 'Account created successfully! You can now login.')
             return redirect('login')
         else:
-            messages.error(request, "Erro ao criar a conta. Verifique os dados.")
+            messages.error(request, "Error creating account. Please check the data.")
     else:
         form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
@@ -84,7 +84,7 @@ def register_view(request):
 
 @login_required
 def inventory_data(request):
-    """API para obter dados de inventário com filtros"""
+    """API to retrieve inventory data with filters"""
     # Obter parâmetros de filtro
     search_query = request.GET.get('search', '')
     store_filter = request.GET.get('store', 'all')
@@ -157,11 +157,11 @@ def inventory_data(request):
 
 @login_required
 def warehouse_location_data(request, sku):
-    """API para obter localização de produto no warehouse"""
+    """API to get product location in warehouse"""
     product = get_object_or_404(Product, sku=sku)
     store_name = request.GET.get('store', '')
     
-    # Buscar localizações do produto
+    # Get product locations
     locations = WarehouseLocation.objects.filter(
         product=product
     ).select_related('warehouse', 'warehouse__store')
@@ -169,7 +169,7 @@ def warehouse_location_data(request, sku):
     if store_name:
         locations = locations.filter(warehouse__store__country=store_name)
     
-    # Organizar dados
+    # Organize data
     warehouse_data = []
     for loc in locations:
         warehouse_data.append({
@@ -190,7 +190,7 @@ def warehouse_location_data(request, sku):
 
 @login_required
 def sales_data(request):
-    """API para dados de vendas com filtros"""
+    """API for sales data with filters"""
     city_filter = request.GET.get('city', 'all')
     company_filter = request.GET.get('company', 'all')
     store_filter = request.GET.get('store', 'all')

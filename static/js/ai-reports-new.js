@@ -79,7 +79,7 @@ function initializeAIReports() {
  */
 async function loadAvailableAgents() {
     try {
-        console.log('[AI Reports] Carregando agentes disponíveis...');
+        console.log('[AI Reports] Loading available agents...');
         
         const response = await fetch('/api/ai-reports/agent-config/active-agents/', {
             headers: {
@@ -88,12 +88,12 @@ async function loadAvailableAgents() {
         });
         
         if (!response.ok) {
-            console.error('[AI Reports] Erro ao carregar agentes:', response.status);
+            console.error('[AI Reports] Error loading agents:', response.status);
             return;
         }
         
         activeAgents = await response.json();
-        console.log(`[AI Reports] ${activeAgents.length} agentes carregados`);
+        console.log(`[AI Reports] ${activeAgents.length} agents loaded`);
         
         // Populate agent selector with visual cards
         const agentsContainer = document.getElementById('ai-agents-list');
@@ -131,11 +131,11 @@ async function loadAvailableAgents() {
             updateAgentInfo();
             console.log(`[AI Reports] Agente padrão selecionado: ${activeAgents[0].name}`);
         } else {
-            console.warn('[AI Reports] Nenhum agente ativo encontrado');
-            agentsContainer.innerHTML = '<div class="ai-agent-loading">Nenhum agente disponível</div>';
+            console.warn('[AI Reports] No active agents found');
+            agentsContainer.innerHTML = '<div class="ai-agent-loading">No agents available</div>';
         }
     } catch (error) {
-        console.error('[AI Reports] Erro ao carregar agentes:', error);
+        console.error('[AI Reports] Error loading agents:', error);
     }
 }
 

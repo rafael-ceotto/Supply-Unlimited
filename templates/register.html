@@ -41,7 +41,7 @@
     <!-- RIGHT SIDE: Registration Form -->
     <div class="form-section">
         <div class="form-container">
-            <h2 class="form-title">Criar Conta</h2>
+            <h2 class="form-title">Create Account</h2>
             <form method="POST">
                 {% csrf_token %}
 
@@ -63,7 +63,7 @@
                 </div>
 
                 <div class="form-group password-group">
-                    <label class="form-label">Senha</label>
+                    <label class="form-label">Password</label>
                     <div class="password-wrapper">
                         {{ form.password1|add_class:"form-input password-field" }}
                         <span class="toggle-password">🙈</span>
@@ -71,7 +71,7 @@
                 </div>
 
                 <div class="form-group password-group">
-                    <label class="form-label">Verificar Senha</label>
+                    <label class="form-label">Confirm Password</label>
                     <div class="password-wrapper">
                         {{ form.password2|add_class:"form-input password-field" }}
                         <span class="toggle-password">🙈</span>
@@ -80,14 +80,14 @@
 
                 <div class="form-check">
                     <input type="checkbox" id="terms" name="terms">
-                    <label for="terms">Aceito os termos e condições</label>
+                    <label for="terms">I agree to the terms and conditions</label>
                 </div>
 
-                <button type="submit" class="submit-button">Cadastrar</button>
+                <button type="submit" class="submit-button">Register</button>
             </form>
 
             <p class="form-footer">
-                Já tem conta? <a href="{% url 'login' %}">Login</a>
+                Already have an account? <a href="{% url 'login' %}">Login</a>
             </p>
         </div>
     </div>

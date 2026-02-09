@@ -1,5 +1,5 @@
 """
-Django REST Views para AI Reports
+Django REST Views for AI Reports
 """
 
 import asyncio
@@ -28,24 +28,24 @@ from users.rbac_utils import user_has_permission, log_audit
 
 class ChatSessionViewSet(viewsets.ModelViewSet):
     """
-    ViewSet para gerenciar sessões de chat
+    ViewSet to manage chat sessions
     """
     serializer_class = ChatSessionSerializer
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        """Retornar apenas sessões do usuário autenticado"""
+        """Return only sessions of the authenticated user"""
         return ChatSession.objects.filter(user=self.request.user)
     
     def perform_create(self, serializer):
-        """Criar sessão para o usuário autenticado"""
+        """Create session for the authenticated user"""
         serializer.save(user=self.request.user)
     
     @action(detail=True, methods=['get'], url_path='messages')
     def get_messages(self, request, pk=None):
         """
         GET /api/ai-reports/chat-sessions/{id}/messages/
-        Retorna todas as mensagens de uma sessão
+        Returns all messages from a session
         """
         session = self.get_object()
         messages = session.messages.all()
@@ -61,7 +61,7 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
         session.is_archived = True
         session.save()
-        return Response({'status': 'sessão arquivada'})
+        return Response({'status': 'session archived'})
     
     @action(detail=False, methods=['delete'], url_path='clear-all')
     def clear_all(self, request):
@@ -75,20 +75,20 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
 
 class ChatMessageViewSet(viewsets.ModelViewSet):
     """
-    ViewSet para gerenciar mensagens de chat
+    ViewSet to manage chat messages
     """
     serializer_class = ChatMessageSerializer
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        """Retornar apenas mensagens de sessões do usuário"""
+        """Return only messages from user's sessions"""
         return ChatMessage.objects.filter(session__user=self.request.user)
     
     @action(detail=False, methods=['post'], url_path='send')
     def send_message(self, request):
         """
         POST /api/ai-reports/messages/send/
-        Envia uma mensagem e processa com IA
+        Sends a message and processes with AI
         
         Body:
         {
@@ -96,17 +96,17 @@ class ChatMessageViewSet(viewsets.ModelViewSet):
             "session_id": 1
         }
         
-        Requer permissões:
-        - create_ai_reports: para criar novos relatórios
-        - use_ai_agents: para usar agentes IA
+        Requires permissions:
+        - create_ai_reports: to create new reports
+        - use_ai_agents: to use AI agents
         """
-        # Verificar permissões RBAC
+        # Check RBAC permissions
         if not user_has_permission(request.user, 'create_ai_reports'):
             log_audit(
                 request.user,
                 'permission_denied',
                 'ChatMessage',
-                description='Tentativa de criar relatório sem permissão'
+                description='Attempt to create report without permission'
             )
             return Response(
                 {'error': 'You do not have permission to create AI reports'},

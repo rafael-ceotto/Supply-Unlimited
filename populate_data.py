@@ -15,13 +15,13 @@ from django_supply.models import (
 
 
 class Command(BaseCommand):
-    help = 'Popula o banco de dados com dados de exemplo'
+    help = 'Populates the database with sample data'
 
     def handle(self, *args, **options):
-        self.stdout.write('Iniciando população do banco de dados...')
+        self.stdout.write('Starting database population...')
 
-        # Limpar dados existentes
-        self.stdout.write('Limpando dados antigos...')
+        # Clear existing data
+        self.stdout.write('Cleaning up old data...')
         DashboardMetrics.objects.all().delete()
         Sale.objects.all().delete()
         Inventory.objects.all().delete()
@@ -32,8 +32,8 @@ class Command(BaseCommand):
         Store.objects.all().delete()
         Company.objects.all().delete()
 
-        # Criar empresas
-        self.stdout.write('Criando empresas...')
+        # Create companies
+        self.stdout.write('Creating companies...')
         techcorp = Company.objects.create(
             company_id='COM-001',
             name='TechCorp EU',
@@ -82,8 +82,8 @@ class Command(BaseCommand):
             ownership_percentage=80
         )
 
-        # Criar lojas
-        self.stdout.write('Criando lojas...')
+        # Create stores
+        self.stdout.write('Creating stores...')
         stores_data = [
             ('STORE-001', techcorp, 'TechCorp Berlin', 'Berlin', 'Germany', 'Hauptstraße 123'),
             ('STORE-002', techcorp_france, 'TechCorp Paris', 'Paris', 'France', 'Rue de la Paix 45'),
@@ -105,8 +105,8 @@ class Command(BaseCommand):
             )
             stores[country] = store
 
-        # Criar categorias
-        self.stdout.write('Criando categorias...')
+        # Create categories
+        self.stdout.write('Creating categories...')
         categories_data = [
             ('Electronics', 'Electronic devices and components'),
             ('Furniture', 'Office and home furniture'),
@@ -119,8 +119,8 @@ class Command(BaseCommand):
             category = Category.objects.create(name=name, description=description)
             categories[name] = category
 
-        # Criar produtos
-        self.stdout.write('Criando produtos...')
+        # Create products
+        self.stdout.write('Creating products...')
         products_data = [
             ('SUP-001-DE', 'Industrial Drill Kit', 'Industrial', 299.99),
             ('SUP-002-FR', 'Office Chair Premium', 'Furniture', 189.50),
@@ -136,7 +136,7 @@ class Command(BaseCommand):
 
         products = {}
         for sku, name, category_name, price in products_data:
-            # Determinar status baseado no estoque que criaremos depois
+            # Determine status based on stock we will create later
             stock_level = random.randint(0, 250)
             if stock_level > 20:
                 status = 'in-stock'
@@ -155,8 +155,8 @@ class Command(BaseCommand):
             )
             products[sku] = product
 
-        # Criar warehouses
-        self.stdout.write('Criando warehouses...')
+        # Create warehouses
+        self.stdout.write('Creating warehouses...')
         warehouses = {}
         for store_id, store in [('STORE-001', stores['Germany']), 
                                 ('STORE-002', stores['France']),
@@ -170,17 +170,17 @@ class Command(BaseCommand):
             )
             warehouses[store.country] = warehouse
 
-        # Criar warehouse locations (Aisles, Shelves, Boxes)
-        self.stdout.write('Criando warehouse locations...')
+        # Create warehouse locations (Aisles, Shelves, Boxes)
+        self.stdout.write('Creating warehouse locations...')
         aisles = ['A1', 'A2', 'A3']
         shelves = ['S1', 'S2', 'S3']
         boxes = ['B01', 'B02', 'B03']
 
         for product in Product.objects.all():
-            # Escolher warehouse aleatório
+            # Choose random warehouse
             warehouse = random.choice(list(warehouses.values()))
             
-            # Criar múltiplas localizações para cada produto
+            # Create multiple locations for each product
             num_locations = random.randint(3, 8)
             for _ in range(num_locations):
                 aisle = random.choice(aisles)
@@ -198,10 +198,10 @@ class Command(BaseCommand):
                         quantity=quantity
                     )
                 except:
-                    pass  # Ignorar duplicatas
+                    pass  # Ignore duplicates
 
-        # Criar inventário
-        self.stdout.write('Criando inventário...')
+        # Create inventory
+        self.stdout.write('Creating inventory...')
         for product in Product.objects.all():
             for store in Store.objects.all():
                 quantity = random.randint(0, 250)
@@ -211,8 +211,8 @@ class Command(BaseCommand):
                     quantity=quantity
                 )
 
-        # Criar vendas
-        self.stdout.write('Criando vendas...')
+        # Create sales
+        self.stdout.write('Creating sales...')
         months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
         current_year = timezone.now().year
 
@@ -232,8 +232,8 @@ class Command(BaseCommand):
                         year=current_year
                     )
 
-        # Criar métricas do dashboard
-        self.stdout.write('Criando métricas do dashboard...')
+        # Create dashboard metrics
+        self.stdout.write('Creating dashboard metrics...')
         DashboardMetrics.objects.create(
             metric_date=timezone.now().date(),
             total_revenue=Decimal('245820.50'),
@@ -242,12 +242,12 @@ class Command(BaseCommand):
             active_customers=342
         )
 
-        self.stdout.write(self.style.SUCCESS('✓ Banco de dados populado com sucesso!'))
-        self.stdout.write(f'  - {Company.objects.count()} empresas')
-        self.stdout.write(f'  - {Store.objects.count()} lojas')
-        self.stdout.write(f'  - {Category.objects.count()} categorias')
-        self.stdout.write(f'  - {Product.objects.count()} produtos')
+        self.stdout.write(self.style.SUCCESS('✓ Database populated successfully!'))
+        self.stdout.write(f'  - {Company.objects.count()} companies')
+        self.stdout.write(f'  - {Store.objects.count()} stores')
+        self.stdout.write(f'  - {Category.objects.count()} categories')
+        self.stdout.write(f'  - {Product.objects.count()} products')
         self.stdout.write(f'  - {Warehouse.objects.count()} warehouses')
         self.stdout.write(f'  - {WarehouseLocation.objects.count()} warehouse locations')
-        self.stdout.write(f'  - {Inventory.objects.count()} itens de inventário')
-        self.stdout.write(f'  - {Sale.objects.count()} vendas')
+        self.stdout.write(f'  - {Inventory.objects.count()} inventory items')
+        self.stdout.write(f'  - {Sale.objects.count()} sales')
