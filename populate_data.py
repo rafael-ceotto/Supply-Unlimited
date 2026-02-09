@@ -176,7 +176,7 @@ def populate_database():
     # Create warehouses
     print('\nCreating warehouses...')
     warehouses = []
-    for i, store in enumerate(stores[:10]):  # Create warehouse for first 10 stores
+    for i, store in enumerate(stores):  # Create warehouse for all stores
         warehouse_id = f'{store.store_id}-WH-{i+1:03d}'
         warehouse = Warehouse.objects.create(
             warehouse_id=warehouse_id,
