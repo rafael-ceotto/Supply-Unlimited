@@ -889,8 +889,8 @@ function closeWarehouseModal() {
 function loadWarehouseData(inventoryId) {
     const content = document.getElementById('warehouseContent');
     
-    // Mostrar loading
-    content.innerHTML = '<div style="padding: 40px; text-align: center;"><p style="color: #6b7280;">Carregando...</p></div>';
+    // Show loading
+    content.innerHTML = '<div style="padding: 40px; text-align: center;"><p style="color: #6b7280;">Loading...</p></div>';
     
     console.log('Loading warehouse data for inventory ID:', inventoryId);
     
@@ -908,7 +908,7 @@ function loadWarehouseData(inventoryId) {
             // Check if we have locations
             if (!data.locations) {
                 console.warn('No locations key in response:', data);
-                content.innerHTML = '<div style="padding: 40px; text-align: center; color: #ef4444;">Erro: Dados de localização não disponíveis</div>';
+                content.innerHTML = '<div style="padding: 40px; text-align: center; color: #ef4444;">Error: Location data unavailable</div>';
                 return;
             }
             
@@ -922,9 +922,9 @@ function loadWarehouseData(inventoryId) {
                         <div style="width: 80px; height: 80px; background: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
                             <span style="font-size: 40px;">📦</span>
                         </div>
-                        <h3 style="margin: 0 0 12px 0; color: #1f2937; font-size: 18px;">Sem Dados de Localização</h3>
-                        <p style="margin: 0 0 20px 0; color: #6b7280; font-size: 14px;">Este produto ainda não possui informações de localização em nenhum warehouse.</p>
-                        <p style="margin: 0; color: #9ca3af; font-size: 12px;">Os dados de warehouse serão exibidos assim que forem cadastrados no sistema.</p>
+                        <h3 style="margin: 0 0 12px 0; color: #1f2937; font-size: 18px;">No Location Data</h3>
+                        <p style="margin: 0 0 20px 0; color: #6b7280; font-size: 14px;">This product has no warehouse location information yet.</p>
+                        <p style="margin: 0; color: #9ca3af; font-size: 12px;">Warehouse data will be displayed once registered in the system.</p>
                     </div>`;
                     content.innerHTML = html;
                     return;

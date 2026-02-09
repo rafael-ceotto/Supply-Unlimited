@@ -85,7 +85,7 @@ def register_view(request):
 @login_required
 def inventory_data(request):
     """API to retrieve inventory data with filters"""
-    # Obter parâmetros de filtro
+    # Get filter parameters
     search_query = request.GET.get('search', '')
     store_filter = request.GET.get('store', 'all')
     category_filter = request.GET.get('category', 'all')
@@ -93,10 +93,10 @@ def inventory_data(request):
     city_filter = request.GET.get('city', 'all')
     company_filter = request.GET.get('company', 'all')
     
-    # Query base
+    # Base query
     inventory_items = Inventory.objects.select_related('product', 'store', 'store__company')
     
-    # Aplicar filtros
+    # Apply filters
     if search_query:
         inventory_items = inventory_items.filter(
             Q(product__name__icontains=search_query) |
@@ -130,7 +130,7 @@ def inventory_data(request):
         elif stock_filter == 'High':
             inventory_items = inventory_items.filter(quantity__gte=200)
     
-    # Preparar dados para resposta
+    # Prepare response data
     data = []
     for item in inventory_items[:500]:  # Aumentar limite para 500 para incluir todos os países
         # Determinar status
@@ -196,10 +196,10 @@ def sales_data(request):
     store_filter = request.GET.get('store', 'all')
     product_filter = request.GET.get('product', 'all')
     
-    # Query base - agrupar vendas por mês e país
+    # Base query - group sales by month and country
     sales = Sale.objects.select_related('store', 'product')
     
-    # Aplicar filtros
+    # Apply filters
     if city_filter != 'all':
         sales = sales.filter(store__city=city_filter)
     
@@ -212,7 +212,7 @@ def sales_data(request):
     if product_filter != 'all':
         sales = sales.filter(product__category__name=product_filter)
     
-    # Agrupar por mês e país
+    # Group by month and country
     sales_by_month = {}
     for sale in sales:
         month = sale.month
@@ -306,7 +306,7 @@ def company_details(request, company_id):
     """API para detalhes de uma empresa"""
     company = get_object_or_404(Company, company_id=company_id)
     
-    # Obter empresas vinculadas
+    # Get linked companies
     linked_companies = []
     for linked in company.get_linked_companies():
         linked_companies.append({
@@ -728,7 +728,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def unread_count(self, request):
-        """Obter contagem de notificações não lidas"""
+        """Get count of unread notifications"""
         count = Notification.objects.filter(
             user=request.user,
             is_read=False
@@ -737,7 +737,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def unread(self, request):
-        """Obter todas as notificações não lidas"""
+        """Get all unread notifications"""
         notifications = Notification.objects.filter(
             user=request.user,
             is_read=False
@@ -747,12 +747,12 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
 
 class CurrentUserViewSet(viewsets.ViewSet):
-    """ViewSet para obter informações do usuário atual"""
+    """ViewSet to get current user information"""
     permission_classes = [permissions.IsAuthenticated]
     
     @action(detail=False, methods=['get'])
     def current(self, request):
-        """Obter informações do usuário autenticado atual"""
+        """Get current authenticated user information"""
         user = request.user
         serializer = UserDetailSerializer(user)
         return Response(serializer.data)

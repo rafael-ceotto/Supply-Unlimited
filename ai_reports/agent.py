@@ -156,7 +156,7 @@ class AIReportAgent:
         state['required_kpis'] = []
         state['data_filters'] = {}
         
-        # Executar cada estágio sequencialmente
+        # Execute each stage sequentially
         stages = [
             ProcessingStage.INTERPRETING,
             ProcessingStage.PLANNING,
@@ -170,14 +170,14 @@ class AIReportAgent:
                 start_time = datetime.now()
                 state['current_stage'] = stage
                 
-                print(f"[AI Agent] Executando: {stage.value}")
+                print(f"[AI Agent] Executing: {stage.value}")
                 handler = self.stage_handlers[stage]
                 state = await handler(state)
                 
                 processing_time = (datetime.now() - start_time).total_seconds()
                 state['processing_times'][stage.value] = processing_time
                 
-                # Registrar progresso
+                # Record progress
                 state['stage_progress'].append({
                     'stage': stage.value,
                     'status': 'complete',
@@ -186,26 +186,26 @@ class AIReportAgent:
                 })
                 
             except Exception as e:
-                print(f"[AI Agent] Erro no estágio {stage.value}: {str(e)}")
+                print(f"[AI Agent] Error at stage {stage.value}: {str(e)}")
                 state['errors'].append(f"{stage.value}: {str(e)}")
-                # Continuar com dados parciais
+                # Continue with partial data
         
         state['current_stage'] = ProcessingStage.COMPLETE
-        print(f"[AI Agent] Processamento concluído em {sum(state['processing_times'].values()):.2f}s")
+        print(f"[AI Agent] Processing completed in {sum(state['processing_times'].values()):.2f}s")
         
         return state
     
     async def _interpret_request(self, state: AIReportState) -> AIReportState:
         """
-        Estágio 1: Interpretar requisição do usuário
-        - Identificar tipo de relatório
-        - Definir KPIs necessários
-        - Determinar filtros de dados
+        Stage 1: Interpret user request
+        - Identify report type
+        - Define required KPIs
+        - Determine data filters
         """
         user_request = state['user_request'].lower()
         
-        # Lógica de interpretação simples (pode ser expandida com LLM real)
-        if any(word in user_request for word in ['inventário', 'inventory', 'estoque', 'stock']):
+        # Simple interpretation logic (can be expanded with real LLM)
+        if any(word in user_request for word in ['inventario', 'inventory', 'estoque', 'stock']):
             state['report_type'] = 'inventory_analysis'
             state['required_kpis'] = [
                 'total_inventory',
@@ -234,20 +234,20 @@ class AIReportAgent:
             state['report_type'] = 'general_analysis'
             state['required_kpis'] = ['total_inventory', 'total_sales', 'efficiency_rate']
         
-        # Simular interpretação
+        # Simulate interpretation
         await asyncio.sleep(0.5)
         
-        print(f"  ✓ Tipo de relatório identificado: {state['report_type']}")
-        print(f"  ✓ KPIs necessários: {', '.join(state['required_kpis'])}")
+        print(f"  ✓ Report type identified: {state['report_type']}")
+        print(f"  ✓ Required KPIs: {', '.join(state['required_kpis'])}")
         
         return state
     
     async def _plan_analysis(self, state: AIReportState) -> AIReportState:
         """
-        Estágio 2: Planejar análise
-        - Definir fonte de dados
-        - Calcular métricas
-        - Estruturar visualizações
+        Stage 2: Plan analysis
+        - Define data sources
+        - Calculate metrics
+        - Structure visualizations
         """
         plan = {
             'data_sources': ['inventory', 'sales', 'warehouse'],
@@ -269,19 +269,19 @@ class AIReportAgent:
         
         await asyncio.sleep(0.5)
         
-        print(f"  ✓ Plano de análise criado")
-        print(f"  ✓ Fontes de dados: {', '.join(plan['data_sources'])}")
-        print(f"  ✓ Visualizações: {len(plan['visualizations'])} gráficos")
+        print(f"  ✓ Analysis plan created")
+        print(f"  ✓ Data sources: {', '.join(plan['data_sources'])}")
+        print(f"  ✓ Visualizations: {len(plan['visualizations'])} charts")
         
         return state
     
     async def _collect_data(self, state: AIReportState) -> AIReportState:
         """
-        Estágio 3: Coletar dados
-        - Buscar dados baseado no tipo de relatório
-        - Retornar dados diferentes para cada análise
+        Stage 3: Collect data
+        - Fetch data based on report type
+        - Return different data for each analysis
         """
-        # Gerar dados diferentes baseado no tipo de relatório
+        # Generate different data based on report type
         report_type = state.get('report_type', 'general_analysis')
         
         if report_type == 'inventory_analysis':
@@ -359,22 +359,22 @@ class AIReportAgent:
         }
         
         await asyncio.sleep(0.8)
-        print(f"  ✓ Dados coletados: {state['data_summary']['records_processed']} registros")
-        print(f"  ✓ Qualidade dos dados: {state['data_summary']['data_quality']}")
+        print(f"  ✓ Data collected: {state['data_summary']['records_processed']} records")
+        print(f"  ✓ Data quality: {state['data_summary']['data_quality']}")
         
         return state
     
     async def _analyze_data(self, state: AIReportState) -> AIReportState:
         """
-        Estágio 4: Analisar dados
-        - Calcular KPIs específicos do tipo de relatório
-        - Identificar tendências
-        - Gerar insights contextualizados
+        Stage 4: Analyze data
+        - Calculate report type specific KPIs
+        - Identify trends
+        - Generate contextualized insights
         """
         data = state['raw_data']
         report_type = state.get('report_type', 'general_analysis')
         
-        # Calcular métricas específicas por tipo
+        # Calculate metrics specific by type
         if report_type == 'inventory_analysis':
             total_inventory = data['inventory']['total_value_eur']
             inventory_turnover = data['sales']['last_90_days'] / total_inventory * 4
@@ -393,17 +393,17 @@ class AIReportAgent:
                     'efficiency_trend': 'improving'
                 },
                 'top_insights': [
-                    "Inventário distribuído principalmente na Alemanha (33%) e França (27%)",
-                    "Taxa de rotatividade anual de 8.6x indica bom fluxo de estoque",
-                    "Utilização de armazém em 78% - espaço adequado para crescimento",
-                    "Categoria Electronics representa 40% do inventário total"
+                    "Inventory distributed mainly in Germany (33%) and France (27%)",
+                    "Annual turnover rate of 8.6x indicates good stock flow",
+                    "Warehouse utilization at 78% - adequate space for growth",
+                    "Electronics category represents 40% of total inventory"
                 ]
             }
             state['recommendations'] = [
-                "Considerar redistribuição de estoque para Itália e Espanha para melhorar cobertura local",
-                "Taxa de turnover de 8.6x é saudável - manter estratégia atual de reabastecimento",
-                "Aproveitar 22% de capacidade livre para planejar crescimento de 15-20%",
-                "Implementar sistema de previsão para Electronics - categoria mais crítica"
+                "Consider stock redistribution to Italy and Spain to improve local coverage",
+                "Turnover rate of 8.6x is healthy - maintain current replenishment strategy",
+                "Leverage 22% free capacity to plan 15-20% growth",
+                "Implement forecasting system for Electronics - most critical category"
             ]
         
         elif report_type == 'sales_performance':
@@ -425,17 +425,17 @@ class AIReportAgent:
                     'revenue_trend': 'accelerating'
                 },
                 'top_insights': [
-                    f"Crescimento de vendas de {growth:.1f}% indica forte demanda no mercado",
-                    "Alemanha lidera com €1.85M em vendas (38% do total)",
-                    "Canal online é o maior contribuidor com 43% das vendas totais",
-                    "Taxa de clientes recorrentes de 68% mostra boa retenção"
+                    f"Sales growth of {growth:.1f}% indicates strong market demand",
+                    "Germany leads with €1.85M in sales (38% of total)",
+                    "Online channel is the largest contributor with 43% of total sales",
+                    "Repeat customer rate of 68% shows good retention"
                 ]
             }
             state['recommendations'] = [
-                "Expandir linha de 'Premium Electronics A' que lidera vendas",
-                "Aumentar investimento em canal online - canal com melhor performance",
-                "Implementar programa de fidelidade para aproveitar 68% de clientes recorrentes",
-                "Replicar estratégia de sucesso de Alemanha em mercados secundários"
+                "Expand 'Premium Electronics A' line which leads in sales",
+                "Increase investment in online channel - channel with best performance",
+                "Implement loyalty program to leverage 68% repeat customer rate",
+                "Replicate Germany\'s success strategy in secondary markets"
             ]
         
         elif report_type == 'risk_analysis':
@@ -448,7 +448,7 @@ class AIReportAgent:
                     'supplier_concentration': f"{concentration:.0f}%",
                     'critical_suppliers': f"{suppliers_critical} of {data['supply_chain']['total_suppliers']}",
                     'lead_time_days': f"{data['supply_chain']['lead_time_avg_days']} days",
-                    'supply_disruptions': f"{incidents} em 90 dias",
+                    'supply_disruptions': f"{incidents} in 90 days",
                     'at_risk_regions': f"{data['geopolitical_risks']['high_risk_regions']} identified"
                 },
                 'trends': {
@@ -457,17 +457,17 @@ class AIReportAgent:
                     'geopolitical_risk': 'increasing'
                 },
                 'top_insights': [
-                    f"Concentração de fornecedores em 34% indica risco moderado de supply chain",
-                    f"12 fornecedores em regiões de alto risco representam {(12/data['supply_chain']['total_suppliers']*100):.0f}% da base",
-                    "3 incidentes em 90 dias com tempo médio de recuperação de 24h",
-                    "Planos de contingência apenas parciais - identificar gaps críticos"
+                    f"Supplier concentration at 34% indicates moderate supply chain risk",
+                    f"12 suppliers in high-risk regions represent {(12/data['supply_chain']['total_suppliers']*100):.0f}% of base",
+                    "3 incidents in 90 days with average recovery time of 24 hours",
+                    "Contingency plans only partial - identify critical gaps"
                 ]
             }
             state['recommendations'] = [
-                "Diversificar fornecedores: aumentar número de fornecedores alternativos de 8 para 15",
-                "Implementar plano de contingência completo para regiões de risco geopolítico",
-                "Reduzir lead time variância de 28% através de parcerias de longo prazo",
-                "Monitorar itens obsoletos (12%) e desenvolver estratégia de liquidação"
+                "Diversify suppliers: increase alternative suppliers from 8 to 15",
+                "Implement complete contingency plan for geopolitical risk regions",
+                "Reduce lead time variance from 28% through long-term partnerships",
+                "Monitor obsolete items (12%) and develop liquidation strategy"
             ]
         
         else:  # general_analysis
@@ -485,42 +485,42 @@ class AIReportAgent:
                     'efficiency_trend': 'stable'
                 },
                 'top_insights': [
-                    "Supply chain em condição geral positiva com crescimento de 15%",
-                    "127 fornecedores ativos com 89% de confiabilidade",
-                    "2.847 clientes com satisfação de 92%",
-                    "Operações em 12 locais de warehouse distribuídos geograficamente"
+                    "Supply chain in overall positive condition with 15% growth",
+                    "127 active suppliers with 89% reliability",
+                    "2,847 customers with 92% satisfaction",
+                    "Operations in 12 warehouse locations geographically distributed"
                 ]
             }
             state['recommendations'] = [
-                "Manter investimento em diversificação de fornecedores",
-                "Expandir presença em mercados secundários baseado em crescimento",
-                "Implementar automação em warehouse para melhorar eficiência",
-                "Aprofundar análise de satisfação de clientes"
+                "Maintain investment in supplier diversification",
+                "Expand presence in secondary markets based on growth",
+                "Implement automation in warehouse to improve efficiency",
+                "Deepen analysis of customer satisfaction metrics"
             ]
         
         state['insights'] = state['analysis_results']['top_insights']
         
         await asyncio.sleep(0.6)
         
-        print(f"  ✓ {len(state['analysis_results']['kpis'])} KPIs calculados")
-        print(f"  ✓ {len(state['insights'])} insights identificados")
+        print(f"  ✓ {len(state['analysis_results']['kpis'])} KPIs calculated")
+        print(f"  ✓ {len(state['insights'])} insights identified")
         
         return state
     
     async def _generate_report(self, state: AIReportState) -> AIReportState:
         """
-        Estágio 5: Gerar relatório final
-        - Estruturar dados para exibição
-        - Criar tabelas e gráficos
-        - Compor resumo executivo
+        Stage 5: Generate final report
+        - Structure data for display
+        - Create tables and charts
+        - Compose executive summary
         """
         state['report_title'] = self._generate_title(state)
         
-        # Preparar dados de relatório para visualização
+        # Prepare report data for visualization
         state['report_data'] = {
             'executive_summary': {
-                'overview': f"Análise completa de {state['report_type'].replace('_', ' ')} realizada com sucesso",
-                'period': 'Últimos 90 dias',
+                'overview': f"Complete {state['report_type'].replace('_', ' ')} analysis completed successfully",
+                'period': 'Last 90 days',
                 'records_analyzed': state['data_summary']['records_processed'],
                 'confidence_level': '98%'
             },
@@ -528,18 +528,18 @@ class AIReportAgent:
             'charts': [
                 {
                     'type': 'line',
-                    'title': 'Tendência de Inventário',
+                    'title': 'Inventory Trends',
                     'data': self._generate_chart_data('line'),
                     'countries': ['DE', 'FR', 'IT', 'ES']
                 },
                 {
                     'type': 'bar',
-                    'title': 'Distribuição por País',
+                    'title': 'Distribution by Country',
                     'data': self._generate_chart_data('bar'),
                 },
                 {
                     'type': 'pie',
-                    'title': 'Composição por Categoria',
+                    'title': 'Category Breakdown',
                     'data': self._generate_chart_data('pie'),
                 }
             ],
@@ -549,24 +549,24 @@ class AIReportAgent:
         
         await asyncio.sleep(0.5)
         
-        print(f"  ✓ Título do relatório: '{state['report_title']}'")
-        print(f"  ✓ {len(state['report_data']['charts'])} visualizações geradas")
-        print(f"  ✓ Recomendações estruturadas: {len(state['recommendations'])} items")
+        print(f"  ✓ Report title: '{state['report_title']}'")
+        print(f"  ✓ {len(state['report_data']['charts'])} visualizations generated")
+        print(f"  ✓ Structured recommendations: {len(state['recommendations'])} items")
         
         return state
     
     def _generate_title(self, state: AIReportState) -> str:
-        """Gerar título apropriado para o relatório"""
+        """Generate appropriate title for the report"""
         report_types = {
-            'inventory_analysis': 'Análise Detalhada de Inventário - Últimos 90 Dias',
-            'risk_analysis': 'Avaliação de Riscos da Supply Chain',
-            'sales_performance': 'Relatório de Desempenho de Vendas',
-            'general_analysis': 'Análise Geral da Supply Chain'
+            'inventory_analysis': 'Detailed Inventory Analysis - Last 90 Days',
+            'risk_analysis': 'Supply Chain Risk Assessment',
+            'sales_performance': 'Sales Performance Report',
+            'general_analysis': 'Supply Chain General Analysis'
         }
-        return report_types.get(state.get('report_type', 'general_analysis'), 'Relatório de Supply Chain')
+        return report_types.get(state.get('report_type', 'general_analysis'), 'Supply Chain Report')
     
     def _generate_chart_data(self, chart_type: str) -> List[Dict[str, Any]]:
-        """Gerar dados de exemplo para gráficos"""
+        """Generate sample data for charts"""
         if chart_type == 'line':
             return [
                 {'month': 'Jan', 'DE': 12000, 'FR': 10000, 'IT': 8500, 'ES': 7000},
@@ -589,7 +589,7 @@ class AIReportAgent:
         return []
     
     def _generate_data_table(self) -> Dict[str, Any]:
-        """Gerar dados para tabela de resultados"""
+        """Generate data for results table"""
         return {
             'columns': ['Product', 'Stock (Units)', 'Value (EUR)', 'Turnover', 'Last Updated'],
             'rows': [
@@ -610,16 +610,16 @@ class AIReportAgent:
 
 async def process_ai_request(user_request: str, user_id: str, session_id: str, agent_config=None):
     """
-    Função principal para processar uma requisição de relatório IA
+    Main function to process an AI report request
     
     Args:
-        user_request: Texto da requisição do usuário
-        user_id: ID do usuário
-        session_id: ID da sessão de chat
-        agent_config: Configuração do agente (AIAgentConfig model instance)
+        user_request: Text of the user request
+        user_id: ID of the user
+        session_id: ID of the chat session
+        agent_config: Agent configuration (AIAgentConfig model instance)
         
     Returns:
-        Estado final com relatório gerado
+        Final state with generated report
     """
     agent = AIReportAgent(agent_config)
     
