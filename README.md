@@ -188,9 +188,7 @@ docker-compose down
 - **RBAC System**: Automatic role assignment - new users get "Analyst" role with AI access
 - **Dashboard**: Real-time frontend with responsive design
 
-## Support
-
-For issues or questions, please open an issue on GitHub.
+Thanks in advance for your time and feedback!
 
 **Last Updated**: February 2026
 
