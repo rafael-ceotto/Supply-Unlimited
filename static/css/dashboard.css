@@ -196,10 +196,19 @@ body {
 
 /* Content Area */
 .content {
-    flex: 1;
     overflow-y: auto;
     padding: 10px 20px;
     box-sizing: border-box;
+}
+
+/* Make content sections flex by default */
+.content-section {
+    flex: 1;
+}
+
+/* Settings section - don't stretch to fill space */
+#settings-section {
+    flex: auto;
 }
 
 .page-header {
