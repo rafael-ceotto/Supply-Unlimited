@@ -6,7 +6,7 @@
     min-height: auto;
     background: transparent;
     display: flex;
-    gap: 12px;
+    gap: 0;
 }
 
 /* Header */
