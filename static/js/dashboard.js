@@ -350,6 +350,12 @@ function renderInventoryTable(data) {
             
             console.log(`Rendering inventory item ${index}:`, { id: inventoryId, sku: item.sku, name: item.name });
             
+            // Capitalize status properly: 'in-stock' → 'In Stock', 'low-stock' → 'Low Stock', etc
+            const capitalizeStatus = (status) => {
+                return status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            };
+            const displayStatus = capitalizeStatus(item.status);
+            
             html += `<tr data-inventory-id="${inventoryId}">
                 <td style="font-family: monospace; font-size: 12px;">${item.sku}</td>
                 <td style="font-weight: 500;">${item.name}</td>
@@ -357,7 +363,7 @@ function renderInventoryTable(data) {
                 <td>${item.store}</td>
                 <td style="font-weight: 600;">${item.stock}</td>
                 <td style="white-space: nowrap;">€${item.price.toFixed(2)}</td>
-                <td><span class="status-badge ${item.status}">${item.status.replace('-', ' ')}</span></td>
+                <td><span class="status-badge ${item.status}">${displayStatus}</span></td>
                 <td><button class="btn btn-primary inventory-view-btn" data-inventory-id="${inventoryId}" data-inventory-sku="${skuSafe}" data-inventory-name="${nameSafe}" style="padding: 6px 12px; font-size: 12px;">View</button></td>
             </tr>`;
         });

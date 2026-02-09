@@ -222,8 +222,8 @@ def populate_database():
             quantity__gt=0
         ).select_related('product')
         
-        # Add warehouse locations for in-stock products
-        for inv in in_stock_inventory[:10]:  # Limit to 10 products per warehouse
+        # Add warehouse locations for ALL in-stock products
+        for inv in in_stock_inventory:
             location = WarehouseLocation.objects.create(
                 warehouse=warehouse,
                 product=inv.product,
