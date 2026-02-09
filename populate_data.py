@@ -1,253 +1,262 @@
 """
-Script para popular o banco de dados com dados de exemplo
-Execute com: python manage.py populate_data
+Script to populate the database with sample data
+Execute: python populate_data.py
 """
-from django.core.management.base import BaseCommand
+import os
+import django
+
+# Setup Django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'supply_unlimited.settings')
+django.setup()
+
 from django.utils import timezone
 from decimal import Decimal
 from datetime import datetime, timedelta
 import random
 
-from django_supply.models import (
+from users.models import (
     Company, Store, Category, Product, Warehouse,
     WarehouseLocation, Inventory, Sale, DashboardMetrics
 )
+from ai_reports.models import AIAgentConfig
 
-
-class Command(BaseCommand):
-    help = 'Populates the database with sample data'
-
-    def handle(self, *args, **options):
-        self.stdout.write('Starting database population...')
-
-        # Clear existing data
-        self.stdout.write('Cleaning up old data...')
-        DashboardMetrics.objects.all().delete()
-        Sale.objects.all().delete()
-        Inventory.objects.all().delete()
-        WarehouseLocation.objects.all().delete()
-        Warehouse.objects.all().delete()
-        Product.objects.all().delete()
-        Category.objects.all().delete()
-        Store.objects.all().delete()
-        Company.objects.all().delete()
-
-        # Create companies
-        self.stdout.write('Creating companies...')
-        techcorp = Company.objects.create(
-            company_id='COM-001',
-            name='TechCorp EU',
-            country='Germany',
-            city='Berlin',
+def populate_database():
+    """Populate the database with sample data"""
+    
+    print('Starting database population...')
+    
+    # Clear existing data
+    print('Cleaning up old data...')
+    DashboardMetrics.objects.all().delete()
+    Sale.objects.all().delete()
+    Inventory.objects.all().delete()
+    WarehouseLocation.objects.all().delete()
+    Warehouse.objects.all().delete()
+    Product.objects.all().delete()
+    Category.objects.all().delete()
+    Store.objects.all().delete()
+    Company.objects.all().delete()
+    AIAgentConfig.objects.all().delete()
+    
+    # Create companies
+    print('Creating companies...')
+    companies = []
+    company_names = [
+        ('COM-001', 'Tech Innovations Inc.', 'United States'),
+        ('COM-002', 'Global Supplies Ltd.', 'United Kingdom'),
+        ('COM-003', 'Digital Solutions', 'Canada'),
+        ('COM-004', 'Enterprise Systems', 'Germany'),
+        ('COM-005', 'Innovation Labs', 'France')
+    ]
+    
+    for company_id, name, country in company_names:
+        company = Company.objects.create(
+            company_id=company_id,
+            name=name,
+            country=country,
+            city='New York' if 'United States' in country else 'London' if 'Kingdom' in country else 'Toronto' if 'Canada' in country else 'Berlin' if 'Germany' in country else 'Paris',
             status='active',
             ownership_percentage=100
         )
-
-        techcorp_france = Company.objects.create(
-            company_id='COM-002',
-            name='TechCorp France',
-            parent=techcorp,
-            country='France',
-            city='Paris',
-            status='active',
-            ownership_percentage=75
-        )
-
-        global_industries = Company.objects.create(
-            company_id='COM-003',
-            name='Global Industries',
-            country='Italy',
-            city='Rome',
-            status='active',
-            ownership_percentage=100
-        )
-
-        global_spain = Company.objects.create(
-            company_id='COM-004',
-            name='Global Industries España',
-            parent=global_industries,
-            country='Spain',
-            city='Madrid',
-            status='active',
-            ownership_percentage=60
-        )
-
-        techcorp_netherlands = Company.objects.create(
-            company_id='COM-005',
-            name='TechCorp Netherlands',
-            parent=techcorp,
-            country='Netherlands',
-            city='Amsterdam',
-            status='active',
-            ownership_percentage=80
-        )
-
-        # Create stores
-        self.stdout.write('Creating stores...')
-        stores_data = [
-            ('STORE-001', techcorp, 'TechCorp Berlin', 'Berlin', 'Germany', 'Hauptstraße 123'),
-            ('STORE-002', techcorp_france, 'TechCorp Paris', 'Paris', 'France', 'Rue de la Paix 45'),
-            ('STORE-003', global_industries, 'Global Rome', 'Rome', 'Italy', 'Via Roma 78'),
-            ('STORE-004', global_spain, 'Global Madrid', 'Madrid', 'Spain', 'Calle Mayor 12'),
-            ('STORE-005', techcorp_netherlands, 'TechCorp Amsterdam', 'Amsterdam', 'Netherlands', 'Damrak 90'),
-        ]
-
-        stores = {}
-        for store_id, company, name, city, country, address in stores_data:
+        companies.append(company)
+        print(f'  ✓ {name}')
+    
+    # Create stores
+    print('\nCreating stores/locations...')
+    stores = []
+    store_locations = [
+        ('HQ', 'Headquarters'),
+        ('West', 'West Coast'),
+        ('East', 'East Coast'),
+        ('Mid', 'Midwest'),
+        ('South', 'South Region'),
+    ]
+    
+    store_counter = 1
+    for company in companies:
+        for loc_code, loc_name in store_locations:
             store = Store.objects.create(
-                store_id=store_id,
+                store_id=f'{company.company_id}-{loc_code}',
                 company=company,
-                name=name,
-                city=city,
-                country=country,
-                address=address,
+                name=f'{company.name} - {loc_name}',
+                city='New York' if random.random() > 0.5 else 'Los Angeles',
+                country=company.country,
+                address=f'{random.randint(100, 9999)} {loc_name} Road',
                 is_active=True
             )
-            stores[country] = store
-
-        # Create categories
-        self.stdout.write('Creating categories...')
-        categories_data = [
-            ('Electronics', 'Electronic devices and components'),
-            ('Furniture', 'Office and home furniture'),
-            ('Office Supplies', 'Stationery and office materials'),
-            ('Industrial', 'Industrial equipment and tools'),
-        ]
-
-        categories = {}
-        for name, description in categories_data:
-            category = Category.objects.create(name=name, description=description)
-            categories[name] = category
-
-        # Create products
-        self.stdout.write('Creating products...')
-        products_data = [
-            ('SUP-001-DE', 'Industrial Drill Kit', 'Industrial', 299.99),
-            ('SUP-002-FR', 'Office Chair Premium', 'Furniture', 189.50),
-            ('SUP-003-IT', 'Laptop Stand Adjustable', 'Electronics', 79.99),
-            ('SUP-004-ES', 'Printer Paper A4 (500 sheets)', 'Office Supplies', 12.99),
-            ('SUP-005-NL', 'LED Monitor 27 inch', 'Electronics', 349.00),
-            ('SUP-006-DE', 'Standing Desk Electric', 'Furniture', 599.99),
-            ('SUP-007-FR', 'Wireless Mouse', 'Electronics', 29.99),
-            ('SUP-008-IT', 'Office Desk Lamp', 'Office Supplies', 45.50),
-            ('SUP-009-ES', 'Ergonomic Keyboard', 'Electronics', 89.99),
-            ('SUP-010-NL', 'Filing Cabinet', 'Furniture', 199.00),
-        ]
-
-        products = {}
-        for sku, name, category_name, price in products_data:
-            # Determine status based on stock we will create later
-            stock_level = random.randint(0, 250)
-            if stock_level > 20:
-                status = 'in-stock'
-            elif stock_level > 0:
-                status = 'low-stock'
-            else:
-                status = 'out-of-stock'
-
-            product = Product.objects.create(
-                sku=sku,
-                name=name,
-                category=categories[category_name],
-                price=Decimal(str(price)),
-                status=status,
-                description=f'High-quality {name.lower()}'
-            )
-            products[sku] = product
-
-        # Create warehouses
-        self.stdout.write('Creating warehouses...')
-        warehouses = {}
-        for store_id, store in [('STORE-001', stores['Germany']), 
-                                ('STORE-002', stores['France']),
-                                ('STORE-003', stores['Italy']),
-                                ('STORE-004', stores['Spain']),
-                                ('STORE-005', stores['Netherlands'])]:
-            warehouse = Warehouse.objects.create(
-                warehouse_id=f'WH-{store_id[-3:]}',
-                store=store,
-                name=f'Main Warehouse - {store.city}'
-            )
-            warehouses[store.country] = warehouse
-
-        # Create warehouse locations (Aisles, Shelves, Boxes)
-        self.stdout.write('Creating warehouse locations...')
-        aisles = ['A1', 'A2', 'A3']
-        shelves = ['S1', 'S2', 'S3']
-        boxes = ['B01', 'B02', 'B03']
-
-        for product in Product.objects.all():
-            # Choose random warehouse
-            warehouse = random.choice(list(warehouses.values()))
-            
-            # Create multiple locations for each product
-            num_locations = random.randint(3, 8)
-            for _ in range(num_locations):
-                aisle = random.choice(aisles)
-                shelf = random.choice(shelves)
-                box = random.choice(boxes)
-                quantity = random.randint(2, 50)
-                
-                try:
-                    WarehouseLocation.objects.create(
-                        warehouse=warehouse,
-                        product=product,
-                        aisle=aisle,
-                        shelf=shelf,
-                        box=box,
-                        quantity=quantity
-                    )
-                except:
-                    pass  # Ignore duplicates
-
-        # Create inventory
-        self.stdout.write('Creating inventory...')
-        for product in Product.objects.all():
-            for store in Store.objects.all():
-                quantity = random.randint(0, 250)
-                Inventory.objects.create(
-                    product=product,
-                    store=store,
-                    quantity=quantity
-                )
-
-        # Create sales
-        self.stdout.write('Creating sales...')
-        months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-        current_year = timezone.now().year
-
-        for month in months:
-            for store in Store.objects.all():
-                for _ in range(random.randint(10, 30)):
-                    product = random.choice(Product.objects.all())
-                    quantity = random.randint(1, 10)
-                    total = product.price * quantity
-
-                    Sale.objects.create(
-                        product=product,
-                        store=store,
-                        quantity=quantity,
-                        total_amount=total,
-                        month=month,
-                        year=current_year
-                    )
-
-        # Create dashboard metrics
-        self.stdout.write('Creating dashboard metrics...')
-        DashboardMetrics.objects.create(
-            metric_date=timezone.now().date(),
-            total_revenue=Decimal('245820.50'),
-            total_orders=1834,
-            total_products=Product.objects.count(),
-            active_customers=342
+            stores.append(store)
+            store_counter += 1
+    
+    print(f'  ✓ {len(stores)} stores created')
+    
+    # Create categories
+    print('\nCreating product categories...')
+    categories = []
+    category_names = [
+        'Electronics', 'Software', 'Hardware',
+        'Services', 'Consulting', 'Support',
+        'Cloud Services', 'Security'
+    ]
+    
+    for name in category_names:
+        category = Category.objects.create(
+            name=name,
+            description=f'{name} products and services'
         )
+        categories.append(category)
+    
+    print(f'  ✓ {len(categories)} categories created')
+    
+    # Create products
+    print('\nCreating products...')
+    products = []
+    product_data = [
+        ('SKU-0001', 'Server Package', 'Premium server with support'),
+        ('SKU-0002', 'Cloud Suite', 'Cloud infrastructure bundle'),
+        ('SKU-0003', 'Security Edition', 'Advanced security tools'),
+        ('SKU-0004', 'Desktop Pro', 'High-performance workstation'),
+        ('SKU-0005', 'Laptop Elite', 'Professional laptop'),
+        ('SKU-0006', 'Database License', 'Enterprise database software'),
+        ('SKU-0007', 'Support Plan', '24/7 technical support'),
+        ('SKU-0008', 'Backup Solution', 'Automated backup and recovery'),
+        ('SKU-0009', 'Monitoring Tool', 'System monitoring platform'),
+        ('SKU-0010', 'API Gateway', 'API management solution'),
+        ('SKU-0011', 'Network Switch', '48-port managed switch'),
+        ('SKU-0012', 'Router Pro', 'Enterprise router'),
+        ('SKU-0013', 'Storage Array', 'NAS storage solution'),
+        ('SKU-0014', 'Printer Pro', 'Network printer'),
+        ('SKU-0015', 'Scanner Device', 'Document scanner'),
+        ('SKU-0016', 'UPS System', 'Uninterruptible power supply'),
+        ('SKU-0017', 'Rack Cabinet', '42U server rack'),
+        ('SKU-0018', 'Cooling Unit', 'Precision cooling system'),
+        ('SKU-0019', 'Cable Management', 'Structured cabling'),
+        ('SKU-0020', 'Maintenance Kit', 'Annual maintenance package'),
+    ]
+    
+    for sku, name, description in product_data:
+        product = Product.objects.create(
+            sku=sku,
+            name=name,
+            description=description,
+            category=random.choice(categories),
+            price=Decimal(str(random.randint(100, 10000))),
+            status='in-stock'
+        )
+        products.append(product)
+    
+    # Add more products to reach 50+
+    for i in range(30):
+        sku = f'SKU-{1000+i+20:04d}'
+        product = Product.objects.create(
+            sku=sku,
+            name=f'Product {len(products)+1}',
+            description=f'Premium product from {random.choice(categories).name}',
+            category=random.choice(categories),
+            price=Decimal(str(random.randint(100, 5000))),
+            status='in-stock'
+        )
+        products.append(product)
+    
+    print(f'  ✓ {len(products)} products created')
+    
+    # Create warehouses
+    print('\nCreating warehouses...')
+    warehouses = []
+    for i, store in enumerate(stores[:5]):  # Create warehouse for first 5 stores
+        warehouse_id = f'{store.store_id}-WH-{i+1:03d}'
+        warehouse = Warehouse.objects.create(
+            warehouse_id=warehouse_id,
+            store=store,
+            name=f'Warehouse {store.name}'
+        )
+        warehouses.append(warehouse)
+    
+    print(f'  ✓ {len(warehouses)} warehouses created')
+    
+    # Create warehouse locations
+    print('\nCreating warehouse locations...')
+    location_count = 0
+    for warehouse in warehouses:
+        for product in random.sample(products, min(10, len(products))):
+            location = WarehouseLocation.objects.create(
+                warehouse=warehouse,
+                product=product,
+                aisle=f'A{random.randint(1, 5)}',
+                shelf=f'S{random.randint(1, 10)}',
+                box=f'B{random.randint(1, 20)}',
+                quantity=random.randint(10, 100)
+            )
+            location_count += 1
+    
+    print(f'  ✓ {location_count} warehouse locations created')
+    
+    # Create inventory
+    print('\nCreating inventory records...')
+    inventory_count = 0
+    for store in stores:
+        for product in random.sample(products, min(15, len(products))):
+            inventory = Inventory.objects.create(
+                store=store,
+                product=product,
+                quantity=random.randint(5, 200)
+            )
+            inventory_count += 1
+    
+    print(f'  ✓ {inventory_count} inventory records created')
+    
+    # Create sales
+    print('\nCreating sales records...')
+    sale_count = 0
+    for _ in range(50):
+        store = random.choice(stores)
+        product = random.choice(products)
+        quantity = random.randint(1, 10)
+        sale_date = timezone.now() - timedelta(days=random.randint(0, 90))
+        
+        sale = Sale.objects.create(
+            store=store,
+            product=product,
+            quantity=quantity,
+            total_amount=product.price * quantity,
+            sale_date=sale_date,
+            month=sale_date.strftime('%b'),
+            year=sale_date.year
+        )
+        sale_count += 1
+    
+    print(f'  ✓ {sale_count} sales records created')
+    
+    # Create AI agent configurations
+    print('\nConfiguring AI agents...')
+    ai_agents = [
+        ('Sales Analyst', 'Analyzes sales trends and patterns'),
+        ('Inventory Manager', 'Manages inventory levels and alerts'),
+        ('Report Generator', 'Generates comprehensive reports'),
+        ('Trend Predictor', 'Predicts future trends'),
+    ]
+    
+    for name, description in ai_agents:
+        try:
+            agent = AIAgentConfig.objects.create(
+                name=name,
+                model_name='gpt-4',
+                temperature=0.7,
+                max_tokens=2000,
+                system_prompt=f'You are an AI assistant for {name}. {description}'
+            )
+            print(f'  ✓ {name}')
+        except Exception as e:
+            print(f'  ⚠ {name} - {str(e)[:50]}')
+    
+    print('\n✅ Sample data loaded successfully!')
+    print(f'\nCreated:')
+    print(f'  • {len(companies)} Companies')
+    print(f'  • {len(stores)} Stores')
+    print(f'  • {len(products)} Products')
+    print(f'  • {inventory_count} Inventory Records')
+    print(f'  • {sale_count} Sample Sales')
+    print(f'  • Multiple AI Agents')
+    print(f'\nYour dashboard is ready with data!')
 
-        self.stdout.write(self.style.SUCCESS('✓ Database populated successfully!'))
-        self.stdout.write(f'  - {Company.objects.count()} companies')
-        self.stdout.write(f'  - {Store.objects.count()} stores')
-        self.stdout.write(f'  - {Category.objects.count()} categories')
-        self.stdout.write(f'  - {Product.objects.count()} products')
-        self.stdout.write(f'  - {Warehouse.objects.count()} warehouses')
-        self.stdout.write(f'  - {WarehouseLocation.objects.count()} warehouse locations')
-        self.stdout.write(f'  - {Inventory.objects.count()} inventory items')
-        self.stdout.write(f'  - {Sale.objects.count()} sales')
+if __name__ == '__main__':
+    populate_database()
